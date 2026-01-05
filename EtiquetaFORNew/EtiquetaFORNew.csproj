@@ -301,6 +301,7 @@
     </Compile>
     <Compile Include="GerenciadorConfiguracoesEtiqueta.cs" />
     <Compile Include="Impressoramanager.cs" />
+    <Compile Include="IntegracaoExterna.cs" />
     <Compile Include="Localdatabasemanager .cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

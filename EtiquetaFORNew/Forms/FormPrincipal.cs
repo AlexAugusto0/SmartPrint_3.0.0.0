@@ -66,6 +66,12 @@ namespace EtiquetaFORNew
         public string moduloApp = "";
         public bool isConfeccao = false;
 
+        // ========================================
+        // 🔹 CAMPOS PARA IMPORTAÇÃO EXTERNA
+        // ========================================
+        private DadosImportacao _dadosImportacao = null;
+        private bool _modoImportacao = false;
+
 
 
         private static readonly string CAMINHO_CONFIGURACOES =
@@ -210,6 +216,7 @@ namespace EtiquetaFORNew
 
                     MessageBoxIcon.Warning);
 
+              
             }
 
 
@@ -243,6 +250,11 @@ namespace EtiquetaFORNew
             ArredondarBotao(btnImprimir, 12);
 
             ArredondarBotao(BtnAdicionar2, 12);
+
+            if (_modoImportacao && _dadosImportacao != null)
+            {
+                ProcessarImportacaoExterna();
+            }
 
         }
 
@@ -2483,6 +2495,301 @@ namespace EtiquetaFORNew
                     "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        /// <summary>
+        /// Adiciona produto completo ao grid com dados do banco
+        /// </summary>
+        private void AdicionarProdutoAoGrid(Produto produto, ItemImportacao itemImportado)
+        {
+            // Adicionar à lista interna
+            produtos.Add(produto);
+
+            // Adicionar ao DataGridView
+            if (isConfeccao && dgvProdutos.Columns.Contains("colTam") && dgvProdutos.Columns.Contains("colCor"))
+            {
+                // Modo confecção: inclui tamanho e cor
+                dgvProdutos.Rows.Add(
+                    itemImportado.Gerar,           // colSelecionar
+                    produto.Nome,                   // colNome
+                    produto.Codigo,                 // colCodigo
+                    produto.Preco.ToString("C2"),  // colPreco
+                    itemImportado.Quantidade,      // colQuantidade (Qtde)
+                    itemImportado.Tamanho ?? "",   // colTam
+                    itemImportado.Cor ?? ""        // colCor
+                );
+            }
+            else
+            {
+                // Modo normal: sem tamanho e cor
+                dgvProdutos.Rows.Add(
+                    itemImportado.Gerar,           // colSelecionar
+                    produto.Nome,                   // colNome
+                    produto.Codigo,                 // colCodigo
+                    produto.Preco.ToString("C2"),  // colPreco'
+                    itemImportado.Quantidade       // colQuantidade (Qtde)
+                );
+            }
+        }
+
+        /// <summary>
+        /// Adiciona produto básico ao grid quando não foi encontrado no banco
+        /// </summary>
+        private void AdicionarProdutoBasicoAoGrid(ItemImportacao item)
+        {
+            // Criar produto básico
+            var produto = new Produto
+            {
+                Nome = item.Mercadoria,
+                Codigo = item.Codigo,
+                Preco = item.Preco ?? 0,
+                Quantidade = item.Quantidade
+            };
+
+            // Adicionar à lista interna
+            produtos.Add(produto);
+
+            // Adicionar ao DataGridView
+            if (isConfeccao && dgvProdutos.Columns.Contains("colTam") && dgvProdutos.Columns.Contains("colCor"))
+            {
+                // Modo confecção: inclui tamanho e cor
+                dgvProdutos.Rows.Add(
+                    item.Gerar,                    // colSelecionar
+                    item.Mercadoria,               // colNome
+                    item.Codigo ?? "",             // colCodigo
+                    (item.Preco ?? 0).ToString("C2"), // colPreco
+                    item.Quantidade,               // colQuantidade (Qtde)
+                    item.Tamanho ?? "",           // colTam
+                    item.Cor ?? ""                // colCor
+                );
+            }
+            else
+            {
+                // Modo normal: sem tamanho e cor
+                dgvProdutos.Rows.Add(
+                    item.Gerar,                    // colSelecionar
+                    item.Mercadoria,               // colNome
+                    item.Codigo ?? "",             // colCodigo
+                    (item.Preco ?? 0).ToString("C2"), // colPreco
+                    item.Quantidade                // colQuantidade (Qtde)
+                );
+            }
+        }
+        private void ProcessarImportacaoExterna()
+        {
+            if (!_modoImportacao || _dadosImportacao == null || _dadosImportacao.Itens.Count == 0)
+                return;
+
+            try
+            {
+                this.Text = $"SmartPrint - Importação de {_dadosImportacao.FonteImportacao}";
+
+                // ========================================
+                // 🔹 POPULAR GRID COM DADOS IMPORTADOS
+                // ========================================
+                dgvProdutos.Rows.Clear();
+
+                int importadosComSucesso = 0;
+                int importadosComFalha = 0;
+                List<string> erros = new List<string>();
+
+                foreach (var itemImportado in _dadosImportacao.Itens)
+                {
+                    try
+                    {
+                        // Buscar produto completo no banco de dados
+                        Produto produtoCompleto = BuscarProdutoParaImportacao(itemImportado);
+
+                        if (produtoCompleto != null)
+                        {
+                            // Adicionar ao grid
+                            AdicionarProdutoAoGrid(produtoCompleto, itemImportado);
+                            importadosComSucesso++;
+                        }
+                        else
+                        {
+                            // Produto não encontrado - adicionar com dados básicos
+                            AdicionarProdutoBasicoAoGrid(itemImportado);
+                            importadosComSucesso++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        importadosComFalha++;
+                        erros.Add($"Item {itemImportado.Codigo}/{itemImportado.Referencia}: {ex.Message}");
+                    }
+                }
+
+                // ========================================
+                // 🔹 FEEDBACK PARA O USUÁRIO
+                // ========================================
+                //string mensagem = $"✅ Importação concluída!\n\n" +
+                //                $"• Itens importados: {importadosComSucesso}\n";
+
+                //if (importadosComFalha > 0)
+                //{
+                //    mensagem += $"• Itens com erro: {importadosComFalha}\n\n";
+                //    if (erros.Count <= 5)
+                //    {
+                //        mensagem += "Erros:\n" + string.Join("\n", erros);
+                //    }
+                //    else
+                //    {
+                //        mensagem += "Erros:\n" + string.Join("\n", erros.Take(5)) + $"\n... e mais {erros.Count - 5} erros";
+                //    }
+                //}
+
+                //mensagem += $"\n\nFonte: {_dadosImportacao.FonteImportacao}";
+
+                //MessageBox.Show(mensagem, "Importação de Dados",
+                //    MessageBoxButtons.OK,
+                //    importadosComFalha > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+
+                // Focar no grid
+                if (dgvProdutos.Rows.Count > 0)
+                {
+                    dgvProdutos.Focus();
+                    dgvProdutos.CurrentCell = dgvProdutos.Rows[0].Cells[0];
+                }
+
+                // ========================================
+                // 🔹 APLICAR CONFIGURAÇÕES DA IMPORTAÇÃO
+                // ========================================
+                if (_dadosImportacao.Configuracao != null)
+                {
+                    // Auto-imprimir se solicitado
+                    if (_dadosImportacao.Configuracao.AutoImprimir)
+                    {
+                        // Aguardar um pouco para o usuário ver o grid
+                        var timer = new System.Windows.Forms.Timer();
+                        timer.Interval = 1000;
+                        timer.Tick += (s, e) =>
+                        {
+                            timer.Stop();
+                            timer.Dispose();
+                            btnImprimir_Click(this, EventArgs.Empty);
+                        };
+                        timer.Start();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Erro ao processar importação:\n\n{ex.Message}",
+                    "Erro",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+        private Produto BuscarProdutoParaImportacao(ItemImportacao item)
+        {
+            try
+            {
+                // Tentar buscar por código primeiro
+                if (!string.IsNullOrEmpty(item.Codigo))
+                {
+                    var porCodigo = mercadorias?.AsEnumerable()
+                        .FirstOrDefault(r => r["Codigo"]?.ToString() == item.Codigo);
+
+                    if (porCodigo != null)
+                        return ConverterDataRowParaProduto(porCodigo);
+                }
+
+                // Se não encontrou, tentar por referência
+                if (!string.IsNullOrEmpty(item.Referencia))
+                {
+                    var porReferencia = mercadorias?.AsEnumerable()
+                        .FirstOrDefault(r => r["Referencia"]?.ToString() == item.Referencia);
+
+                    if (porReferencia != null)
+                        return ConverterDataRowParaProduto(porReferencia);
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        private Produto ConverterDataRowParaProduto(DataRow row)
+        {
+            try
+            {
+                var produto = new Produto
+                {
+                    // ⭐ NOMES CORRETOS DAS COLUNAS DA SUA TABELA:
+                    Codigo = row["CodigoMercadoria"]?.ToString() ?? "",      // Era "Codigo"
+                    Nome = row["Mercadoria"]?.ToString() ?? "",               // Era "Descricao"
+                    CodFabricante = row["CodFabricante"]?.ToString() ?? "",  // Era "Referencia"
+                    CodBarras = row["CodBarras"]?.ToString() ?? "",           // Era "CodBarra"
+                    Quantidade = 1
+                };
+
+                // ⭐ PREÇO: Tentar PrecoVenda primeiro, depois VendaD como fallback
+                if (row.Table.Columns.Contains("PrecoVenda") && row["PrecoVenda"] != DBNull.Value)
+                {
+                    produto.Preco = Convert.ToDecimal(row["PrecoVenda"]);
+                    produto.PrecoVenda = produto.Preco;
+                }
+                else if (row.Table.Columns.Contains("VendaD") && row["VendaD"] != DBNull.Value)
+                {
+                    produto.Preco = Convert.ToDecimal(row["VendaD"]);
+                    produto.VendaD = produto.Preco;
+                }
+
+                // ⭐ PREÇOS ALTERNATIVOS (com verificação de existência da coluna)
+                if (row.Table.Columns.Contains("VendaA") && row["VendaA"] != DBNull.Value)
+                    produto.VendaA = Convert.ToDecimal(row["VendaA"]);
+
+                if (row.Table.Columns.Contains("VendaB") && row["VendaB"] != DBNull.Value)
+                    produto.VendaB = Convert.ToDecimal(row["VendaB"]);
+
+                if (row.Table.Columns.Contains("VendaC") && row["VendaC"] != DBNull.Value)
+                    produto.VendaC = Convert.ToDecimal(row["VendaC"]);
+
+                if (row.Table.Columns.Contains("VendaD") && row["VendaD"] != DBNull.Value)
+                    produto.VendaD = Convert.ToDecimal(row["VendaD"]);
+
+                if (row.Table.Columns.Contains("VendaE") && row["VendaE"] != DBNull.Value)
+                    produto.VendaE = Convert.ToDecimal(row["VendaE"]);
+
+                // ⭐ CAMPOS ADICIONAIS (com verificação de existência)
+                if (row.Table.Columns.Contains("Fornecedor"))
+                    produto.Fornecedor = row["Fornecedor"]?.ToString() ?? "";
+
+                if (row.Table.Columns.Contains("Fabricante"))
+                    produto.Fabricante = row["Fabricante"]?.ToString() ?? "";
+
+                if (row.Table.Columns.Contains("Grupo"))
+                    produto.Grupo = row["Grupo"]?.ToString() ?? "";
+
+                if (row.Table.Columns.Contains("Prateleira"))
+                    produto.Prateleira = row["Prateleira"]?.ToString() ?? "";
+
+                if (row.Table.Columns.Contains("Garantia"))
+                    produto.Garantia = row["Garantia"]?.ToString() ?? "";
+
+                // ⭐ CAMPOS DE CONFECÇÃO (se aplicável)
+                if (isConfeccao)
+                {
+                    if (row.Table.Columns.Contains("Tam"))
+                        produto.Tam = row["Tam"]?.ToString() ?? "";
+
+                    if (row.Table.Columns.Contains("Cores"))
+                        produto.Cores = row["Cores"]?.ToString() ?? "";
+
+                    if (row.Table.Columns.Contains("CodBarras_Grade"))
+                        produto.CodBarras_Grade = row["CodBarras_Grade"]?.ToString() ?? "";
+                }
+
+                return produto;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao converter produto: {ex.Message}");
+            }
+        }
+
 
         // ✅ MÉTODO CORRIGIDO - SUBSTITUIR NO FormPrincipal.cs A PARTIR DA LINHA 2487
 
@@ -2573,11 +2880,22 @@ namespace EtiquetaFORNew
                 dgvProdutos.Rows.Add(false, produto.Nome, produto.Codigo,
                     produto.Preco.ToString("C2"), produto.Quantidade);
             }
+
+
+
         }
-    }
+        public FormPrincipal(DadosImportacao dadosImportacao) : this()
+        {
+            _dadosImportacao = dadosImportacao;
+            _modoImportacao = true;
+
+        }
 
 
     }
+
+
+}
 
 
 
