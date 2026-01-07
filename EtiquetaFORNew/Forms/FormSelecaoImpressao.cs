@@ -23,6 +23,7 @@ namespace EtiquetaFORNew.Forms
         public FormSelecaoImpressao()
         {
             InitializeComponent();
+            VersaoHelper.DefinirTituloComVersao(this, "Seleção de Impressão");
             this.Text = "Configuração de Impressão";
             this.Size = new Size(500, 400);
             this.StartPosition = FormStartPosition.CenterParent;

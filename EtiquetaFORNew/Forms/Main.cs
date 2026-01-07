@@ -36,11 +36,9 @@ namespace EtiquetaFORNew
             ArredondarPainel(panel2, 30);
             panel1.Resize += (s, ev) => ArredondarPainel(panel1, 30);
 
-            var assembly = Assembly.GetExecutingAssembly();
-            var fileInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-            string versao = $"{fileInfo.FileVersion}"; 
-
-            Versao.Text = versao;
+            // Aplicar versão usando helper
+            VersaoHelper.AplicarVersaoLabel(Versao);
+            VersaoHelper.DefinirTituloComVersao(this);
         }
 
 

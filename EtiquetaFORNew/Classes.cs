@@ -54,6 +54,9 @@ namespace EtiquetaFORNew
         // ✅ NOVA PROPRIEDADE: Alinhamento do texto
         public StringAlignment Alinhamento { get; set; }
 
+        // ✅ NOVA PROPRIEDADE: Nome da família da fonte escolhida
+        public string NomeFonte { get; set; }
+
         public ElementoEtiqueta()
         {
             Fonte = new Font("Arial", 10);

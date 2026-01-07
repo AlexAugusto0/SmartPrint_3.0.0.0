@@ -518,6 +518,7 @@
             this.btnCarregar.TabIndex = 7;
             this.btnCarregar.Text = "📥 Carregar";
             this.btnCarregar.UseVisualStyleBackColor = false;
+            this.btnCarregar.Visible = false;
             this.btnCarregar.Click += new System.EventHandler(this.btnCarregar_Click);
             // 
             // FormPrincipal

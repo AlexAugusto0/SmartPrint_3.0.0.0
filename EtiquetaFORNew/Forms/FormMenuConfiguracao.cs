@@ -15,6 +15,7 @@ namespace EtiquetaFORNew.Forms
         public FormMenuConfiguracao()
         {
             InitializeComponent();
+            VersaoHelper.DefinirTituloComVersao(this, "Menu de Configurações");
             ConfigurarVisualForm();
         }
         private void ConfigurarVisualForm()

@@ -40,6 +40,7 @@ namespace EtiquetaFORNew
         public FormImpressao(List<Produto> produtos, TemplateEtiqueta template, ConfiguracaoEtiqueta configuracao = null)
         {
             InitializeComponent();
+            VersaoHelper.DefinirTituloComVersao(this, "Visualização de Impressão");
             this.produtos = produtos;
             this.template = template;
             this.configuracaoEtiqueta = configuracao ?? CriarConfiguracaoPadrao();
@@ -539,7 +540,7 @@ namespace EtiquetaFORNew
                 b.Height = alturaPixels;
 
                 //Aparecer o digito do código de barras na impressão
-                    b.IncludeLabel = false;
+                b.IncludeLabel = false;
                 //
                 b.Alignment = AlignmentPositions.Center;
                 b.ForeColor = SKColors.Black;

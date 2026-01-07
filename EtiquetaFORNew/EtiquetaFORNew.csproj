@@ -308,6 +308,7 @@
     <Compile Include="TemplateManager.cs" />
     <Compile Include="TemplatePadraoManager.cs" />
     <Compile Include="TemplatesPreDefinidos.cs" />
+    <Compile Include="VersaoHelper.cs" />
     <EmbeddedResource Include="Forms\ConfigForm.resx">
       <DependentUpon>ConfigForm.cs</DependentUpon>
     </EmbeddedResource>

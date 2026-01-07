@@ -138,6 +138,7 @@ namespace EtiquetaFORNew
             // ========================================
             try
             {
+                VersaoHelper.DefinirTituloComVersao(this, "Menu Principal");
                 var config = Data.DatabaseConfig.LoadConfiguration();
                 moduloApp = config.ModuloApp ?? "";
                 isConfeccao = moduloApp.Equals("CONFECCAO", StringComparison.OrdinalIgnoreCase);
@@ -216,7 +217,7 @@ namespace EtiquetaFORNew
 
                     MessageBoxIcon.Warning);
 
-              
+
             }
 
 
@@ -1753,129 +1754,88 @@ namespace EtiquetaFORNew
             cmbBuscaNome.Focus(); // ou o campo que você deseja que comece a próxima busca
 
         }
+            
 
         private void ComboBoxBusca_KeyDown(object sender, KeyEventArgs e)
-
         {
-
             ComboBox cmb = (ComboBox)sender;
 
-
-
-            if (e.KeyCode == Keys.Enter)
-
+            // ✅ NOVA FUNCIONALIDADE: Tecla ESC limpa o conteúdo da ComboBox
+            if (e.KeyCode == Keys.Escape)
             {
-
-                // 1. Bloqueia a propagação imediata do Enter
-
                 e.Handled = true;
-
                 e.SuppressKeyPress = true;
 
+                // Limpa o texto digitado
+                cmb.Text = "";
+                cmb.SelectedIndex = -1;
 
+                // Fecha o dropdown se estiver aberto
+                if (cmb.DroppedDown)
+                {
+                    cmb.DroppedDown = false;
+                }
+
+                return;
+            }
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                // 1. Bloqueia a propagação imediata do Enter
+                e.Handled = true;
+                e.SuppressKeyPress = true;
 
                 string nomeCampo = GetNomeCampoBusca(cmb);
-
                 if (nomeCampo == null) return;
 
-
-
                 // Pega o texto atual (parcial ou completo) digitado pelo usuário.
-
                 string termoDigitado = cmb.Text.Trim();
-
                 string termoCompleto = termoDigitado; // Valor padrão para o caso de falha na busca
-
-
 
                 if (string.IsNullOrWhiteSpace(termoDigitado)) return;
 
-
-
                 // 2. FORÇA A FINALIZAÇÃO DO AUTOCOMPLETE (Ainda importante para atualizar índices)
-
                 if (cmb.DroppedDown)
-
                 {
-
                     cmb.DroppedDown = false;
-
                     Application.DoEvents(); // Força o processamento de eventos pendentes
-
                 }
-
-
 
                 // 3. TENTA PEGAR O NOME COMPLETO PELO SelectedItem
-
                 if (cmb.SelectedIndex >= 0 && cmb.SelectedItem != null)
-
                 {
-
                     // Tenta pegar a string completa do item que foi selecionado
-
                     termoCompleto = cmb.GetItemText(cmb.SelectedItem);
-
                 }
-
                 else
-
                 {
-
                     // 4. BUSCA MANUALMENTE O NOME COMPLETO NA LISTA (A CHAVE DA CORREÇÃO)
-
                     // Itera sobre todos os itens e procura por um que comece com o que o usuário digitou.
-
                     foreach (object item in cmb.Items)
-
                     {
-
                         string itemText = cmb.GetItemText(item);
 
-
-
                         // Compara se o item completo da lista começa com o texto digitado
-
                         if (itemText.StartsWith(termoDigitado, StringComparison.OrdinalIgnoreCase))
-
                         {
-
                             // Encontramos o termo completo e correto (Ex: "Fone de Ouvido GameNote (s/fio)")
-
                             termoCompleto = itemText;
-
                             break;
-
                         }
-
                     }
-
                 }
 
-
-
                 // 5. ATUALIZA O TEXTO VISUAL DO COMBOBOX PARA O NOME COMPLETO
-
                 // Isso resolve o problema de visualização truncada (opcional, mas recomendado).
-
                 cmb.Text = termoCompleto;
 
-
-
                 // 6. EXECUTA A LÓGICA DE SELEÇÃO com o termo garantido
-
                 AdicionarProdutoSelecionado(termoCompleto, nomeCampo, cmb);
 
-
-
                 // Move o foco para a quantidade ou próximo campo
-
                 numQtd.Focus();
-
                 numQtd.Select(0, numQtd.Text.Length);
-
             }
-
         }
 
         private string GetNomeCampoBusca(ComboBox cmb)
@@ -2449,7 +2409,7 @@ namespace EtiquetaFORNew
 
                         // Buscar mercadorias com os filtros
                         DataTable mercadoriasFiltradas = LocalDatabaseManager.BuscarMercadoriasPorFiltros(
-                            grupo, fabricante, fornecedor,isConfeccao);
+                            grupo, fabricante, fornecedor, isConfeccao);
 
                         if (mercadoriasFiltradas != null && mercadoriasFiltradas.Rows.Count > 0)
                         {
@@ -2989,12 +2949,3 @@ namespace EtiquetaFORNew
 
 
 }
-
-
-
-
-
-
-
-
-       

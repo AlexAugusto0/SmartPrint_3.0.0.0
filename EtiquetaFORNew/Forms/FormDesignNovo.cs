@@ -49,6 +49,8 @@ namespace EtiquetaFORNew.Forms
         private CheckBox chkItalico;
         private Button btnCor;
         private Label lblPropriedadesElemento;
+        private ComboBox cmbFonte;  // ✅ NOVO: ComboBox de seleção de fonte
+
 
         // Toolbox de elementos
         private Panel panelToolbox;
@@ -116,6 +118,7 @@ namespace EtiquetaFORNew.Forms
 
         private void FormDesignNovo_Load(object sender, EventArgs e)
         {
+            VersaoHelper.DefinirTituloComVersao(this, "Designer de Etiquetas");
             CriarInterface();
             CarregarDadosNaInterface();
 
@@ -770,7 +773,7 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades = new Panel
             {
                 Location = new Point(10, 400),
-                Size = new Size(180, 320),
+                Size = new Size(180, 350),
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
                 Visible = false  // Invisível até selecionar elemento
@@ -878,6 +881,35 @@ namespace EtiquetaFORNew.Forms
             btnAlinharDireita.Click += (s, e) => AlterarAlinhamento(StringAlignment.Far);
             panelPropriedades.Controls.Add(btnAlinharDireita);
             yPos += 45;
+
+            // ✅ NOVO: Seleção de Fonte
+            Label lblFamilia = new Label
+            {
+                Text = "Família da Fonte:",
+                Location = new Point(10, yPos),
+                Size = new Size(160, 20),
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                ForeColor = Color.Gray
+            };
+            panelPropriedades.Controls.Add(lblFamilia);
+            yPos += 25;
+
+            cmbFonte = new ComboBox
+            {
+                Location = new Point(10, yPos),
+                Size = new Size(160, 23),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 9)
+            };
+
+            // Adiciona as fontes disponíveis
+            foreach (var fontFamily in FontFamily.Families)
+            {
+                cmbFonte.Items.Add(fontFamily.Name);
+            }
+            cmbFonte.SelectedIndexChanged += CmbFonte_SelectedIndexChanged;
+            panelPropriedades.Controls.Add(cmbFonte);
+            yPos += 35;
 
             // Label Fonte
             Label lblFonte = new Label
@@ -991,6 +1023,7 @@ namespace EtiquetaFORNew.Forms
             var elemento = new ElementoEtiqueta
             {
                 Tipo = tipo,
+                NomeFonte = "Arial",
                 Fonte = new Font("Arial", 10),
                 Cor = Color.Black
             };
@@ -1121,6 +1154,17 @@ namespace EtiquetaFORNew.Forms
                 numTamanhoFonte.Value = (decimal)elementoSelecionado.Fonte.Size;
                 chkNegrito.Checked = elementoSelecionado.Fonte.Bold;
                 chkItalico.Checked = elementoSelecionado.Fonte.Italic;
+
+                // ✅ NOVO: Atualiza ComboBox de fonte
+                string nomeFonte = elementoSelecionado.NomeFonte ?? elementoSelecionado.Fonte.FontFamily.Name;
+                if (cmbFonte.Items.Contains(nomeFonte))
+                {
+                    cmbFonte.SelectedItem = nomeFonte;
+                }
+                else
+                {
+                    cmbFonte.SelectedIndex = -1;
+                }
             }
 
             btnCor.BackColor = elementoSelecionado.Cor;
@@ -1188,6 +1232,28 @@ namespace EtiquetaFORNew.Forms
             pbCanvas.Invalidate();
         }
 
+        private void CmbFonte_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (elementoSelecionado == null || elementoSelecionado.Fonte == null) return;
+            if (cmbFonte.SelectedItem == null) return;
+
+            string nomeFonte = cmbFonte.SelectedItem.ToString();
+            float tamanho = elementoSelecionado.Fonte.Size;
+            FontStyle estilo = elementoSelecionado.Fonte.Style;
+
+            try
+            {
+                elementoSelecionado.NomeFonte = nomeFonte;
+                elementoSelecionado.Fonte = new Font(nomeFonte, tamanho, estilo);
+                pbCanvas.Invalidate();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao aplicar fonte: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void AlterarTamanhoFonte()
         {
             if (elementoSelecionado == null || elementoSelecionado.Fonte == null) return;
@@ -1195,7 +1261,8 @@ namespace EtiquetaFORNew.Forms
             float novoTamanho = (float)numTamanhoFonte.Value;
             FontStyle estilo = elementoSelecionado.Fonte.Style;
 
-            elementoSelecionado.Fonte = new Font(elementoSelecionado.Fonte.FontFamily, novoTamanho, estilo);
+            string nomeFonte = elementoSelecionado.NomeFonte ?? elementoSelecionado.Fonte.FontFamily.Name;
+            elementoSelecionado.Fonte = new Font(nomeFonte, novoTamanho, estilo);
             pbCanvas.Invalidate();
         }
 
@@ -1211,8 +1278,9 @@ namespace EtiquetaFORNew.Forms
             if (chkItalico.Checked)
                 estilo |= FontStyle.Italic;
 
+            string nomeFonte = elementoSelecionado.NomeFonte ?? elementoSelecionado.Fonte.FontFamily.Name;
             elementoSelecionado.Fonte = new Font(
-                elementoSelecionado.Fonte.FontFamily,
+                nomeFonte,
                 elementoSelecionado.Fonte.Size,
                 estilo);
 
