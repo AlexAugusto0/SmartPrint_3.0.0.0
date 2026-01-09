@@ -54,6 +54,7 @@ namespace EtiquetaFORNew.Forms
 
         // Toolbox de elementos
         private Panel panelToolbox;
+        private RectangleF boundsIniciaisEmMM;
 
         // Controles de elementos e seleção
         private ElementoEtiqueta elementoSelecionado;
@@ -1685,11 +1686,19 @@ namespace EtiquetaFORNew.Forms
                 Rectangle bounds = ConverterParaPixels(elementoSelecionado.Bounds, rectEtiqueta);
                 handleSelecionado = ObterHandleClicado(e.Location, bounds);
 
+                //if (handleSelecionado >= 0)
+                //{
+                //    redimensionando = true;
+                //    pontoInicialMouse = e.Location;
+                //    boundsIniciais = bounds;
+                //    return;
+                //}
                 if (handleSelecionado >= 0)
                 {
                     redimensionando = true;
                     pontoInicialMouse = e.Location;
                     boundsIniciais = bounds;
+                    boundsIniciaisEmMM = elementoSelecionado.Bounds; // ⭐ SALVAR EM MM
                     return;
                 }
 
@@ -1798,83 +1807,90 @@ namespace EtiquetaFORNew.Forms
             }
 
             // Redimensionando elemento único
+            // Redimensionando elemento único
             if (redimensionando && elementoSelecionado != null)
             {
-                int deltaX = e.X - pontoInicialMouse.X;
-                int deltaY = e.Y - pontoInicialMouse.Y;
+                // Calcular delta em MM (não em pixels)
+                float deltaXMM = (e.X - pontoInicialMouse.X) / (MM_PARA_PIXEL * zoom);
+                float deltaYMM = (e.Y - pontoInicialMouse.Y) / (MM_PARA_PIXEL * zoom);
 
-                Rectangle newBounds = boundsIniciais;
+                RectangleF newBoundsMM = boundsIniciaisEmMM; // ⭐ USAR BOUNDS EM MM
 
                 switch (handleSelecionado)
                 {
                     case 0:  // Canto superior esquerdo
-                        newBounds = new Rectangle(
-                            boundsIniciais.X + deltaX,
-                            boundsIniciais.Y + deltaY,
-                            boundsIniciais.Width - deltaX,
-                            boundsIniciais.Height - deltaY);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X + deltaXMM,
+                            boundsIniciaisEmMM.Y + deltaYMM,
+                            boundsIniciaisEmMM.Width - deltaXMM,
+                            boundsIniciaisEmMM.Height - deltaYMM);
                         break;
 
                     case 1:  // Canto superior direito
-                        newBounds = new Rectangle(
-                            boundsIniciais.X,
-                            boundsIniciais.Y + deltaY,
-                            boundsIniciais.Width + deltaX,
-                            boundsIniciais.Height - deltaY);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X,
+                            boundsIniciaisEmMM.Y + deltaYMM,
+                            boundsIniciaisEmMM.Width + deltaXMM,
+                            boundsIniciaisEmMM.Height - deltaYMM);
                         break;
 
                     case 2:  // Canto inferior direito
-                        newBounds = new Rectangle(
-                            boundsIniciais.X,
-                            boundsIniciais.Y,
-                            boundsIniciais.Width + deltaX,
-                            boundsIniciais.Height + deltaY);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X,
+                            boundsIniciaisEmMM.Y,
+                            boundsIniciaisEmMM.Width + deltaXMM,
+                            boundsIniciaisEmMM.Height + deltaYMM);
                         break;
 
                     case 3:  // Canto inferior esquerdo
-                        newBounds = new Rectangle(
-                            boundsIniciais.X + deltaX,
-                            boundsIniciais.Y,
-                            boundsIniciais.Width - deltaX,
-                            boundsIniciais.Height + deltaY);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X + deltaXMM,
+                            boundsIniciaisEmMM.Y,
+                            boundsIniciaisEmMM.Width - deltaXMM,
+                            boundsIniciaisEmMM.Height + deltaYMM);
                         break;
 
                     case 4:  // Lado superior (centro)
-                        newBounds = new Rectangle(
-                            boundsIniciais.X,
-                            boundsIniciais.Y + deltaY,
-                            boundsIniciais.Width,
-                            boundsIniciais.Height - deltaY);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X,
+                            boundsIniciaisEmMM.Y + deltaYMM,
+                            boundsIniciaisEmMM.Width,
+                            boundsIniciaisEmMM.Height - deltaYMM);
                         break;
 
                     case 5:  // Lado direito (centro)
-                        newBounds = new Rectangle(
-                            boundsIniciais.X,
-                            boundsIniciais.Y,
-                            boundsIniciais.Width + deltaX,
-                            boundsIniciais.Height);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X,
+                            boundsIniciaisEmMM.Y,
+                            boundsIniciaisEmMM.Width + deltaXMM,
+                            boundsIniciaisEmMM.Height);
                         break;
 
                     case 6:  // Lado inferior (centro)
-                        newBounds = new Rectangle(
-                            boundsIniciais.X,
-                            boundsIniciais.Y,
-                            boundsIniciais.Width,
-                            boundsIniciais.Height + deltaY);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X,
+                            boundsIniciaisEmMM.Y,
+                            boundsIniciaisEmMM.Width,
+                            boundsIniciaisEmMM.Height + deltaYMM);
                         break;
 
                     case 7:  // Lado esquerdo (centro)
-                        newBounds = new Rectangle(
-                            boundsIniciais.X + deltaX,
-                            boundsIniciais.Y,
-                            boundsIniciais.Width - deltaX,
-                            boundsIniciais.Height);
+                        newBoundsMM = new RectangleF(
+                            boundsIniciaisEmMM.X + deltaXMM,
+                            boundsIniciaisEmMM.Y,
+                            boundsIniciaisEmMM.Width - deltaXMM,
+                            boundsIniciaisEmMM.Height);
                         break;
                 }
 
-                if (newBounds.Width >= 10 && newBounds.Height >= 5)
+                // Validar tamanho mínimo (em MM)
+                float minWidthMM = 10 / (MM_PARA_PIXEL * zoom);
+                float minHeightMM = 5 / (MM_PARA_PIXEL * zoom);
+
+                if (newBoundsMM.Width >= minWidthMM && newBoundsMM.Height >= minHeightMM)
                 {
-                    elementoSelecionado.Bounds = ConverterParaMM(newBounds, rectEtiqueta);
+                    // ⭐ ATUALIZAR DIRETAMENTE EM MM (sem conversão intermediária)
+                    elementoSelecionado.Bounds = Rectangle.Round(newBoundsMM);
                     pbCanvas.Invalidate();
                 }
             }
