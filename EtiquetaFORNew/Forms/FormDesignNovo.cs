@@ -1538,12 +1538,12 @@ namespace EtiquetaFORNew.Forms
                 case "CodigoMercadoria": return produto.Codigo ?? "";
                 case "CodFabricante": return produto.CodFabricante ?? "";
                 case "CodBarras": return produto.CodBarras ?? "";
-                case "PrecoVenda": return produto.Preco.ToString("C2");
-                case "VendaA": return produto.Preco.ToString("C2");
-                case "VendaB": return produto.Preco.ToString("C2");
-                case "VendaC": return produto.Preco.ToString("C2");
-                case "VendaD": return produto.Preco.ToString("C2");
-                case "VendaE": return produto.Preco.ToString("C2");
+                case "PrecoVenda": return produto.Preco.ToString("F2");
+                case "VendaA": return produto.Preco.ToString("F2");
+                case "VendaB": return produto.Preco.ToString("F2");
+                case "VendaC": return produto.Preco.ToString("F2");
+                case "VendaD": return produto.Preco.ToString("F2");
+                case "VendaE": return produto.Preco.ToString("F2");
                 case "Fornecedor": return produto.Nome ?? "";
                 case "Fabricante": return produto.Nome ?? "";
                 case "Grupo": return "";
@@ -1554,12 +1554,12 @@ namespace EtiquetaFORNew.Forms
                 case "CodBarras_Grade": return produto.CodBarras_Grade ?? "";
                 case "PrecoOriginal":
                     return produto.PrecoOriginal.HasValue ?
-                           produto.PrecoOriginal.Value.ToString("C2") :
+                           produto.PrecoOriginal.Value.ToString("F2") :
                            produto.Preco.ToString("C2");
 
                 case "PrecoPromocional":
                     return produto.PrecoPromocional.HasValue ?
-                           produto.PrecoPromocional.Value.ToString("C2") :
+                           produto.PrecoPromocional.Value.ToString("F2") :
                            produto.Preco.ToString("C2");
                 default: return "";
             }
