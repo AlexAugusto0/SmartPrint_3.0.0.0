@@ -62,6 +62,9 @@ namespace EtiquetaFORNew
         // ✅ NOVA PROPRIEDADE: Nome da família da fonte escolhida
         public string NomeFonte { get; set; }
 
+        // ⭐ NOVA PROPRIEDADE: Cor de fundo do elemento (espaço ao redor do texto)
+        public Color? CorFundo { get; set; }
+
         public ElementoEtiqueta()
         {
             Fonte = new Font("Arial", 10);

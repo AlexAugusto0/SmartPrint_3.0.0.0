@@ -48,6 +48,10 @@ namespace EtiquetaFORNew.Forms
         private CheckBox chkNegrito;
         private CheckBox chkItalico;
         private Button btnCor;
+        private Button btnCorFundo;
+        private Button btnFundoPreto;
+        private Button btnFundoBranco;
+        private Button btnFundoTransparente;
         private Label lblPropriedadesElemento;
         private ComboBox cmbFonte;  // ✅ NOVO: ComboBox de seleção de fonte
 
@@ -781,7 +785,8 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades = new Panel
             {
                 Location = new Point(10, 400),
-                Size = new Size(180, 350),
+                Size = new Size(180, 600),
+                AutoScroll = true,
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
                 Visible = false  // Invisível até selecionar elemento
@@ -1000,6 +1005,130 @@ namespace EtiquetaFORNew.Forms
             };
             btnCor.Click += BtnCor_Click;
             panelPropriedades.Controls.Add(btnCor);
+            yPos += 35;
+
+            // ⭐ NOVO: Botões rápidos de cor de texto (Preto/Branco)
+            Label lblCoresRapidas = new Label
+            {
+                Text = "Atalhos:",
+                Location = new Point(10, yPos),
+                Size = new Size(70, 20),
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                ForeColor = Color.Gray
+            };
+            panelPropriedades.Controls.Add(lblCoresRapidas);
+
+            Button btnTextoPreto = new Button
+            {
+                Text = "T▓",
+                Location = new Point(85, yPos),
+                Size = new Size(40, 25),
+                BackColor = Color.Black,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 9, FontStyle.Bold)
+            };
+            btnTextoPreto.Click += (s, e) => AplicarCorTexto(Color.Black);
+            panelPropriedades.Controls.Add(btnTextoPreto);
+
+            Button btnTextoBranco = new Button
+            {
+                Text = "T▓",
+                Location = new Point(130, yPos),
+                Size = new Size(40, 25),
+                BackColor = Color.White,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 9, FontStyle.Bold)
+            };
+            btnTextoBranco.Click += (s, e) => AplicarCorTexto(Color.White);
+            panelPropriedades.Controls.Add(btnTextoBranco);
+            yPos += 35;
+
+            // ⭐ NOVO: Cor de Fundo
+            Label lblCorFundo = new Label
+            {
+                Text = "Cor de Fundo:",
+                Location = new Point(10, yPos),
+                Size = new Size(160, 20),
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                ForeColor = Color.Gray
+            };
+            panelPropriedades.Controls.Add(lblCorFundo);
+            yPos += 25;
+
+            btnCorFundo = new Button
+            {
+                Text = "Escolher Fundo",
+                Location = new Point(10, yPos),
+                Size = new Size(160, 30),
+                BackColor = Color.Transparent,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnCorFundo.Click += BtnCorFundo_Click;
+            panelPropriedades.Controls.Add(btnCorFundo);
+            yPos += 35;
+
+            // ⭐ NOVO: Botões rápidos de cor de fundo
+            Label lblFundoRapido = new Label
+            {
+                Text = "Atalhos:",
+                Location = new Point(10, yPos),
+                Size = new Size(70, 20),
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                ForeColor = Color.Gray
+            };
+            panelPropriedades.Controls.Add(lblFundoRapido);
+
+            btnFundoPreto = new Button
+            {
+                Text = "▓",
+                Location = new Point(50, yPos),
+                Size = new Size(35, 25),
+                BackColor = Color.Black,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            btnFundoPreto.Click += (s, e) => AplicarCorFundo(Color.Black);
+            panelPropriedades.Controls.Add(btnFundoPreto);
+
+            btnFundoBranco = new Button
+            {
+                Text = "▓",
+                Location = new Point(90, yPos),
+                Size = new Size(35, 25),
+                BackColor = Color.White,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            btnFundoBranco.Click += (s, e) => AplicarCorFundo(Color.White);
+            panelPropriedades.Controls.Add(btnFundoBranco);
+
+            btnFundoTransparente = new Button
+            {
+                Text = "Ø",
+                Location = new Point(130, yPos),
+                Size = new Size(40, 25),
+                BackColor = Color.LightGray,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            btnFundoTransparente.Click += (s, e) => AplicarCorFundo(null);
+            panelPropriedades.Controls.Add(btnFundoTransparente);
+
+            Cursor = Cursors.Hand;
+        btnCor.Click += BtnCor_Click;
+            panelPropriedades.Controls.Add(btnCor);
         }
 
         private Button CriarBotaoElemento(string texto, int yPos, Action onClick)
@@ -1178,6 +1307,18 @@ namespace EtiquetaFORNew.Forms
             btnCor.BackColor = elementoSelecionado.Cor;
             btnCor.ForeColor = elementoSelecionado.Cor.GetBrightness() > 0.5 ? Color.Black : Color.White;
 
+            // ⭐ ATUALIZAR cor de fundo
+            if (elementoSelecionado.CorFundo.HasValue)
+            {
+                btnCorFundo.BackColor = elementoSelecionado.CorFundo.Value;
+                btnCorFundo.ForeColor = elementoSelecionado.CorFundo.Value.GetBrightness() > 0.5 ? Color.Black : Color.White;
+            }
+            else
+            {
+                btnCorFundo.BackColor = Color.Transparent;
+                btnCorFundo.ForeColor = Color.Black;
+            }
+
             // Atualiza visual dos botões de alinhamento
             AtualizarBotoesAlinhamento();
             panelToolbox.ScrollControlIntoView(panelPropriedades);
@@ -1301,20 +1442,84 @@ namespace EtiquetaFORNew.Forms
 
         private void BtnCor_Click(object sender, EventArgs e)
         {
-            if (elementoSelecionado == null) return;
+            if (elementoSelecionado == null && elementosSelecionados.Count == 0) return;
 
             using (ColorDialog colorDialog = new ColorDialog())
             {
-                colorDialog.Color = elementoSelecionado.Cor;
+                colorDialog.Color = elementoSelecionado?.Cor ?? Color.Black;
 
                 if (colorDialog.ShowDialog() == DialogResult.OK)
                 {
-                    elementoSelecionado.Cor = colorDialog.Color;
-                    btnCor.BackColor = colorDialog.Color;
-                    btnCor.ForeColor = colorDialog.Color.GetBrightness() > 0.5 ? Color.Black : Color.White;
-                    pbCanvas.Invalidate();
+                    AplicarCorTexto(colorDialog.Color);
                 }
             }
+        }
+
+        private void BtnCorFundo_Click(object sender, EventArgs e)
+        {
+            if (elementoSelecionado == null && elementosSelecionados.Count == 0) return;
+
+            using (ColorDialog colorDialog = new ColorDialog())
+            {
+                colorDialog.Color = elementoSelecionado?.CorFundo ?? Color.Transparent;
+
+                if (colorDialog.ShowDialog() == DialogResult.OK)
+                {
+                    AplicarCorFundo(colorDialog.Color);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ⭐ NOVO: Aplica cor do texto a todos os elementos selecionados
+        /// </summary>
+        private void AplicarCorTexto(Color cor)
+        {
+            if (elementosSelecionados.Count > 0)
+            {
+                foreach (var elem in elementosSelecionados)
+                {
+                    elem.Cor = cor;
+                }
+            }
+            else if (elementoSelecionado != null)
+            {
+                elementoSelecionado.Cor = cor;
+            }
+
+            btnCor.BackColor = cor;
+            btnCor.ForeColor = cor.GetBrightness() > 0.5 ? Color.Black : Color.White;
+            pbCanvas.Invalidate();
+        }
+
+        /// <summary>
+        /// ⭐ NOVO: Aplica cor de fundo a todos os elementos selecionados
+        /// </summary>
+        private void AplicarCorFundo(Color? cor)
+        {
+            if (elementosSelecionados.Count > 0)
+            {
+                foreach (var elem in elementosSelecionados)
+                {
+                    elem.CorFundo = cor;
+                }
+            }
+            else if (elementoSelecionado != null)
+            {
+                elementoSelecionado.CorFundo = cor;
+            }
+
+            if (cor.HasValue)
+            {
+                btnCorFundo.BackColor = cor.Value;
+                btnCorFundo.ForeColor = cor.Value.GetBrightness() > 0.5 ? Color.Black : Color.White;
+            }
+            else
+            {
+                btnCorFundo.BackColor = Color.Transparent;
+                btnCorFundo.ForeColor = Color.Black;
+            }
+            pbCanvas.Invalidate();
         }
 
         #endregion
@@ -1487,6 +1692,15 @@ namespace EtiquetaFORNew.Forms
                 g.TranslateTransform(-centro.X, -centro.Y);
             }
 
+
+            // ⭐ NOVO: Desenhar cor de fundo se definida
+            if (elem.CorFundo.HasValue && elem.CorFundo.Value != Color.Transparent)
+            {
+                using (SolidBrush fundoBrush = new SolidBrush(elem.CorFundo.Value))
+                {
+                    g.FillRectangle(fundoBrush, bounds);
+                }
+            }
             switch (elem.Tipo)
             {
                 case TipoElemento.Texto:

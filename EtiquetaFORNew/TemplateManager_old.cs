@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,6 +81,22 @@ namespace EtiquetaFORNew
         // Listar todos os templates salvos
         public static List<string> ListarTemplates()
         {
+            try
+            {
+                var arquivos = Directory.GetFiles(pastaTemplates, "*.json");
+                var nomes = new List<string>();
+
+                foreach (var arquivo in arquivos)
+                {
+                    nomes.Add(Path.GetFileNameWithoutExtension(arquivo));
+                }
+
+                return nomes;
+            }
+            catch
+            {
+                return new List<string>();
+            }
             var templates = new List<string>();
 
             try
@@ -102,6 +118,7 @@ namespace EtiquetaFORNew
             }
 
             return templates.OrderBy(x => x).ToList();
+
         }
 
         // Excluir template
@@ -176,17 +193,8 @@ namespace EtiquetaFORNew
                     CorR = elem.Cor.R,
                     CorG = elem.Cor.G,
                     CorB = elem.Cor.B,
-                    Alinhamento = elem.Alinhamento.ToString(),
-                    Rotacao = elem.Rotacao
+                    Alinhamento = elem.Alinhamento.ToString()
                 };
-
-                // ⭐ NOVA: Salvar cor de fundo se definida
-                if (elem.CorFundo.HasValue)
-                {
-                    elemSerializavel.CorFundoR = elem.CorFundo.Value.R;
-                    elemSerializavel.CorFundoG = elem.CorFundo.Value.G;
-                    elemSerializavel.CorFundoB = elem.CorFundo.Value.B;
-                }
 
                 // Se for imagem, salvar como Base64
                 if (elem.Tipo == TipoElemento.Imagem && elem.Imagem != null)
@@ -225,8 +233,6 @@ namespace EtiquetaFORNew
                     Italico = elemSer.Italico,
                     Cor = System.Drawing.Color.FromArgb(elemSer.CorR, elemSer.CorG, elemSer.CorB)
                 };
-
-                // Alinhamento
                 if (!string.IsNullOrEmpty(elemSer.Alinhamento))
                 {
                     try
@@ -251,19 +257,6 @@ namespace EtiquetaFORNew
                 if (elem.Negrito) estilo |= System.Drawing.FontStyle.Bold;
                 if (elem.Italico) estilo |= System.Drawing.FontStyle.Italic;
                 elem.Fonte = new System.Drawing.Font(elemSer.FonteNome, elemSer.FonteTamanho, estilo);
-
-                // ⭐ NOVA: Restaurar rotação
-                elem.Rotacao = elemSer.Rotacao;
-
-                // ⭐ NOVA: Restaurar cor de fundo se salva
-                if (elemSer.CorFundoR.HasValue && elemSer.CorFundoG.HasValue && elemSer.CorFundoB.HasValue)
-                {
-                    elem.CorFundo = System.Drawing.Color.FromArgb(
-                        elemSer.CorFundoR.Value,
-                        elemSer.CorFundoG.Value,
-                        elemSer.CorFundoB.Value
-                    );
-                }
 
                 // Se for imagem, converter de Base64
                 if (elem.Tipo == TipoElemento.Imagem && !string.IsNullOrEmpty(elemSer.ImagemBase64))
@@ -314,10 +307,5 @@ namespace EtiquetaFORNew
         public string Alinhamento { get; set; }
         public string ImagemBase64 { get; set; }
 
-        // ⭐ NOVAS PROPRIEDADES
-        public int? CorFundoR { get; set; }
-        public int? CorFundoG { get; set; }
-        public int? CorFundoB { get; set; }
-        public float Rotacao { get; set; }
     }
 }

@@ -397,6 +397,15 @@ namespace EtiquetaFORNew
                 tamanhoFonte = elem.Fonte.Size;
             }
 
+            // ⭐ NOVO: Desenhar cor de fundo se definida
+            if (elem.CorFundo.HasValue && elem.CorFundo.Value != Color.Transparent)
+            {
+                using (SolidBrush fundoBrush = new SolidBrush(elem.CorFundo.Value))
+                {
+                    g.FillRectangle(fundoBrush, bounds);
+                }
+            }
+
             // A unidade GraphicsUnit.Point é a correta para fontes.
             using (Font fonte = new Font(elem.Fonte.FontFamily, tamanhoFonte, elem.Fonte.Style, GraphicsUnit.Point))
             using (SolidBrush brush = new SolidBrush(elem.Cor))
