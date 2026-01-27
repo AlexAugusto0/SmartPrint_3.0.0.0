@@ -1023,8 +1023,8 @@ namespace EtiquetaFORNew.Forms
                 Text = "T▓",
                 Location = new Point(85, yPos),
                 Size = new Size(40, 25),
-                BackColor = Color.Black,
-                ForeColor = Color.White,
+                BackColor = Color.White,
+                ForeColor = Color.Black,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
                 Font = new Font("Segoe UI", 9, FontStyle.Bold)
@@ -1037,8 +1037,8 @@ namespace EtiquetaFORNew.Forms
                 Text = "T▓",
                 Location = new Point(130, yPos),
                 Size = new Size(40, 25),
-                BackColor = Color.White,
-                ForeColor = Color.Black,
+                BackColor = Color.Black,
+                ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
                 Font = new Font("Segoe UI", 9, FontStyle.Bold)
@@ -1078,7 +1078,7 @@ namespace EtiquetaFORNew.Forms
             {
                 Text = "Atalhos:",
                 Location = new Point(10, yPos),
-                Size = new Size(70, 20),
+                Size = new Size(50, 20),
                 Font = new Font("Segoe UI", 8, FontStyle.Bold),
                 ForeColor = Color.Gray
             };
@@ -1086,9 +1086,9 @@ namespace EtiquetaFORNew.Forms
 
             btnFundoPreto = new Button
             {
-                Text = "▓",
-                Location = new Point(50, yPos),
-                Size = new Size(35, 25),
+                //Text = "▓",
+                Location = new Point(65, yPos),
+                Size = new Size(30, 25),
                 BackColor = Color.Black,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -1100,9 +1100,9 @@ namespace EtiquetaFORNew.Forms
 
             btnFundoBranco = new Button
             {
-                Text = "▓",
-                Location = new Point(90, yPos),
-                Size = new Size(35, 25),
+                //Text = "▓",
+                Location = new Point(100, yPos),
+                Size = new Size(30, 25),
                 BackColor = Color.White,
                 ForeColor = Color.Black,
                 FlatStyle = FlatStyle.Flat,
@@ -1115,8 +1115,8 @@ namespace EtiquetaFORNew.Forms
             btnFundoTransparente = new Button
             {
                 Text = "Ø",
-                Location = new Point(130, yPos),
-                Size = new Size(40, 25),
+                Location = new Point(135, yPos),
+                Size = new Size(30, 25),
                 BackColor = Color.LightGray,
                 ForeColor = Color.Black,
                 FlatStyle = FlatStyle.Flat,
