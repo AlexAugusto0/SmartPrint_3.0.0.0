@@ -903,5 +903,108 @@ namespace EtiquetaFORNew.Data
         {
             return LocalDatabaseManagerExtensions.ObterSubGruposPorGrupo(grupo);
         }
+
+        // ========================================
+        // 🔹 NOVOS MÉTODOS: Carregamento de Grupos e Fabricantes do SQL Server
+        // ========================================
+
+        /// <summary>
+        /// ⭐ NOVO: Busca grupos distintos da tabela grp no SQL Server
+        /// Relaciona com memoria_MercadoriasLojas para trazer apenas grupos com produtos
+        /// </summary>
+        public static DataTable ObterGruposDoSQLServer()
+        {
+            try
+            {
+                string connectionString = DatabaseConfig.GetConnectionString();
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    // Fallback para SQLite local se SQL Server não estiver configurado
+                    System.Diagnostics.Debug.WriteLine("SQL Server não configurado, usando dados locais");
+                    return ObterValoresDistintos("Grupo");
+                }
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string query = @"
+                        SELECT DISTINCT g.GRP_DESCRI AS Grupo
+                        FROM grp g
+                        INNER JOIN memoria_MercadoriasLojas m ON m.GRUPO = g.GRP_DESCRI
+                        WHERE g.GRP_DESCRI IS NOT NULL 
+                        AND g.GRP_DESCRI != ''
+                        ORDER BY g.GRP_DESCRI
+                    ";
+
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(query, conn))
+                    {
+                        DataTable dt = new DataTable();
+                        using (var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+                        return dt;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao obter grupos do SQL Server: {ex.Message}");
+                // Fallback para SQLite local em caso de erro
+                return ObterValoresDistintos("Grupo");
+            }
+        }
+
+        /// <summary>
+        /// ⭐ NOVO: Busca fabricantes distintos da tabela Fabricante no SQL Server
+        /// Relaciona com memoria_MercadoriasLojas para trazer apenas fabricantes com produtos
+        /// </summary>
+        public static DataTable ObterFabricantesDoSQLServer()
+        {
+            try
+            {
+                string connectionString = DatabaseConfig.GetConnectionString();
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    // Fallback para SQLite local se SQL Server não estiver configurado
+                    System.Diagnostics.Debug.WriteLine("SQL Server não configurado, usando dados locais");
+                    return ObterValoresDistintos("Fabricante");
+                }
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string query = @"
+                        SELECT DISTINCT f.GRP_DESCRI AS Fabricante
+                        FROM Fabricante f
+                        INNER JOIN memoria_MercadoriasLojas m ON m.FABRICANTE = f.GRP_DESCRI
+                        WHERE f.GRP_DESCRI IS NOT NULL 
+                        AND f.GRP_DESCRI != ''
+                        ORDER BY f.GRP_DESCRI
+                    ";
+
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(query, conn))
+                    {
+                        DataTable dt = new DataTable();
+                        using (var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+                        return dt;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao obter fabricantes do SQL Server: {ex.Message}");
+                // Fallback para SQLite local em caso de erro
+                return ObterValoresDistintos("Fabricante");
+            }
+        }
+
     }
 }

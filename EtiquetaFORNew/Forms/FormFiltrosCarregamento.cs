@@ -9,9 +9,9 @@ using EtiquetaFORNew.Data;
 namespace EtiquetaFORNew
 {
     /// <summary>
-    /// Formulário SIMPLIFICADO de carregamento - COM SUPORTE A PROMOÇÕES
+    /// FormulÃ¡rio SIMPLIFICADO de carregamento - COM SUPORTE A PROMOÇÕES
     /// Funciona imediatamente sem precisar alterar o banco
-    /// Versão 2.3 - Promoções Ativas
+    /// VersÃ£o 2.3 - PromoÃ§Ãµes Ativas
     /// </summary>
     public partial class FormFiltrosCarregamento : Form
     {
@@ -21,7 +21,7 @@ namespace EtiquetaFORNew
         private ComboBox cmbFabricante;
         private ComboBox cmbFornecedor;
         private ComboBox cmbEmpresa;
-        private ComboBox cmbPromocao; // ⭐ NOVO
+        private ComboBox cmbPromocao; // â­ NOVO
         private TextBox txtDocumento;
         private DateTimePicker dtpDataInicial;
         private DateTimePicker dtpDataFinal;
@@ -35,7 +35,7 @@ namespace EtiquetaFORNew
         private Label lblFabricante;
         private Label lblFornecedor;
         private Label lblEmpresa;
-        private Label lblPromocao; // ⭐ NOVO
+        private Label lblPromocao; // â­ NOVO
         private Label lblDocumento;
         private Label lblDataInicial;
         private Label lblDataFinal;
@@ -48,13 +48,13 @@ namespace EtiquetaFORNew
         public string FabricanteSelecionado { get; private set; }
         public string FornecedorSelecionado { get; private set; }
         public string EmpresaSelecionada { get; private set; }
-        public int? PromocaoSelecionada { get; private set; } // ⭐ NOVO
+        public int? PromocaoSelecionada { get; private set; } // â­ NOVO
         public string DocumentoInformado { get; private set; }
         public DateTime? DataInicial { get; private set; }
         public DateTime? DataFinal { get; private set; }
         public bool UsarFiltroData { get; private set; }
 
-        // ⭐ Propriedade vazia para compatibilidade
+        // â­ Propriedade vazia para compatibilidade
         public string SubGrupoSelecionado { get; private set; } = "";
         public string ProdutoSelecionado { get; private set; } = "";
 
@@ -80,7 +80,7 @@ namespace EtiquetaFORNew
 
             lblTitulo = new Label
             {
-                Text = "🔍 CARREGAR PRODUTOS",
+                Text = "ðŸ” CARREGAR PRODUTOS",
                 Location = new Point(0, 0),
                 Size = new Size(500, 50),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -113,7 +113,7 @@ namespace EtiquetaFORNew
             lblFornecedor = CriarLabel("Fornecedor:", 10, 135);
             cmbFornecedor = CriarComboBox(180, 130);
 
-            // ⭐ PROMOÇÃO
+            // â­ PROMOÇÃƒO
             lblPromocao = CriarLabel("Promoção:", 10, 175);
             cmbPromocao = CriarComboBox(180, 170);
             cmbPromocao.DisplayMember = "Descricao";
@@ -176,8 +176,8 @@ namespace EtiquetaFORNew
             panelFiltros.Controls.Add(cmbFabricante);
             panelFiltros.Controls.Add(lblFornecedor);
             panelFiltros.Controls.Add(cmbFornecedor);
-            panelFiltros.Controls.Add(lblPromocao); // ⭐ NOVO
-            panelFiltros.Controls.Add(cmbPromocao); // ⭐ NOVO
+            panelFiltros.Controls.Add(lblPromocao); // â­ NOVO
+            panelFiltros.Controls.Add(cmbPromocao); // â­ NOVO
             panelFiltros.Controls.Add(lblDocumento);
             panelFiltros.Controls.Add(txtDocumento);
             panelFiltros.Controls.Add(chkUsarFiltroData);
@@ -282,8 +282,11 @@ namespace EtiquetaFORNew
         {
             try
             {
-                CarregarComboDistinto(cmbGrupo, "Grupo");
-                CarregarComboDistinto(cmbFabricante, "Fabricante");
+                // ⭐ NOVO: Carregar Grupo e Fabricante do SQL Server
+                CarregarComboGrupo();
+                CarregarComboFabricante();
+
+                // Fornecedor continua usando o método antigo (SQLite local)
                 CarregarComboDistinto(cmbFornecedor, "Fornecedor");
             }
             catch (Exception ex)
@@ -292,6 +295,73 @@ namespace EtiquetaFORNew
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        /// <summary>
+        /// ⭐ NOVO: Carrega combo de Grupo da tabela grp no SQL Server
+        /// </summary>
+        private void CarregarComboGrupo()
+        {
+            try
+            {
+                DataTable dt = LocalDatabaseManager.ObterGruposDoSQLServer();
+
+                cmbGrupo.Items.Clear();
+                cmbGrupo.Items.Add(""); // Item vazio
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        string valor = row["Grupo"]?.ToString()?.Trim();
+                        if (!string.IsNullOrEmpty(valor))
+                        {
+                            cmbGrupo.Items.Add(valor);
+                        }
+                    }
+                }
+
+                cmbGrupo.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar Grupos: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// ⭐ NOVO: Carrega combo de Fabricante da tabela Fabricante no SQL Server
+        /// </summary>
+        private void CarregarComboFabricante()
+        {
+            try
+            {
+                DataTable dt = LocalDatabaseManager.ObterFabricantesDoSQLServer();
+
+                cmbFabricante.Items.Clear();
+                cmbFabricante.Items.Add(""); // Item vazio
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        string valor = row["Fabricante"]?.ToString()?.Trim();
+                        if (!string.IsNullOrEmpty(valor))
+                        {
+                            cmbFabricante.Items.Add(valor);
+                        }
+                    }
+                }
+
+                cmbFabricante.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar Fabricantes: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
 
         private void CarregarComboDistinto(ComboBox combo, string campo)
         {
@@ -366,7 +436,7 @@ namespace EtiquetaFORNew
                     txtDocumento.Visible = true;
                     break;
 
-                case "BALANÇOS":
+                case "BALANÇO":
                     cmbGrupo.Enabled = false;
                     cmbFabricante.Enabled = false;
                     cmbFornecedor.Enabled = false;
@@ -392,7 +462,7 @@ namespace EtiquetaFORNew
                     break;
 
                 case "PROMOÇÕES":
-                    // ⭐ Mostrar combo de promoções e carregar promoções ativas
+                    // â­ Mostrar combo de promoÃ§Ãµes e carregar promoÃ§Ãµes ativas
                     lblPromocao.Visible = true;
                     cmbPromocao.Visible = true;
                     CarregarPromocoesAtivas();
@@ -404,7 +474,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// ⭐ NOVO: Carrega promoções ativas no ComboBox
+        /// â­ NOVO: Carrega promoÃ§Ãµes ativas no ComboBox
         /// </summary>
         private void CarregarPromocoesAtivas()
         {
@@ -426,7 +496,7 @@ namespace EtiquetaFORNew
                 else
                 {
                     MessageBox.Show(
-                        "Não há promoções ativas no momento.",
+                        "Não há¡ promoções ativas no momento.",
                         "SmartPrint - Aviso",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -490,7 +560,7 @@ namespace EtiquetaFORNew
                 case "PREÇOS ALTERADOS":
                     if (!chkUsarFiltroData.Checked)
                     {
-                        MessageBox.Show("O filtro de data é obrigatório para PREÇOS ALTERADOS!",
+                        MessageBox.Show("O filtro de data Ã© obrigatÃ³rio para PREÇOS ALTERADOS!",
                             "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
@@ -510,7 +580,7 @@ namespace EtiquetaFORNew
                         }
                     }
 
-                    // Para filtros manuais, pelo menos um filtro é obrigatório
+                    // Para filtros manuais, pelo menos um filtro Ã© obrigatÃ³rio
                     if (tipoSelecionado == "FILTROS MANUAIS" &&
                         string.IsNullOrEmpty(cmbGrupo.Text) &&
                         string.IsNullOrEmpty(cmbFabricante.Text) &&
@@ -532,7 +602,7 @@ namespace EtiquetaFORNew
             DocumentoInformado = txtDocumento.Text;
             UsarFiltroData = chkUsarFiltroData.Checked;
 
-            // ⭐ Armazenar ID da promoção se for tipo PROMOÇÕES
+            // â­ Armazenar ID da promoção se for tipo PROMOÇÕES
             if (tipoSelecionado == "PROMOÇÕES" && cmbPromocao.SelectedValue != null)
             {
                 PromocaoSelecionada = Convert.ToInt32(cmbPromocao.SelectedValue);

@@ -28,7 +28,7 @@ namespace EtiquetaFORNew
                 txtSenha.Text = config.Senha ?? "";
                 txtTimeout.Text = config.Timeout ?? "120";
 
-                // Carregar loja se houver configuraÃ§Ã£o salva
+                // Carregar loja se houver configuração salva
                 if (!string.IsNullOrEmpty(config.Loja))
                 {
                     // Tentar carregar as lojas para popular a combo
@@ -115,7 +115,7 @@ namespace EtiquetaFORNew
                                 txtTimeout.Text = value;
                                 break;
                             case "integrated security":
-                                // Se usar autenticaÃ§Ã£o Windows, limpar usuÃ¡rio e senha
+                                // Se usar autenticação Windows, limpar usuÃ¡rio e senha
                                 if (value.ToLower() == "true" || value.ToLower() == "sspi")
                                 {
                                     txtUsuario.Text = "";
@@ -136,7 +136,7 @@ namespace EtiquetaFORNew
         {
             if (string.IsNullOrWhiteSpace(txtServidor.Text))
             {
-                MessageBox.Show("Informe o servidor/instÃ¢ncia primeiro!", "AtenÃ§Ã£o",
+                MessageBox.Show("Informe o servidor/instÃ¢ncia primeiro!", "Atenção",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtServidor.Focus();
                 return;
@@ -162,7 +162,7 @@ namespace EtiquetaFORNew
 
                 string connStrMaster = $"Server={servidor};Database=master;";
 
-                // AutenticaÃ§Ã£o
+                // Autenticação
                 if (!string.IsNullOrEmpty(usuario))
                 {
                     connStrMaster += $"User Id={usuario};Password={senha};";
@@ -195,7 +195,7 @@ namespace EtiquetaFORNew
                 }
                 else
                 {
-                    MessageBox.Show("Nenhum banco de dados encontrado!", "AtenÃ§Ã£o",
+                    MessageBox.Show("Nenhum banco de dados encontrado!", "Atenção",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
@@ -259,7 +259,7 @@ namespace EtiquetaFORNew
 
             string connStr = $"Server={servidor};Database={banco};";
 
-            // Se usuÃ¡rio foi informado, usar autenticaÃ§Ã£o SQL
+            // Se usuÃ¡rio foi informado, usar autenticação SQL
             if (!string.IsNullOrEmpty(usuario))
             {
                 connStr += $"User Id={usuario};Password={senha};";
@@ -323,7 +323,7 @@ namespace EtiquetaFORNew
         {
             if (string.IsNullOrWhiteSpace(txtServidor.Text))
             {
-                MessageBox.Show("Informe o servidor/instÃ¢ncia!", "AtenÃ§Ã£o",
+                MessageBox.Show("Informe o servidor/instÃ¢ncia!", "Atenção",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtServidor.Focus();
                 return false;
@@ -331,7 +331,7 @@ namespace EtiquetaFORNew
 
             if (string.IsNullOrWhiteSpace(cmbBancoDados.Text))
             {
-                MessageBox.Show("Informe o banco de dados!", "AtenÃ§Ã£o",
+                MessageBox.Show("Informe o banco de dados!", "Atenção",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cmbBancoDados.Focus();
                 return false;
@@ -358,7 +358,7 @@ namespace EtiquetaFORNew
                     txtModuloApp.Text.Trim()
                 );
 
-                MessageBox.Show("ConfiguraÃ§Ã£o salva com sucesso!", "Sucesso",
+                MessageBox.Show("Configuração salva com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 // Atualiza o MainForm sem reiniciar o app
@@ -373,7 +373,7 @@ namespace EtiquetaFORNew
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao salvar configuraÃ§Ã£o: " + ex.Message,
+                MessageBox.Show("Erro ao salvar configuração: " + ex.Message,
                     "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -502,7 +502,7 @@ namespace EtiquetaFORNew
                                 string cgc = reader.IsDBNull(1) ? "" : reader.GetString(1);
                                 string codigoSuporte = reader.IsDBNull(2) ? "" : reader.GetString(2);
 
-                                // Chamar a funÃ§Ã£o GetSetRegistroJsonAsync
+                                // Chamar a função GetSetRegistroJsonAsync
                                 if (!string.IsNullOrEmpty(codigoSuporte) && !string.IsNullOrEmpty(cgc) && !string.IsNullOrEmpty(fantasia))
                                 {
                                     string resultado = await DatabaseConfig.GetSetRegistroJsonAsync(codigoSuporte, cgc, fantasia);
@@ -518,7 +518,7 @@ namespace EtiquetaFORNew
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao processar seleÃ§Ã£o da loja: " + ex.Message, "Erro",
+                MessageBox.Show("Erro ao processar seleção da loja: " + ex.Message, "Erro",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
