@@ -854,7 +854,7 @@ namespace EtiquetaFORNew.Forms
             // Botões de alinhamento
             btnAlinharEsquerda = new Button
             {
-                Text = "⬅️",
+                Text = "←",
                 Location = new Point(10, yPos),
                 Size = new Size(50, 35),
                 Font = new Font("Segoe UI", 12),
@@ -868,7 +868,7 @@ namespace EtiquetaFORNew.Forms
 
             btnAlinharCentro = new Button
             {
-                Text = "↔️",
+                Text = "←→",
                 Location = new Point(65, yPos),
                 Size = new Size(50, 35),
                 Font = new Font("Segoe UI", 12),
@@ -882,7 +882,7 @@ namespace EtiquetaFORNew.Forms
 
             btnAlinharDireita = new Button
             {
-                Text = "➡️",
+                Text = "→",
                 Location = new Point(120, yPos),
                 Size = new Size(50, 35),
                 Font = new Font("Segoe UI", 12),

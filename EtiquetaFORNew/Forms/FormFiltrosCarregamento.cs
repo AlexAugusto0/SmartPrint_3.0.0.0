@@ -265,10 +265,10 @@ namespace EtiquetaFORNew
         private void ConfigurarFormulario()
         {
             cmbTipo.Items.Add("FILTROS MANUAIS");
-            cmbTipo.Items.Add("AJUSTES");
-            cmbTipo.Items.Add("BALANÇOS");
+            //cmbTipo.Items.Add("AJUSTES");
+            //cmbTipo.Items.Add("BALANÇOS");
             cmbTipo.Items.Add("NOTAS ENTRADA");
-            cmbTipo.Items.Add("PREÇOS ALTERADOS");
+            //cmbTipo.Items.Add("PREÇOS ALTERADOS");
             cmbTipo.Items.Add("PROMOÇÕES");
             cmbTipo.SelectedIndex = 0;
 
