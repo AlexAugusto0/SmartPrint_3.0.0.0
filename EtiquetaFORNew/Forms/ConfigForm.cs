@@ -136,7 +136,7 @@ namespace EtiquetaFORNew
         {
             if (string.IsNullOrWhiteSpace(txtServidor.Text))
             {
-                MessageBox.Show("Informe o servidor/instÃ¢ncia primeiro!", "Atenção",
+                MessageBox.Show("Informe o servidor/instância primeiro!", "Atenção",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtServidor.Focus();
                 return;
@@ -294,7 +294,7 @@ namespace EtiquetaFORNew
 
                 if (repo.TestConnection())
                 {
-                    MessageBox.Show("ConexÃ£o realizada com sucesso!", "Sucesso",
+                    MessageBox.Show("Conexão realizada com sucesso!", "Sucesso",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     //repo.VerificarECriarEstrutura();
 
@@ -303,13 +303,13 @@ namespace EtiquetaFORNew
                 }
                 else
                 {
-                    MessageBox.Show("NÃ£o foi possÃƒÂ­vel conectar ao banco de dados!", "Erro",
+                    MessageBox.Show("Não foi possí­vel conectar ao banco de dados!", "Erro",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao testar conexÃ£o: " + ex.Message, "Erro",
+                MessageBox.Show("Erro ao testar conexão: " + ex.Message, "Erro",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -323,7 +323,7 @@ namespace EtiquetaFORNew
         {
             if (string.IsNullOrWhiteSpace(txtServidor.Text))
             {
-                MessageBox.Show("Informe o servidor/instÃ¢ncia!", "Atenção",
+                MessageBox.Show("Informe o servidor/instância!", "Atenção",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtServidor.Focus();
                 return false;
@@ -466,7 +466,7 @@ namespace EtiquetaFORNew
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao carregar mÃ³dulo app: " + ex.Message, "Erro",
+                MessageBox.Show("Erro ao carregar módulo app: " + ex.Message, "Erro",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

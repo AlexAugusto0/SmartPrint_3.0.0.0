@@ -2227,6 +2227,23 @@ namespace EtiquetaFORNew
                 txtNome.Size = new System.Drawing.Size(220, 23);
                 cmbBuscaNome.Size = new System.Drawing.Size(500, 23);
                 colNome.Width = 500;
+
+                // ⭐ NOVO: Redimensionar formulário, grid E cabeçalho para acomodar colunas de confecção
+                // Grid precisa de ~140px extras para colTam (60px) e colCor (80px)
+                this.Width = 1200;  // Aumenta de 1039 para 1200
+                dgvProdutos.Width = 1160;  // Aumenta proporcionalmente
+                groupProduto.Width = 1160;  // Cabeçalho acompanha o grid
+
+                System.Diagnostics.Debug.WriteLine("[ConfigurarControlesConfeccao] Formulário redimensionado para modo CONFECÇÃO");
+            }
+            else
+            {
+                // ⭐ Restaurar tamanho original para modo padrão
+                this.Width = 1039;
+                dgvProdutos.Width = 1004;
+                groupProduto.Width = 1004;  // Cabeçalho volta ao tamanho original
+
+                System.Diagnostics.Debug.WriteLine("[ConfigurarControlesConfeccao] Formulário em modo PADRÃO");
             }
 
             if (cmbTamanho != null) cmbTamanho.Visible = isConfeccao;
@@ -3055,12 +3072,9 @@ namespace EtiquetaFORNew
                     produto.PrecoPromocional = Convert.ToDecimal(row["PrecoPromocional"]);
                 }
 
-                // ⭐ CONFECÇÃO: Sobrescreve Tam e Cor se necessário (igual lançamento manual linhas 1614-1619)
-                if (isConfeccao && cmbTamanho != null && cmbCor != null)
-                {
-                    produto.Tam = cmbTamanho.SelectedItem?.ToString() ?? produto.Tam ?? "";
-                    produto.Cores = cmbCor.SelectedItem?.ToString() ?? produto.Cores ?? "";
-                }
+                // ⭐ IMPORTANTE: NO CARREGAMENTO EM LOTE, NÃO sobrescreve TAM/COR
+                // Os valores já vieram corretos do banco de dados
+                // ComboBoxes só são usadas no lançamento MANUAL individual
             }
             catch
             {

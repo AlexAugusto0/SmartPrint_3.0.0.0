@@ -80,7 +80,7 @@ namespace EtiquetaFORNew
 
             lblTitulo = new Label
             {
-                Text = "ðŸ” CARREGAR PRODUTOS",
+                Text = "CARREGAR PRODUTOS",
                 Location = new Point(0, 0),
                 Size = new Size(500, 50),
                 TextAlign = ContentAlignment.MiddleCenter,
