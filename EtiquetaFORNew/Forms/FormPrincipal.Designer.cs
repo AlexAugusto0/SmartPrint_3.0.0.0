@@ -355,7 +355,6 @@
             // 
             this.colCodigo.HeaderText = "Código";
             this.colCodigo.Name = "colCodigo";
-            this.colCodigo.Width = 100;
             // 
             // colPreco
             // 

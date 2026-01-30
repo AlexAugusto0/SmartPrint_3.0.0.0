@@ -2257,6 +2257,17 @@ namespace EtiquetaFORNew
             if (dgvProdutos.Columns.Contains("colCor"))
                 dgvProdutos.Columns["colCor"].Visible = isConfeccao;
         }
+        private void CentralizarControles()
+        {
+            // Centraliza o PanelTop
+            panelTop.Left = (this.ClientSize.Width - panelTop.Width) / 2;
+
+            // Centraliza o GroupProduto logo abaixo do PanelTop
+            groupProduto.Left = (this.ClientSize.Width - groupProduto.Width) / 2;
+
+            // Se quiser remover o espaço vertical entre eles:
+            groupProduto.Top = panelTop.Bottom + 5;
+        }
 
         /// <summary>
         /// Carrega os tamanhos e cores disponíveis para um produto específico

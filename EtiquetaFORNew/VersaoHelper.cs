@@ -27,7 +27,7 @@ namespace EtiquetaFORNew
                 }
                 catch
                 {
-                    _versaoCache = "1.0.0.0";
+                    _versaoCache = "3.0.0.0";
                 }
             }
             return _versaoCache;

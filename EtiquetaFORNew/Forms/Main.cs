@@ -271,7 +271,8 @@ namespace EtiquetaFORNew
         private void pictureBox4_Click(object sender, EventArgs e)
         {
             //configuracoes tela = new configuracoes();
-            ConfigForm tela = new ConfigForm();
+            //ConfigForm tela = new ConfigForm();
+            FormConfiguracao tela = new FormConfiguracao();
             tela.ShowDialog();
         }
         private void ArredondarPainel(Panel panel, int raio)
@@ -296,18 +297,6 @@ namespace EtiquetaFORNew
                 path.CloseFigure();
 
                 panel.Region = new Region(path);
-            }
-        }
-        private void btnConfig_Click(object sender, EventArgs e)
-        {
-            using (var configForm = new ConfigForm())
-            {
-                // Abre como modal e espera
-                if (configForm.ShowDialog() == DialogResult.OK)
-                {
-                    // 🔁 Recarrega os dados ou atualiza conexão
-                    RecarregarConfiguracao();
-                }
             }
         }
         public void RecarregarConfiguracao()

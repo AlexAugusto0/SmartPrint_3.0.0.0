@@ -4,12 +4,12 @@ using System.Data.SQLite;
 using System.Data.SqlClient;
 using System.IO;
 using System.Collections.Generic;
-using EtiquetaFORNew.Data;
 
 namespace EtiquetaFORNew.Data
 {
     /// <summary>
     /// Gerencia o banco de dados SQLite local para cache de mercadorias
+    /// ATUALIZADO: Suporta SQL Server E SoftcomShop
     /// </summary>
     public class LocalDatabaseManager
     {
@@ -21,7 +21,15 @@ namespace EtiquetaFORNew.Data
         private static readonly string ConnectionString = $"Data Source={DbPath};Version=3;";
 
         /// <summary>
-        /// Inicializa o banco local e cria as tabelas se não existirem
+        /// Obtém a connection string (para uso externo)
+        /// </summary>
+        public static string GetConnectionString()
+        {
+            return ConnectionString;
+        }
+
+        /// <summary>
+        /// ⭐ ATUALIZADO: Inicializa o banco local com campos adicionais para SoftcomShop
         /// </summary>
         public static void InicializarBanco()
         {
@@ -37,9 +45,11 @@ namespace EtiquetaFORNew.Data
                 {
                     conn.Open();
 
-                    // ⭐ CORRIGIDO: Índices agora são criados separadamente
+                    // ⭐ TABELA PRINCIPAL: Mercadorias
+                    // Campos originais + campos do SoftcomShop
                     string createTable = @"
                         CREATE TABLE IF NOT EXISTS Mercadorias (
+                            -- Campos originais
                             CodigoMercadoria INTEGER,
                             CodFabricante TEXT,
                             CodBarras TEXT,
@@ -59,7 +69,16 @@ namespace EtiquetaFORNew.Data
                             Cores TEXT,
                             CodBarras_Grade TEXT,
                             Registro INTEGER,
-                            UltimaAtualizacao DATETIME DEFAULT CURRENT_TIMESTAMP
+                            UltimaAtualizacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            
+                            -- ⭐ NOVOS: Campos específicos do SoftcomShop
+                            ID_SoftcomShop INTEGER DEFAULT 0,
+                            Origem TEXT DEFAULT 'SQL',
+                            Referencia TEXT,
+                            Marca TEXT,
+                            Ativo INTEGER DEFAULT 1,
+                            GerarEtiqueta INTEGER DEFAULT 0,
+                            QuantidadeEtiqueta INTEGER DEFAULT 1
                         );
 
                         CREATE INDEX IF NOT EXISTS idx_codfabricante ON Mercadorias(CodFabricante);
@@ -68,6 +87,8 @@ namespace EtiquetaFORNew.Data
                         CREATE INDEX IF NOT EXISTS idx_fornecedor ON Mercadorias(Fornecedor);
                         CREATE INDEX IF NOT EXISTS idx_fabricante ON Mercadorias(Fabricante);
                         CREATE INDEX IF NOT EXISTS idx_grupo ON Mercadorias(Grupo);
+                        CREATE INDEX IF NOT EXISTS idx_id_softcomshop ON Mercadorias(ID_SoftcomShop);
+                        CREATE INDEX IF NOT EXISTS idx_origem ON Mercadorias(Origem);
 
                         CREATE TABLE IF NOT EXISTS ProdutosSelecionados (
                             Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,7 +104,8 @@ namespace EtiquetaFORNew.Data
                         CREATE TABLE IF NOT EXISTS ConfiguracaoSync (
                             Id INTEGER PRIMARY KEY,
                             UltimaSincronizacao DATETIME,
-                            TotalRegistros INTEGER
+                            TotalRegistros INTEGER,
+                            TipoOrigem TEXT DEFAULT 'SQL'
                         );
                     ";
 
@@ -91,6 +113,16 @@ namespace EtiquetaFORNew.Data
                     {
                         cmd.ExecuteNonQuery();
                     }
+
+                    // ⭐ VERIFICAR E ADICIONAR CAMPOS NOVOS SE NÃO EXISTIREM
+                    AdicionarCampoSeNaoExistir(conn, "Mercadorias", "ID_SoftcomShop", "INTEGER DEFAULT 0");
+                    AdicionarCampoSeNaoExistir(conn, "Mercadorias", "Origem", "TEXT DEFAULT 'SQL'");
+                    AdicionarCampoSeNaoExistir(conn, "Mercadorias", "Referencia", "TEXT");
+                    AdicionarCampoSeNaoExistir(conn, "Mercadorias", "Marca", "TEXT");
+                    AdicionarCampoSeNaoExistir(conn, "Mercadorias", "Ativo", "INTEGER DEFAULT 1");
+                    AdicionarCampoSeNaoExistir(conn, "Mercadorias", "GerarEtiqueta", "INTEGER DEFAULT 0");
+                    AdicionarCampoSeNaoExistir(conn, "Mercadorias", "QuantidadeEtiqueta", "INTEGER DEFAULT 1");
+                    AdicionarCampoSeNaoExistir(conn, "ConfiguracaoSync", "TipoOrigem", "TEXT DEFAULT 'SQL'");
                 }
             }
             catch (Exception ex)
@@ -100,12 +132,50 @@ namespace EtiquetaFORNew.Data
         }
 
         /// <summary>
-        /// Sincroniza mercadorias do SQL Server para o SQLite local
+        /// ⭐ NOVO: Adiciona campo na tabela se não existir
         /// </summary>
-        /// <param name="filtro">Filtro opcional (ex: WHERE PrecoVenda > 0)</param>
-        /// <param name="limite">Limite de registros (0 = todos)</param>
- // ✅ VERSÃO SIMPLES - Se der erro, remove VendaD e VendaE e tenta novamente
+        private static void AdicionarCampoSeNaoExistir(SQLiteConnection conn, string tabela, string campo, string tipo)
+        {
+            try
+            {
+                // Verificar se campo existe
+                string checkQuery = $"PRAGMA table_info({tabela})";
+                bool existe = false;
 
+                using (var cmd = new SQLiteCommand(checkQuery, conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["name"].ToString() == campo)
+                        {
+                            existe = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Adicionar se não existir
+                if (!existe)
+                {
+                    string alterQuery = $"ALTER TABLE {tabela} ADD COLUMN {campo} {tipo}";
+                    using (var cmd = new SQLiteCommand(alterQuery, conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    System.Diagnostics.Debug.WriteLine($"✓ Campo {campo} adicionado à tabela {tabela}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao adicionar campo {campo}: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Sincroniza mercadorias do SQL Server para o SQLite local
+        /// MANTIDO: Funcionalidade original preservada 100%
+        /// </summary>
         public static int SincronizarMercadorias(string filtro = "", int limite = 0)
         {
             try
@@ -141,7 +211,7 @@ namespace EtiquetaFORNew.Data
         }
 
         /// <summary>
-        /// ⭐ NOVO: Executa a sincronização com ou sem VendaD/VendaE
+        /// ⭐ ATUALIZADO: Executa a sincronização marcando origem como SQL
         /// </summary>
         private static int ExecutarSincronizacao(string connectionString, string loja, string filtro, int limite, bool incluirVendaDE)
         {
@@ -187,8 +257,8 @@ namespace EtiquetaFORNew.Data
                     {
                         localConn.Open();
 
-                        // Limpar dados antigos
-                        using (var deleteCmd = new SQLiteCommand("DELETE FROM Mercadorias", localConn))
+                        // Limpar dados antigos APENAS de origem SQL
+                        using (var deleteCmd = new SQLiteCommand("DELETE FROM Mercadorias WHERE Origem = 'SQL' OR Origem IS NULL", localConn))
                         {
                             deleteCmd.ExecuteNonQuery();
                         }
@@ -196,10 +266,18 @@ namespace EtiquetaFORNew.Data
                         // Iniciar transação para performance
                         using (var transaction = localConn.BeginTransaction())
                         {
+                            // ⭐ ATUALIZADO: Incluir campo Origem = 'SQL'
                             string insertQuery = @"
                                 INSERT INTO Mercadorias 
-                                (CodigoMercadoria, CodFabricante, CodBarras, Mercadoria, PrecoVenda, VendaA, VendaB, VendaC,VendaD,VendaE, Fornecedor, Fabricante, Grupo, Prateleira,Garantia, Tam, Cores,CodBarras_Grade)
-                                VALUES (@cod, @fabr, @barras, @merc, @preco, @vendaA, @vendaB, @vendaC, @vendaD, @vendaE, @fornecedor, @fabricante, @grupo, @prateleira, @garantia ,@tam ,@cores, @codbarras_grade)
+                                (CodigoMercadoria, CodFabricante, CodBarras, Mercadoria, PrecoVenda, 
+                                 VendaA, VendaB, VendaC, VendaD, VendaE, 
+                                 Fornecedor, Fabricante, Grupo, Prateleira, Garantia, 
+                                 Tam, Cores, CodBarras_Grade, Origem)
+                                VALUES 
+                                (@cod, @fabr, @barras, @merc, @preco, 
+                                 @vendaA, @vendaB, @vendaC, @vendaD, @vendaE, 
+                                 @fornecedor, @fabricante, @grupo, @prateleira, @garantia, 
+                                 @tam, @cores, @codbarras_grade, 'SQL')
                             ";
 
                             using (var insertCmd = new SQLiteCommand(insertQuery, localConn))
@@ -245,10 +323,10 @@ namespace EtiquetaFORNew.Data
                             transaction.Commit();
                         }
 
-                        // Atualizar info de sincronização
+                        // ⭐ ATUALIZADO: Atualizar info de sincronização com tipo
                         string updateSync = @"
-                            INSERT OR REPLACE INTO ConfiguracaoSync (Id, UltimaSincronizacao, TotalRegistros)
-                            VALUES (1, datetime('now'), @total)
+                            INSERT OR REPLACE INTO ConfiguracaoSync (Id, UltimaSincronizacao, TotalRegistros, TipoOrigem)
+                            VALUES (1, datetime('now'), @total, 'SQL')
                         ";
                         using (var syncCmd = new SQLiteCommand(updateSync, localConn))
                         {
@@ -264,6 +342,7 @@ namespace EtiquetaFORNew.Data
 
         /// <summary>
         /// Busca mercadorias no banco local
+        /// MANTIDO: Funcionalidade original preservada
         /// </summary>
         public static DataTable BuscarMercadorias(string termoBusca = "", int limite = 100)
         {
@@ -341,9 +420,9 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-
         /// <summary>
-        /// ⭐ CARREGAMENTO: Obtém valores distintos de um campo específico
+        /// Obtém valores distintos de um campo específico
+        /// MANTIDO: Funcionalidade original preservada
         /// </summary>
         public static DataTable ObterValoresDistintos(string campo)
         {
@@ -380,7 +459,8 @@ namespace EtiquetaFORNew.Data
         }
 
         /// <summary>
-        /// ⭐ CARREGAMENTO: Busca mercadorias por múltiplos filtros
+        /// Busca mercadorias por múltiplos filtros
+        /// MANTIDO: Funcionalidade original preservada
         /// </summary>
         public static DataTable BuscarMercadoriasPorFiltros(string grupo = null, string fabricante = null, string fornecedor = null, bool isConfeccao = false)
         {
@@ -429,8 +509,6 @@ namespace EtiquetaFORNew.Data
                     if (condicoes.Count > 0)
                         query += " AND " + string.Join(" AND ", condicoes);
 
-                    // ⭐ MODO CONFECÇÃO: Ordenar por Mercadoria, Tam, Cores para trazer TODAS as combinações
-                    // ⭐ MODO NORMAL: Ordenar apenas por Mercadoria
                     if (isConfeccao)
                     {
                         query += " ORDER BY Mercadoria, Tam, Cores";
@@ -457,7 +535,6 @@ namespace EtiquetaFORNew.Data
                             adapter.Fill(dt);
                         }
 
-                        // ⭐ DEBUG
                         System.Diagnostics.Debug.WriteLine($"BuscarMercadoriasPorFiltros (isConfeccao={isConfeccao}): {dt.Rows.Count} linhas");
 
                         return dt;
@@ -471,19 +548,14 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Busca mercadoria por código
-        /// </summary>
-        ///         /// <summary>
-        /// ⭐ NOVO: Busca mercadorias filtrando por um campo específico (busca dinâmica)
-        /// </summary>
-        /// <param name="termoBusca">Termo a ser buscado</param>
-        /// <param name="nomeCampo">Nome do campo específico (Mercadoria, CodFabricante, CodigoMercadoria)</param>
-        /// <param name="limite">Limite de resultados (padrão 500 para performance)</param>
+        // ========================================
+        // TODOS OS OUTROS MÉTODOS MANTIDOS IGUAIS
+        // ========================================
+
         public static DataTable BuscarMercadorias(string termoBusca, string nomeCampo, int limite = 500)
         {
             if (string.IsNullOrWhiteSpace(nomeCampo))
-                return BuscarMercadorias(termoBusca, limite); // Usa busca genérica
+                return BuscarMercadorias(termoBusca, limite);
 
             try
             {
@@ -491,7 +563,6 @@ namespace EtiquetaFORNew.Data
                 {
                     conn.Open();
 
-                    // ⭐ BUSCA ESPECÍFICA POR CAMPO COM LIMIT CONFIGURÁVEL
                     string query = $@"
                         SELECT DISTINCT 
                             CodigoMercadoria,
@@ -536,6 +607,7 @@ namespace EtiquetaFORNew.Data
                 throw new Exception($"Erro ao buscar mercadorias por {nomeCampo}: {ex.Message}", ex);
             }
         }
+
         public static DataRow BuscarMercadoriaPorCodigo(int codigo)
         {
             try
@@ -569,9 +641,6 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Adiciona produto à lista de selecionados
-        /// </summary>
         public static void AdicionarProdutoSelecionado(int codigoMercadoria, string nome,
             string codigo, decimal preco, int quantidade)
         {
@@ -604,9 +673,6 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Obtém produtos selecionados
-        /// </summary>
         public static DataTable ObterProdutosSelecionados()
         {
             try
@@ -635,9 +701,6 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Limpa produtos selecionados
-        /// </summary>
         public static void LimparProdutosSelecionados()
         {
             try
@@ -657,9 +720,6 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Remove produto selecionado por ID
-        /// </summary>
         public static void RemoverProdutoSelecionado(int id)
         {
             try
@@ -680,9 +740,6 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Obtém informações da última sincronização
-        /// </summary>
         public static (DateTime? ultima, int total) ObterInfoSincronizacao()
         {
             try
@@ -719,9 +776,6 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Verifica se precisa sincronizar (última sync > 24h)
-        /// </summary>
         public static bool PrecisaSincronizar()
         {
             var (ultima, _) = ObterInfoSincronizacao();
@@ -731,9 +785,6 @@ namespace EtiquetaFORNew.Data
             return (DateTime.Now - ultima.Value).TotalHours > 24;
         }
 
-        /// <summary>
-        /// Obtém total de mercadorias no banco local
-        /// </summary>
         public static int ObterTotalMercadorias()
         {
             try
@@ -753,33 +804,23 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// Busca todos os tamanhos e cores disponíveis para um produto específico
-        /// Retorna listas distintas de TODOS os registros daquele produto
-        /// </summary>
         public static (List<string> tamanhos, List<string> cores) BuscarTamanhosECoresPorCodigo(int codigo)
         {
             var tamanhos = new List<string>();
             var cores = new List<string>();
 
-
             try
             {
                 using (var conn = new SQLiteConnection(ConnectionString))
-
                 {
                     conn.Open();
 
-                    string query;
-
-
-                    query = @"
+                    string query = @"
                         SELECT DISTINCT Tam, Cores
                         FROM Mercadorias
                         WHERE CodigoMercadoria = @codigo
                         AND (Tam IS NOT NULL OR Cores IS NOT NULL)
                     ";
-
 
                     using (var cmd = new SQLiteCommand(query, conn))
                     {
@@ -789,7 +830,6 @@ namespace EtiquetaFORNew.Data
                         {
                             while (reader.Read())
                             {
-                                // Processar Tamanhos
                                 string tam = reader["Tam"]?.ToString();
                                 if (!string.IsNullOrEmpty(tam))
                                 {
@@ -797,7 +837,6 @@ namespace EtiquetaFORNew.Data
                                         tamanhos.Add(tam);
                                 }
 
-                                // Processar Cores
                                 string cor = reader["Cores"]?.ToString();
                                 if (!string.IsNullOrEmpty(cor))
                                 {
@@ -809,7 +848,6 @@ namespace EtiquetaFORNew.Data
                     }
                 }
 
-                // Ordenar para melhor apresentação
                 tamanhos.Sort();
                 cores.Sort();
             }
@@ -820,9 +858,7 @@ namespace EtiquetaFORNew.Data
 
             return (tamanhos, cores);
         }
-        /// <summary>
-        /// ⭐ CONFECÇÃO: Busca o código de barras específico baseado em Código + Tamanho + Cor
-        /// </summary>
+
         public static string BuscarCodigoBarrasPorCodTamCor(string codigo, string tamanho, string cor)
         {
             try
@@ -858,9 +894,6 @@ namespace EtiquetaFORNew.Data
             }
         }
 
-        /// <summary>
-        /// ⭐ CONFECÇÃO: Busca o registro completo da mercadoria por Código + Tamanho + Cor
-        /// </summary>
         public static DataTable BuscarMercadoriaPorCodTamCor(string codigo, string tamanho, string cor)
         {
             try
@@ -899,19 +932,12 @@ namespace EtiquetaFORNew.Data
                 return null;
             }
         }
+
         public static DataTable ObterSubGruposPorGrupo(string grupo)
         {
             return LocalDatabaseManagerExtensions.ObterSubGruposPorGrupo(grupo);
         }
 
-        // ========================================
-        // 🔹 NOVOS MÉTODOS: Carregamento de Grupos e Fabricantes do SQL Server
-        // ========================================
-
-        /// <summary>
-        /// ⭐ NOVO: Busca grupos distintos da tabela grp no SQL Server
-        /// Relaciona com memoria_MercadoriasLojas para trazer apenas grupos com produtos
-        /// </summary>
         public static DataTable ObterGruposDoSQLServer()
         {
             try
@@ -920,7 +946,6 @@ namespace EtiquetaFORNew.Data
 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    // Fallback para SQLite local se SQL Server não estiver configurado
                     System.Diagnostics.Debug.WriteLine("SQL Server não configurado, usando dados locais");
                     return ObterValoresDistintos("Grupo");
                 }
@@ -952,15 +977,10 @@ namespace EtiquetaFORNew.Data
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Erro ao obter grupos do SQL Server: {ex.Message}");
-                // Fallback para SQLite local em caso de erro
                 return ObterValoresDistintos("Grupo");
             }
         }
 
-        /// <summary>
-        /// ⭐ NOVO: Busca fabricantes distintos da tabela Fabricante no SQL Server
-        /// Relaciona com memoria_MercadoriasLojas para trazer apenas fabricantes com produtos
-        /// </summary>
         public static DataTable ObterFabricantesDoSQLServer()
         {
             try
@@ -969,7 +989,6 @@ namespace EtiquetaFORNew.Data
 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    // Fallback para SQLite local se SQL Server não estiver configurado
                     System.Diagnostics.Debug.WriteLine("SQL Server não configurado, usando dados locais");
                     return ObterValoresDistintos("Fabricante");
                 }
@@ -1001,10 +1020,8 @@ namespace EtiquetaFORNew.Data
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Erro ao obter fabricantes do SQL Server: {ex.Message}");
-                // Fallback para SQLite local em caso de erro
                 return ObterValoresDistintos("Fabricante");
             }
         }
-
     }
 }
