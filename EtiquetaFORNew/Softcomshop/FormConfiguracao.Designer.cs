@@ -62,7 +62,7 @@ namespace EtiquetaFORNew
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(12, 15);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(116, 15);
+            this.label1.Size = new System.Drawing.Size(119, 15);
             this.label1.TabIndex = 0;
             this.label1.Text = "Tipo de Conexão:";
             // 
@@ -82,7 +82,7 @@ namespace EtiquetaFORNew
             this.panelSqlServer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelSqlServer.Location = new System.Drawing.Point(12, 50);
             this.panelSqlServer.Name = "panelSqlServer";
-            this.panelSqlServer.Size = new System.Drawing.Size(660, 450);
+            this.panelSqlServer.Size = new System.Drawing.Size(660, 400);
             this.panelSqlServer.TabIndex = 2;
             this.panelSqlServer.Visible = false;
             // 
@@ -97,6 +97,7 @@ namespace EtiquetaFORNew
             // 
             // groupBox1
             // 
+            this.groupBox1.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.groupBox1.Controls.Add(this.btnGerarDeviceId);
             this.groupBox1.Controls.Add(this.txtDeviceId);
             this.groupBox1.Controls.Add(this.label8);
@@ -149,7 +150,7 @@ namespace EtiquetaFORNew
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.Location = new System.Drawing.Point(17, 265);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(63, 15);
+            this.label8.Size = new System.Drawing.Size(62, 15);
             this.label8.TabIndex = 14;
             this.label8.Text = "Device ID:";
             // 
@@ -167,7 +168,7 @@ namespace EtiquetaFORNew
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.Location = new System.Drawing.Point(17, 217);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(127, 15);
+            this.label7.Size = new System.Drawing.Size(123, 15);
             this.label7.TabIndex = 12;
             this.label7.Text = "Nome do Dispositivo:";
             // 
@@ -186,7 +187,7 @@ namespace EtiquetaFORNew
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(17, 169);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(109, 15);
+            this.label6.Size = new System.Drawing.Size(111, 15);
             this.label6.TabIndex = 10;
             this.label6.Text = "CNPJ da Empresa:";
             // 
@@ -204,7 +205,7 @@ namespace EtiquetaFORNew
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(17, 121);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(117, 15);
+            this.label5.Size = new System.Drawing.Size(114, 15);
             this.label5.TabIndex = 8;
             this.label5.Text = "Nome da Empresa:";
             // 
@@ -222,7 +223,7 @@ namespace EtiquetaFORNew
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(332, 73);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(83, 15);
+            this.label4.Size = new System.Drawing.Size(79, 15);
             this.label4.TabIndex = 6;
             this.label4.Text = "Client Secret:";
             // 
@@ -240,7 +241,7 @@ namespace EtiquetaFORNew
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(17, 73);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(59, 15);
+            this.label3.Size = new System.Drawing.Size(56, 15);
             this.label3.TabIndex = 4;
             this.label3.Text = "Client ID:";
             // 
@@ -287,7 +288,7 @@ namespace EtiquetaFORNew
             // btnSalvar
             // 
             this.btnSalvar.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSalvar.Location = new System.Drawing.Point(497, 515);
+            this.btnSalvar.Location = new System.Drawing.Point(497, 456);
             this.btnSalvar.Name = "btnSalvar";
             this.btnSalvar.Size = new System.Drawing.Size(85, 30);
             this.btnSalvar.TabIndex = 4;
@@ -298,7 +299,7 @@ namespace EtiquetaFORNew
             // btnCancelar
             // 
             this.btnCancelar.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancelar.Location = new System.Drawing.Point(588, 515);
+            this.btnCancelar.Location = new System.Drawing.Point(588, 456);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(85, 30);
             this.btnCancelar.TabIndex = 5;
@@ -310,7 +311,7 @@ namespace EtiquetaFORNew
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 561);
+            this.ClientSize = new System.Drawing.Size(684, 494);
             this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.btnSalvar);
             this.Controls.Add(this.panelSoftcomShop);

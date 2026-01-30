@@ -172,16 +172,42 @@ namespace EtiquetaFORNew
 
         private void btnSalvar_Click(object sender, EventArgs e)
         {
-            // Validar campos se for SoftcomShop
-            if (cboTipoConexao.SelectedIndex == 1)
+            // 1. Se for SQL Server (Index 0)
+            if (cboTipoConexao.SelectedIndex == 0)
+            {
+                if (_configFormSql != null)
+                {
+                    // Tentamos encontrar o botão salvar dentro do formulário SQL e disparar o clique
+                    // Assumindo que o nome do botão no ConfigForm original seja 'btnSalvar'
+                    Control[] bttns = _configFormSql.Controls.Find("btnSalvar", true);
+                    if (bttns.Length > 0 && bttns[0] is Button btnSql)
+                    {
+                        btnSql.PerformClick();
+
+                        // Se o formulário SQL fechar após salvar, precisamos fechar este também
+                        // Mas geralmente, verificamos se o salvamento ocorreu bem:
+                        this.DialogResult = DialogResult.OK;
+                        this.Close();
+                    }
+                    else
+                    {
+                        // Fallback: Caso o botão não seja encontrado por nome, 
+                        // você precisaria tornar o método btnSalvar_Click do ConfigForm 'public'
+                        // e chamá-lo assim: _configFormSql.btnSalvar_Click(sender, e);
+                        MessageBox.Show("Não foi possível acionar o salvamento do SQL Server automaticamente.", "Aviso");
+                    }
+                }
+            }
+            // 2. Se for SoftcomShop (Index 1)
+            else if (cboTipoConexao.SelectedIndex == 1)
             {
                 if (!ValidarCamposSoftcomShop())
                     return;
-            }
 
-            // ⭐ Se for SQL Server, o ConfigForm já salva as próprias configurações
-            // Apenas salvar o tipo de conexão
-            SalvarConfiguracoes();
+                SalvarConfiguracoes(); // Chama sua rotina interna que já salva o Softcom
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
         }
 
         private async void btnTestarConexao_Click(object sender, EventArgs e)

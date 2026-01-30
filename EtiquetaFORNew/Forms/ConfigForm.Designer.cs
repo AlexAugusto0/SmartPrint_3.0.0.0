@@ -89,7 +89,7 @@ namespace EtiquetaFORNew
             this.groupBox1.Controls.Add(this.btnTestar);
             this.groupBox1.Location = new System.Drawing.Point(12, 32);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(570, 246);
+            this.groupBox1.Size = new System.Drawing.Size(630, 246);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "1 - Configurações de Conexão";
@@ -97,16 +97,16 @@ namespace EtiquetaFORNew
             // txtModuloApp
             // 
             this.txtModuloApp.Enabled = false;
-            this.txtModuloApp.Location = new System.Drawing.Point(421, 212);
+            this.txtModuloApp.Location = new System.Drawing.Point(490, 212);
             this.txtModuloApp.Name = "txtModuloApp";
             this.txtModuloApp.ReadOnly = true;
-            this.txtModuloApp.Size = new System.Drawing.Size(140, 20);
+            this.txtModuloApp.Size = new System.Drawing.Size(128, 20);
             this.txtModuloApp.TabIndex = 19;
             // 
             // lblModuloApp
             // 
             this.lblModuloApp.AutoSize = true;
-            this.lblModuloApp.Location = new System.Drawing.Point(421, 196);
+            this.lblModuloApp.Location = new System.Drawing.Point(490, 196);
             this.lblModuloApp.Name = "lblModuloApp";
             this.lblModuloApp.Size = new System.Drawing.Size(67, 13);
             this.lblModuloApp.TabIndex = 20;
@@ -115,7 +115,7 @@ namespace EtiquetaFORNew
             // chkMostrarSenha
             // 
             this.chkMostrarSenha.AutoSize = true;
-            this.chkMostrarSenha.Location = new System.Drawing.Point(424, 166);
+            this.chkMostrarSenha.Location = new System.Drawing.Point(493, 166);
             this.chkMostrarSenha.Name = "chkMostrarSenha";
             this.chkMostrarSenha.Size = new System.Drawing.Size(95, 17);
             this.chkMostrarSenha.TabIndex = 13;
@@ -125,16 +125,16 @@ namespace EtiquetaFORNew
             // 
             // txtTimeout
             // 
-            this.txtTimeout.Location = new System.Drawing.Point(414, 42);
+            this.txtTimeout.Location = new System.Drawing.Point(490, 42);
             this.txtTimeout.Name = "txtTimeout";
-            this.txtTimeout.Size = new System.Drawing.Size(140, 20);
+            this.txtTimeout.Size = new System.Drawing.Size(128, 20);
             this.txtTimeout.TabIndex = 12;
             this.txtTimeout.Text = "120";
             // 
             // lblTimeout
             // 
             this.lblTimeout.AutoSize = true;
-            this.lblTimeout.Location = new System.Drawing.Point(411, 26);
+            this.lblTimeout.Location = new System.Drawing.Point(487, 26);
             this.lblTimeout.Name = "lblTimeout";
             this.lblTimeout.Size = new System.Drawing.Size(52, 13);
             this.lblTimeout.TabIndex = 11;
@@ -144,7 +144,7 @@ namespace EtiquetaFORNew
             // 
             this.txtPorta.Location = new System.Drawing.Point(268, 42);
             this.txtPorta.Name = "txtPorta";
-            this.txtPorta.Size = new System.Drawing.Size(140, 20);
+            this.txtPorta.Size = new System.Drawing.Size(195, 20);
             this.txtPorta.TabIndex = 10;
             this.txtPorta.Text = "5433";
             // 
@@ -161,7 +161,7 @@ namespace EtiquetaFORNew
             // 
             this.txtSenha.Location = new System.Drawing.Point(16, 123);
             this.txtSenha.Name = "txtSenha";
-            this.txtSenha.Size = new System.Drawing.Size(392, 20);
+            this.txtSenha.Size = new System.Drawing.Size(447, 20);
             this.txtSenha.TabIndex = 8;
             this.txtSenha.UseSystemPasswordChar = true;
             // 
@@ -178,7 +178,7 @@ namespace EtiquetaFORNew
             // 
             this.txtUsuario.Location = new System.Drawing.Point(16, 84);
             this.txtUsuario.Name = "txtUsuario";
-            this.txtUsuario.Size = new System.Drawing.Size(392, 20);
+            this.txtUsuario.Size = new System.Drawing.Size(447, 20);
             this.txtUsuario.TabIndex = 6;
             // 
             // lblUsuario
@@ -205,7 +205,7 @@ namespace EtiquetaFORNew
             this.cmbBancoDados.FormattingEnabled = true;
             this.cmbBancoDados.Location = new System.Drawing.Point(16, 162);
             this.cmbBancoDados.Name = "cmbBancoDados";
-            this.cmbBancoDados.Size = new System.Drawing.Size(392, 21);
+            this.cmbBancoDados.Size = new System.Drawing.Size(447, 21);
             this.cmbBancoDados.TabIndex = 4;
             // 
             // lblBancoDados
@@ -235,9 +235,9 @@ namespace EtiquetaFORNew
             // 
             // btnTestar
             // 
-            this.btnTestar.Location = new System.Drawing.Point(268, 202);
+            this.btnTestar.Location = new System.Drawing.Point(291, 202);
             this.btnTestar.Name = "btnTestar";
-            this.btnTestar.Size = new System.Drawing.Size(143, 30);
+            this.btnTestar.Size = new System.Drawing.Size(172, 30);
             this.btnTestar.TabIndex = 3;
             this.btnTestar.Text = "Testar Conexão";
             this.btnTestar.UseVisualStyleBackColor = true;
@@ -251,6 +251,7 @@ namespace EtiquetaFORNew
             this.btnSalvar.TabIndex = 4;
             this.btnSalvar.Text = "Salvar";
             this.btnSalvar.UseVisualStyleBackColor = true;
+            this.btnSalvar.Visible = false;
             this.btnSalvar.Click += new System.EventHandler(this.btnSalvar_Click);
             // 
             // btnCancelar
@@ -261,6 +262,7 @@ namespace EtiquetaFORNew
             this.btnCancelar.TabIndex = 5;
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = true;
+            this.btnCancelar.Visible = false;
             this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
             // 
             // pictureBox1
@@ -279,7 +281,7 @@ namespace EtiquetaFORNew
             this.groupBox2.Controls.Add(this.cmbLoja);
             this.groupBox2.Location = new System.Drawing.Point(12, 295);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(570, 42);
+            this.groupBox2.Size = new System.Drawing.Size(630, 42);
             this.groupBox2.TabIndex = 19;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "2 -Seleciona a Empresa.";
@@ -299,7 +301,7 @@ namespace EtiquetaFORNew
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(594, 377);
+            this.ClientSize = new System.Drawing.Size(662, 375);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnCancelar);
