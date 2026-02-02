@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace EtiquetaFORNew
 {
@@ -8,31 +9,27 @@ namespace EtiquetaFORNew
     {
         private ConfiguracaoSistema _config;
         private SoftcomShopService _service;
-        private ConfigForm _configFormSql; // ⭐ Instância do ConfigForm existente
+        private ConfigForm _configFormSql;
 
         public FormConfiguracao()
         {
             InitializeComponent();
             CarregarConfiguracoes();
 
-            // Limpar ConfigForm quando fechar
             this.FormClosing += FormConfiguracao_FormClosing;
         }
 
         private void FormConfiguracao_Load(object sender, EventArgs e)
         {
-            // Configurar ComboBox de tipo de conexão
             cboTipoConexao.Items.Clear();
             cboTipoConexao.Items.Add("SQL Server");
             cboTipoConexao.Items.Add("SoftcomShop");
 
-            // Selecionar tipo de conexão atual
             if (_config.TipoConexaoAtiva == TipoConexao.SqlServer)
                 cboTipoConexao.SelectedIndex = 0;
             else
                 cboTipoConexao.SelectedIndex = 1;
 
-            // Atualizar visibilidade dos painéis
             AtualizarPaineis();
         }
 
@@ -44,7 +41,6 @@ namespace EtiquetaFORNew
             {
                 _config = ConfiguracaoSistema.Carregar();
 
-                // Carregar configurações SoftcomShop
                 if (_config.SoftcomShop != null)
                 {
                     txtBaseURL.Text = _config.SoftcomShop.BaseURL;
@@ -54,6 +50,9 @@ namespace EtiquetaFORNew
                     txtEmpresaCNPJ.Text = _config.SoftcomShop.CompanyCNPJ;
                     txtDeviceName.Text = _config.SoftcomShop.DeviceName;
                     txtDeviceId.Text = _config.SoftcomShop.DeviceId;
+
+                    // Atualizar contador de caracteres
+                    AtualizarContadorCaracteres();
                 }
             }
             catch (Exception ex)
@@ -67,13 +66,11 @@ namespace EtiquetaFORNew
         {
             try
             {
-                // Atualizar tipo de conexão
                 _config.TipoConexaoAtiva = cboTipoConexao.SelectedIndex == 0
                     ? TipoConexao.SqlServer
                     : TipoConexao.SoftcomShop;
 
-                // Salvar configurações SoftcomShop
-                if (cboTipoConexao.SelectedIndex == 1) // SoftcomShop
+                if (cboTipoConexao.SelectedIndex == 1)
                 {
                     if (_config.SoftcomShop == null)
                         _config.SoftcomShop = new SoftcomShopConfig();
@@ -87,7 +84,6 @@ namespace EtiquetaFORNew
                     _config.SoftcomShop.DeviceId = txtDeviceId.Text.Trim();
                 }
 
-                // Salvar no arquivo
                 _config.Salvar();
 
                 MessageBox.Show("Configurações salvas com sucesso!",
@@ -102,6 +98,117 @@ namespace EtiquetaFORNew
 
         #endregion
 
+        #region Parser de URL do Dispositivo
+
+        /// <summary>
+        /// Processa URL quando usuário sai do campo
+        /// </summary>
+        private void txtUrlDispositivo_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtUrlDispositivo.Text))
+                return;
+
+            try
+            {
+                ParsearUrlDispositivo(txtUrlDispositivo.Text);
+                txtUrlDispositivo.Clear();
+
+                MessageBox.Show("URL processada com sucesso!\n\nOs campos foram preenchidos automaticamente.",
+                    "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao processar URL:\n\n{ex.Message}\n\nVerifique se a URL está correta.",
+                    "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ParsearUrlDispositivo(string urlCompleta)
+        {
+            if (string.IsNullOrWhiteSpace(urlCompleta))
+                return;
+
+            string[] partes = urlCompleta.Split('?');
+
+            if (partes.Length < 2)
+            {
+                MessageBox.Show("URL inválida! Não contém parâmetros (?).",
+                    "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string urlBase = partes[0];
+            if (urlBase.Contains("com.br"))
+            {
+                int indiceComBr = urlBase.IndexOf("com.br") + 6;
+                urlBase = urlBase.Substring(0, indiceComBr);
+            }
+
+            string parametros = partes[1];
+            Dictionary<string, string> dadosUrl = ParsearParametrosUrl(parametros);
+            PreencherCamposDeUrl(urlBase, dadosUrl);
+        }
+
+        private Dictionary<string, string> ParsearParametrosUrl(string parametros)
+        {
+            var resultado = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            string[] pares = parametros.Split('&');
+
+            foreach (string par in pares)
+            {
+                if (string.IsNullOrWhiteSpace(par))
+                    continue;
+
+                string[] partesPar = par.Split('=');
+
+                if (partesPar.Length == 2)
+                {
+                    string chave = partesPar[0].Trim();
+                    string valor = Uri.UnescapeDataString(partesPar[1].Trim());
+                    resultado[chave] = valor;
+                }
+            }
+
+            return resultado;
+        }
+
+        private void PreencherCamposDeUrl(string urlBase, Dictionary<string, string> dados)
+        {
+            if (!string.IsNullOrEmpty(urlBase))
+                txtBaseURL.Text = urlBase;
+
+            PreencherCampoSeExistir(dados, "BaseURL", txtBaseURL);
+            PreencherCampoSeExistir(dados, "Client_Id", txtClientId);
+            PreencherCampoSeExistir(dados, "Empresa_Name", txtEmpresaName);
+            PreencherCampoSeExistir(dados, "Empresa_CNPJ", txtEmpresaCNPJ);
+
+            // ⭐ Device_Name = Nome do dispositivo no SoftcomShop (vem da URL)
+            PreencherCampoSeExistir(dados, "Device_Name", txtDeviceName);
+
+            // ⭐ Device_Id NÃO vem da URL - é preenchido pelo técnico manualmente
+            // Não preencher automaticamente
+
+            PreencherCampoSeExistir(dados, "ClientSecret", txtClientSecret);
+        }
+
+        private void PreencherCampoSeExistir(Dictionary<string, string> dados, string chave, TextBox campo)
+        {
+            if (dados.ContainsKey(chave) && !string.IsNullOrWhiteSpace(dados[chave]))
+            {
+                campo.Text = dados[chave];
+            }
+        }
+
+        private void PreencherCampoSeExistir(Dictionary<string, string> dados, string chave, MaskedTextBox campo)
+        {
+            if (dados.ContainsKey(chave) && !string.IsNullOrWhiteSpace(dados[chave]))
+            {
+                campo.Text = dados[chave];
+            }
+        }
+
+        #endregion
+
         #region Eventos dos Controles
 
         private void cboTipoConexao_SelectedIndexChanged(object sender, EventArgs e)
@@ -111,48 +218,35 @@ namespace EtiquetaFORNew
 
         private void AtualizarPaineis()
         {
-            if (cboTipoConexao.SelectedIndex == 0) // SQL Server
+            if (cboTipoConexao.SelectedIndex == 0)
             {
                 panelSqlServer.Visible = true;
                 panelSoftcomShop.Visible = false;
-
-                // ⭐ CARREGAR ConfigForm dentro do painel
                 CarregarConfigFormSql();
             }
-            else // SoftcomShop
+            else
             {
                 panelSqlServer.Visible = false;
                 panelSoftcomShop.Visible = true;
-
-                // ⭐ REMOVER ConfigForm se existir
                 RemoverConfigFormSql();
             }
         }
 
-        /// <summary>
-        /// ⭐ NOVO: Carrega o ConfigForm existente dentro do painel SQL
-        /// </summary>
         private void CarregarConfigFormSql()
         {
-            // Se já existe, não cria de novo
             if (_configFormSql != null)
                 return;
 
-            // Criar instância do ConfigForm
             _configFormSql = new ConfigForm();
             _configFormSql.TopLevel = false;
             _configFormSql.FormBorderStyle = FormBorderStyle.None;
             _configFormSql.Dock = DockStyle.Fill;
 
-            // Adicionar ao painel
             panelSqlServer.Controls.Clear();
             panelSqlServer.Controls.Add(_configFormSql);
             _configFormSql.Show();
         }
 
-        /// <summary>
-        /// ⭐ NOVO: Remove o ConfigForm quando trocar para SoftcomShop
-        /// </summary>
         private void RemoverConfigFormSql()
         {
             if (_configFormSql != null)
@@ -163,99 +257,50 @@ namespace EtiquetaFORNew
             }
         }
 
-        private void btnGerarDeviceId_Click(object sender, EventArgs e)
+        /// <summary>
+        /// ⭐ NOVO: Contador de caracteres do Device_Id
+        /// </summary>
+        private void txtDeviceId_TextChanged(object sender, EventArgs e)
         {
-            txtDeviceId.Text = new SoftcomShopConfig().DeviceId;
-            MessageBox.Show("Device ID gerado com sucesso!",
-                "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            AtualizarContadorCaracteres();
+        }
+
+        private void AtualizarContadorCaracteres()
+        {
+            int count = txtDeviceId.Text.Length;
+            lblCaracteres.Text = $"{count} caracteres";
+
+            // Mudar cor baseado na quantidade
+            if (count < 16)
+                lblCaracteres.ForeColor = System.Drawing.Color.Red;
+            else
+                lblCaracteres.ForeColor = System.Drawing.Color.Green;
         }
 
         private void btnSalvar_Click(object sender, EventArgs e)
         {
-            // 1. Se for SQL Server (Index 0)
-            if (cboTipoConexao.SelectedIndex == 0)
-            {
-                if (_configFormSql != null)
-                {
-                    // Tentamos encontrar o botão salvar dentro do formulário SQL e disparar o clique
-                    // Assumindo que o nome do botão no ConfigForm original seja 'btnSalvar'
-                    Control[] bttns = _configFormSql.Controls.Find("btnSalvar", true);
-                    if (bttns.Length > 0 && bttns[0] is Button btnSql)
-                    {
-                        btnSql.PerformClick();
-
-                        // Se o formulário SQL fechar após salvar, precisamos fechar este também
-                        // Mas geralmente, verificamos se o salvamento ocorreu bem:
-                        this.DialogResult = DialogResult.OK;
-                        this.Close();
-                    }
-                    else
-                    {
-                        // Fallback: Caso o botão não seja encontrado por nome, 
-                        // você precisaria tornar o método btnSalvar_Click do ConfigForm 'public'
-                        // e chamá-lo assim: _configFormSql.btnSalvar_Click(sender, e);
-                        MessageBox.Show("Não foi possível acionar o salvamento do SQL Server automaticamente.", "Aviso");
-                    }
-                }
-            }
-            // 2. Se for SoftcomShop (Index 1)
-            else if (cboTipoConexao.SelectedIndex == 1)
+            if (cboTipoConexao.SelectedIndex == 1)
             {
                 if (!ValidarCamposSoftcomShop())
                     return;
-
-                SalvarConfiguracoes(); // Chama sua rotina interna que já salva o Softcom
-                this.DialogResult = DialogResult.OK;
-                this.Close();
             }
+
+            SalvarConfiguracoes();
         }
 
         private async void btnTestarConexao_Click(object sender, EventArgs e)
         {
-            if (!ValidarCamposSoftcomShop())
+            // ⭐ Validar Device_Id antes de conectar
+            if (!ValidarDeviceId())
                 return;
 
-            // Salvar antes de testar
-            SalvarConfiguracoes();
-
-            try
-            {
-                btnTestarConexao.Enabled = false;
-                Cursor = Cursors.WaitCursor;
-
-                _service = new SoftcomShopService(_config.SoftcomShop);
-                bool sucesso = await _service.TestarConexaoAsync();
-
-                if (sucesso)
-                {
-                    MessageBox.Show("Conexão estabelecida com sucesso!",
-                        "Teste de Conexão", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Falha ao conectar. Verifique as credenciais.",
-                        "Teste de Conexão", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao testar conexão: {ex.Message}",
-                    "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                btnTestarConexao.Enabled = true;
-                Cursor = Cursors.Default;
-            }
-        }
-
-        private async void btnCadastrarDispositivo_Click(object sender, EventArgs e)
-        {
             if (!ValidarCamposSoftcomShop())
                 return;
 
             var result = MessageBox.Show(
-                $"Deseja cadastrar este dispositivo no SoftcomShop?\n\nDispositivo: {txtDeviceName.Text}",
+                $"Deseja cadastrar este dispositivo no SoftcomShop?\n\n" +
+                $"Dispositivo: {txtDeviceName.Text}\n" +
+                $"Device ID: {txtDeviceId.Text}",
                 "Confirmar Cadastro",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -268,9 +313,10 @@ namespace EtiquetaFORNew
 
             try
             {
-                btnCadastrarDispositivo.Enabled = false;
+                btnTestarConexao.Enabled = false;
                 Cursor = Cursors.WaitCursor;
 
+                // ⭐ IGUAL AO ACCESS: Botão "Conectar" cadastra o dispositivo
                 _service = new SoftcomShopService(_config.SoftcomShop);
                 string clientSecret = await _service.CadastrarDispositivoAsync();
 
@@ -281,23 +327,39 @@ namespace EtiquetaFORNew
                     _config.SoftcomShop.ClientSecret = clientSecret;
                     _config.Salvar();
 
-                    MessageBox.Show("Dispositivo cadastrado com sucesso!\n\nClient Secret foi gerado e salvo automaticamente.",
-                        "Cadastro Concluído", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(
+                        "Dispositivo cadastrado com sucesso!\n\n" +
+                        "Client Secret foi gerado e salvo automaticamente.\n\n" +
+                        "Você já pode sincronizar produtos.",
+                        "Conexão Estabelecida",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Falha ao cadastrar dispositivo.\n\nVerifique se os dados estão corretos.",
-                        "Erro no Cadastro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(
+                        "Falha ao conectar. Verifique as credenciais.\n\n" +
+                        "Certifique-se de que:\n" +
+                        "- A URL está correta\n" +
+                        "- O Client ID está correto\n" +
+                        "- O dispositivo não foi cadastrado anteriormente",
+                        "Erro na Conexão",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao cadastrar dispositivo: {ex.Message}",
-                    "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    $"Erro ao conectar:\n\n{ex.Message}\n\n" +
+                    "Verifique sua conexão com a internet e as credenciais.",
+                    "Erro",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
             finally
             {
-                btnCadastrarDispositivo.Enabled = true;
+                btnTestarConexao.Enabled = true;
                 Cursor = Cursors.Default;
             }
         }
@@ -310,6 +372,32 @@ namespace EtiquetaFORNew
         #endregion
 
         #region Validações
+
+        /// <summary>
+        /// ⭐ NOVO: Valida Device_Id (mínimo 16 caracteres)
+        /// </summary>
+        private bool ValidarDeviceId()
+        {
+            if (string.IsNullOrWhiteSpace(txtDeviceId.Text))
+            {
+                MessageBox.Show("Informe o Device ID!",
+                    "Validação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtDeviceId.Focus();
+                return false;
+            }
+
+            if (txtDeviceId.Text.Trim().Length < 16)
+            {
+                MessageBox.Show("O Device ID deve ter no mínimo 16 caracteres!\n\n" +
+                                $"Atual: {txtDeviceId.Text.Length} caracteres\n" +
+                                "Necessário: 16 caracteres",
+                    "Validação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtDeviceId.Focus();
+                return false;
+            }
+
+            return true;
+        }
 
         private bool ValidarCamposSoftcomShop()
         {
@@ -348,12 +436,11 @@ namespace EtiquetaFORNew
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(txtDeviceId.Text))
-            {
-                MessageBox.Show("Gere um Device ID!", "Validação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                btnGerarDeviceId.Focus();
+            // ⭐ Validar Device_Id
+            if (!ValidarDeviceId())
                 return false;
-            }
+
+            // ⭐ NÃO validar ClientSecret - ele é GERADO ao clicar em Conectar
 
             return true;
         }
@@ -362,9 +449,6 @@ namespace EtiquetaFORNew
 
         #region Cleanup
 
-        /// <summary>
-        /// Limpa recursos quando o formulário é fechado
-        /// </summary>
         private void FormConfiguracao_FormClosing(object sender, FormClosingEventArgs e)
         {
             RemoverConfigFormSql();

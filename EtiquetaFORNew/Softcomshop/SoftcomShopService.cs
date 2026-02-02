@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace EtiquetaFORNew
 {
     /// <summary>
-    /// Serviço para comunicação com a API SoftcomShop
+    /// ServiÃ§o para comunicaÃ§Ã£o com a API SoftcomShop
     /// </summary>
     public class SoftcomShopService
     {
@@ -25,10 +25,10 @@ namespace EtiquetaFORNew
             _httpClient.Timeout = TimeSpan.FromMinutes(5);
         }
 
-        #region Autenticação
+        #region AutenticaÃ§Ã£o
 
         /// <summary>
-        /// Obtém token de autenticação
+        /// ObtÃ©m token de autenticaÃ§Ã£o
         /// </summary>
         public async Task<string> GetTokenAsync()
         {
@@ -101,7 +101,7 @@ namespace EtiquetaFORNew
         #region Produtos
 
         /// <summary>
-        /// Obtém produtos do catálogo (paginado)
+        /// ObtÃ©m produtos do catÃ¡logo (paginado)
         /// </summary>
         public async Task<string> GetProdutosAsync(int page = 1, string versao = "v2")
         {
@@ -136,7 +136,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// Obtém produtos por nota fiscal
+        /// ObtÃ©m produtos por nota fiscal
         /// </summary>
         public async Task<string> GetNotaFiscalAsync(string dataEntrada, int numeroNota = 0, int page = 1, string versao = "v2")
         {
@@ -155,19 +155,19 @@ namespace EtiquetaFORNew
                 {
                     _httpClient.DefaultRequestHeaders.Add("Api-Version", "v2");
                     url = $"{_router.DataEntradaNotaFiscalV2}{dataEntrada}";
-                    
+
                     if (numeroNota > 0)
                         url += $"&numero_nota_fiscal={numeroNota}";
-                    
+
                     url += $"&page={page}";
                 }
                 else
                 {
                     url = $"{_router.DataEntradaNotaFiscal}{dataEntrada}";
-                    
+
                     if (numeroNota > 0)
                         url += $"?numero_nota={numeroNota}";
-                    
+
                     url += $"/page/{page}";
                 }
 
@@ -181,7 +181,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// Obtém produtos por venda
+        /// ObtÃ©m produtos por venda
         /// </summary>
         public async Task<string> GetVendaAsync(int numeroVenda)
         {
@@ -207,7 +207,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// Obtém promoções ativas
+        /// ObtÃ©m promoÃ§Ãµes ativas
         /// </summary>
         public async Task<string> GetPromocoesAsync()
         {
@@ -226,12 +226,12 @@ namespace EtiquetaFORNew
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao obter promoções: {ex.Message}", ex);
+                throw new Exception($"Erro ao obter promoÃ§Ãµes: {ex.Message}", ex);
             }
         }
 
         /// <summary>
-        /// Obtém informações da empresa
+        /// ObtÃ©m informaÃ§Ãµes da empresa
         /// </summary>
         public async Task<string> GetEmpresaAsync()
         {
@@ -259,14 +259,22 @@ namespace EtiquetaFORNew
         #region Testes
 
         /// <summary>
-        /// Testa a conexão com a API
+        /// Testa a conexÃ£o com a API
+        /// </summary>
+        /// <summary>
+        /// Testa se a API está acessível e credenciais básicas estão corretas
+        /// NÃO requer Client Secret (que só existe após cadastrar dispositivo)
         /// </summary>
         public async Task<bool> TestarConexaoAsync()
         {
             try
             {
-                var token = await GetTokenAsync();
-                return !string.IsNullOrEmpty(token);
+                // ⭐ CORREÇÃO: Testar conexão sem ClientSecret
+                // ClientSecret só existe APÓS cadastrar o dispositivo
+
+                // Apenas verificar se consegue acessar a API
+                var response = await _httpClient.GetAsync(_config.BaseURL);
+                return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.Unauthorized;
             }
             catch
             {

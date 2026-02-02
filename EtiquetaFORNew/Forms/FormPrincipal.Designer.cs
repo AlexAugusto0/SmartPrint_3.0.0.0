@@ -72,6 +72,7 @@
             this.chkSelecionarTodos = new System.Windows.Forms.CheckBox();
             this.btnLimparTodos = new System.Windows.Forms.Button();
             this.btnCarregar = new System.Windows.Forms.Button();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.groupProduto.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numQtd)).BeginInit();
@@ -80,6 +81,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             this.SuspendLayout();
             // 
             // groupProduto
@@ -409,7 +411,7 @@
             this.btnDesigner.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDesigner.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnDesigner.ForeColor = System.Drawing.Color.Black;
-            this.btnDesigner.Location = new System.Drawing.Point(780, 7);
+            this.btnDesigner.Location = new System.Drawing.Point(713, 7);
             this.btnDesigner.Name = "btnDesigner";
             this.btnDesigner.Size = new System.Drawing.Size(180, 30);
             this.btnDesigner.TabIndex = 1;
@@ -436,6 +438,7 @@
             // 
             this.panelTop.BackColor = System.Drawing.Color.White;
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelTop.Controls.Add(this.pictureBox4);
             this.panelTop.Controls.Add(this.btnDesigner);
             this.panelTop.Controls.Add(this.pictureBox2);
             this.panelTop.Controls.Add(this.lblTitulo);
@@ -449,7 +452,7 @@
             // 
             this.pictureBox2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pictureBox2.Image = global::EtiquetaFORNew.Properties.Resources.Sincronizando;
-            this.pictureBox2.Location = new System.Drawing.Point(966, 9);
+            this.pictureBox2.Location = new System.Drawing.Point(899, 9);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(31, 24);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -520,6 +523,18 @@
             this.btnCarregar.UseVisualStyleBackColor = false;
             this.btnCarregar.Click += new System.EventHandler(this.btnCarregar_Click);
             // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pictureBox4.Image = global::EtiquetaFORNew.Properties.Resources.Engrenagem;
+            this.pictureBox4.Location = new System.Drawing.Point(942, 9);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(44, 27);
+            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox4.TabIndex = 6;
+            this.pictureBox4.TabStop = false;
+            this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
+            // 
             // FormPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -549,6 +564,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -581,5 +597,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colTam;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCor;
         private System.Windows.Forms.DataGridViewButtonColumn colRemover;
+        private System.Windows.Forms.PictureBox pictureBox4;
     }
 }

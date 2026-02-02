@@ -3173,7 +3173,11 @@ namespace EtiquetaFORNew
 
         }
 
-
+        private void pictureBox4_Click(object sender, EventArgs e)
+        {
+            FormConfiguracao tela = new FormConfiguracao();
+            tela.ShowDialog();
+        }
     }
 
 
