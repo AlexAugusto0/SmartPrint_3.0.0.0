@@ -298,8 +298,8 @@ namespace EtiquetaFORNew
         private void HabilitarBotoes(bool habilitar)
         {
             btnSincronizarProdutos.Enabled = habilitar;
-            btnBuscarNotaFiscal.Enabled = habilitar;
-            btnBuscarVenda.Enabled = habilitar;
+            btnBuscarNotaFiscal.Enabled = false;
+            btnBuscarVenda.Enabled = false;
             btnFechar.Enabled = habilitar;
         }
 

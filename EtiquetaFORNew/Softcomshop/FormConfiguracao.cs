@@ -17,6 +17,8 @@ namespace EtiquetaFORNew
             InitializeComponent();
             CarregarConfiguracoes();
 
+            txtUrlDispositivo.KeyDown += txtUrlDispositivo_KeyDown;
+
             this.FormClosing += FormConfiguracao_FormClosing;
         }
 
@@ -405,6 +407,35 @@ namespace EtiquetaFORNew
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+        private void txtUrlDispositivo_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Verifica se a tecla pressionada foi o ENTER
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Impede o "BIP" do Windows ao apertar Enter em um campo de linha única
+                e.SuppressKeyPress = true;
+
+                if (!string.IsNullOrWhiteSpace(txtUrlDispositivo.Text))
+                {
+                    try
+                    {
+                        ParsearUrlDispositivo(txtUrlDispositivo.Text);
+                        txtUrlDispositivo.Clear();
+
+                        MessageBox.Show("URL processada com sucesso!\n\nOs campos foram preenchidos automaticamente.",
+                            "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        // Opcional: Move o foco para o próximo campo após o processamento
+                        this.SelectNextControl((Control)sender, true, true, true, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Erro ao processar URL:\n\n{ex.Message}",
+                            "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
 
         #endregion

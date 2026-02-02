@@ -121,6 +121,9 @@
   <data name="olho_senha" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\olho_senha.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Sincronização15x17" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sincronização15x17.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="icone-novo-2025_PNG" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icone-novo-2025_PNG.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -133,11 +136,14 @@
   <data name="SoftcomTecnologia" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SoftcomTecnologia.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="SoftcomTecnologia1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SoftcomTecnologia1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Sincronização" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sincronização.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="LogoIMG" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\LogoIMG.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Sincronização2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sincronização2.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="EtiquetaFOR (2)1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EtiquetaFOR (2)1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -148,8 +154,11 @@
   <data name="SoftcomTecnologia2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SoftcomTecnologia2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="icone-novo-2025_PNG1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\icone-novo-2025_PNG1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Sincronizando" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sincronizando.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SoftcomTecnologia1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SoftcomTecnologia1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Engrenagem" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Engrenagem.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -157,13 +166,16 @@
   <data name="ChatGPT Image 24 de out. de 2025, 09_11_06" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ChatGPT Image 24 de out. de 2025, 09_11_06.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="icone-novo-2025_PNG1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icone-novo-2025_PNG1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="LogoLogin" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\LogoLogin1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="EtiquetaFOR" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EtiquetaFOR.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Sincronizando" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Sincronizando.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Sincronização20x23" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sincronização20x23.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

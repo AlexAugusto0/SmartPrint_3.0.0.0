@@ -498,6 +498,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="etiqueta-icone-softcom.ico" />
+    <None Include="Resources\Sincronização20x23.jpg" />
+    <None Include="Resources\Sincronização15x17.jpg" />
+    <None Include="Resources\Sincronização2.jpg" />
+    <None Include="Resources\Sincronização.jpg" />
     <None Include="Resources\Sincronizando.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
