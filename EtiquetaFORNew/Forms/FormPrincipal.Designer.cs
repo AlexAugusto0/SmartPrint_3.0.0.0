@@ -67,25 +67,25 @@
             this.btnDesigner = new System.Windows.Forms.Button();
             this.btnImprimir = new System.Windows.Forms.Button();
             this.panelTop = new System.Windows.Forms.Panel();
+            this.btnSincronizar = new System.Windows.Forms.Button();
+            this.btnConfig = new System.Windows.Forms.Button();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.btnSincronizar2 = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.chkSelecionarTodos = new System.Windows.Forms.CheckBox();
             this.btnLimparTodos = new System.Windows.Forms.Button();
             this.btnCarregar = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.btnConfig = new System.Windows.Forms.Button();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.btnSincronizar2 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.btnSincronizar = new System.Windows.Forms.Button();
             this.groupProduto.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numQtd)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).BeginInit();
             this.panelTop.SuspendLayout();
-            this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnSincronizar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupProduto
@@ -182,7 +182,7 @@
             this.cmbBuscaReferencia.FormattingEnabled = true;
             this.cmbBuscaReferencia.Location = new System.Drawing.Point(72, 24);
             this.cmbBuscaReferencia.Name = "cmbBuscaReferencia";
-            this.cmbBuscaReferencia.Size = new System.Drawing.Size(90, 23);
+            this.cmbBuscaReferencia.Size = new System.Drawing.Size(120, 23);
             this.cmbBuscaReferencia.TabIndex = 11;
             this.cmbBuscaReferencia.SelectedIndexChanged += new System.EventHandler(this.cmbBuscaReferencia_SelectedIndexChanged);
             // 
@@ -199,9 +199,9 @@
             // cmbBuscaNome
             // 
             this.cmbBuscaNome.FormattingEnabled = true;
-            this.cmbBuscaNome.Location = new System.Drawing.Point(168, 24);
+            this.cmbBuscaNome.Location = new System.Drawing.Point(198, 24);
             this.cmbBuscaNome.Name = "cmbBuscaNome";
-            this.cmbBuscaNome.Size = new System.Drawing.Size(670, 23);
+            this.cmbBuscaNome.Size = new System.Drawing.Size(640, 23);
             this.cmbBuscaNome.TabIndex = 12;
             this.cmbBuscaNome.SelectedIndexChanged += new System.EventHandler(this.cmbBuscaNome_SelectedIndexChanged);
             // 
@@ -209,7 +209,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.label2.Location = new System.Drawing.Point(165, 6);
+            this.label2.Location = new System.Drawing.Point(195, 6);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(70, 15);
             this.label2.TabIndex = 11;
@@ -457,6 +457,72 @@
             this.panelTop.Size = new System.Drawing.Size(1004, 47);
             this.panelTop.TabIndex = 0;
             // 
+            // btnSincronizar
+            // 
+            this.btnSincronizar.BackColor = System.Drawing.Color.Transparent;
+            this.btnSincronizar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnSincronizar.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSincronizar.FlatAppearance.BorderSize = 0;
+            this.btnSincronizar.Image = global::EtiquetaFORNew.Properties.Resources.Sincronizando3;
+            this.btnSincronizar.Location = new System.Drawing.Point(902, 6);
+            this.btnSincronizar.Name = "btnSincronizar";
+            this.btnSincronizar.Size = new System.Drawing.Size(45, 34);
+            this.btnSincronizar.TabIndex = 9;
+            this.toolTip1.SetToolTip(this.btnSincronizar, "Sincronização de Dados");
+            this.btnSincronizar.UseVisualStyleBackColor = false;
+            this.btnSincronizar.Click += new System.EventHandler(this.btnSincronizar_Click);
+            // 
+            // btnConfig
+            // 
+            this.btnConfig.BackColor = System.Drawing.Color.Transparent;
+            this.btnConfig.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnConfig.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnConfig.FlatAppearance.BorderSize = 0;
+            this.btnConfig.Image = global::EtiquetaFORNew.Properties.Resources.Engrenagem20x20;
+            this.btnConfig.Location = new System.Drawing.Point(953, 6);
+            this.btnConfig.Name = "btnConfig";
+            this.btnConfig.Size = new System.Drawing.Size(45, 34);
+            this.btnConfig.TabIndex = 8;
+            this.toolTip1.SetToolTip(this.btnConfig, "Configurações");
+            this.btnConfig.UseVisualStyleBackColor = false;
+            this.btnConfig.Click += new System.EventHandler(this.pictureBox4_Click);
+            // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pictureBox4.Image = global::EtiquetaFORNew.Properties.Resources.Engrenagem;
+            this.pictureBox4.Location = new System.Drawing.Point(629, 7);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(44, 27);
+            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox4.TabIndex = 6;
+            this.pictureBox4.TabStop = false;
+            this.pictureBox4.Visible = false;
+            this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
+            // 
+            // btnSincronizar2
+            // 
+            this.btnSincronizar2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSincronizar2.Image = global::EtiquetaFORNew.Properties.Resources.Sincronizando;
+            this.btnSincronizar2.Location = new System.Drawing.Point(676, 9);
+            this.btnSincronizar2.Name = "btnSincronizar2";
+            this.btnSincronizar2.Size = new System.Drawing.Size(31, 24);
+            this.btnSincronizar2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.btnSincronizar2.TabIndex = 3;
+            this.btnSincronizar2.TabStop = false;
+            this.btnSincronizar2.Visible = false;
+            this.btnSincronizar2.Click += new System.EventHandler(this.pictureBox2_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::EtiquetaFORNew.Properties.Resources.icone_novo_2025_PNG1;
+            this.pictureBox1.Location = new System.Drawing.Point(13, 3);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(63, 35);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 5;
+            this.pictureBox1.TabStop = false;
+            // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Transparent;
@@ -512,72 +578,6 @@
             this.btnCarregar.UseVisualStyleBackColor = false;
             this.btnCarregar.Click += new System.EventHandler(this.btnCarregar_Click);
             // 
-            // btnConfig
-            // 
-            this.btnConfig.BackColor = System.Drawing.Color.Transparent;
-            this.btnConfig.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnConfig.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnConfig.FlatAppearance.BorderSize = 0;
-            this.btnConfig.Image = global::EtiquetaFORNew.Properties.Resources.Engrenagem20x20;
-            this.btnConfig.Location = new System.Drawing.Point(953, 6);
-            this.btnConfig.Name = "btnConfig";
-            this.btnConfig.Size = new System.Drawing.Size(45, 34);
-            this.btnConfig.TabIndex = 8;
-            this.toolTip1.SetToolTip(this.btnConfig, "Configurações");
-            this.btnConfig.UseVisualStyleBackColor = false;
-            this.btnConfig.Click += new System.EventHandler(this.pictureBox4_Click);
-            // 
-            // pictureBox4
-            // 
-            this.pictureBox4.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox4.Image = global::EtiquetaFORNew.Properties.Resources.Engrenagem;
-            this.pictureBox4.Location = new System.Drawing.Point(629, 7);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(44, 27);
-            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox4.TabIndex = 6;
-            this.pictureBox4.TabStop = false;
-            this.pictureBox4.Visible = false;
-            this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
-            // 
-            // btnSincronizar2
-            // 
-            this.btnSincronizar2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSincronizar2.Image = global::EtiquetaFORNew.Properties.Resources.Sincronizando;
-            this.btnSincronizar2.Location = new System.Drawing.Point(676, 9);
-            this.btnSincronizar2.Name = "btnSincronizar2";
-            this.btnSincronizar2.Size = new System.Drawing.Size(31, 24);
-            this.btnSincronizar2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.btnSincronizar2.TabIndex = 3;
-            this.btnSincronizar2.TabStop = false;
-            this.btnSincronizar2.Visible = false;
-            this.btnSincronizar2.Click += new System.EventHandler(this.pictureBox2_Click);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::EtiquetaFORNew.Properties.Resources.icone_novo_2025_PNG1;
-            this.pictureBox1.Location = new System.Drawing.Point(13, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(63, 35);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 5;
-            this.pictureBox1.TabStop = false;
-            // 
-            // btnSincronizar
-            // 
-            this.btnSincronizar.BackColor = System.Drawing.Color.Transparent;
-            this.btnSincronizar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnSincronizar.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSincronizar.FlatAppearance.BorderSize = 0;
-            this.btnSincronizar.Image = global::EtiquetaFORNew.Properties.Resources.Sincronizando3;
-            this.btnSincronizar.Location = new System.Drawing.Point(902, 6);
-            this.btnSincronizar.Name = "btnSincronizar";
-            this.btnSincronizar.Size = new System.Drawing.Size(45, 34);
-            this.btnSincronizar.TabIndex = 9;
-            this.toolTip1.SetToolTip(this.btnSincronizar, "Sincronização de Dados");
-            this.btnSincronizar.UseVisualStyleBackColor = false;
-            this.btnSincronizar.Click += new System.EventHandler(this.btnSincronizar_Click);
-            // 
             // FormPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -604,10 +604,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).EndInit();
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
-            this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnSincronizar2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

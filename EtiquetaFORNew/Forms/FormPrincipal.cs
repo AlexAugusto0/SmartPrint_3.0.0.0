@@ -3233,7 +3233,6 @@ namespace EtiquetaFORNew
                 }
                 catch
                 {
-                    // Se erro ao carregar config, assume SQL Server
                     isSoftcomShop = false;
                 }
 
@@ -3244,11 +3243,8 @@ namespace EtiquetaFORNew
                     : "Deseja sincronizar as mercadorias do SQL Server?\n\n" +
                       "Isso pode levar alguns minutos dependendo da quantidade de registros.";
 
-                if (MessageBox.Show(
-                    mensagem,
-                    "Confirmar Sincronização",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question) != DialogResult.Yes)
+                if (MessageBox.Show(mensagem, "Confirmar Sincronização",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 {
                     return;
                 }
@@ -3260,16 +3256,15 @@ namespace EtiquetaFORNew
 
                 if (isSoftcomShop)
                 {
-                    // ⭐ MODO SOFTCOMSHOP - Abrir FormSincronizacaoSoftcomShop
+                    // ⭐ MODO SOFTCOMSHOP
                     try
                     {
-                        Cursor = Cursors.Default; // Restaurar cursor para o formulário
+                        Cursor = Cursors.Default;
 
                         using (var formSync = new FormSincronizacaoSoftcomShop())
                         {
                             var resultado = formSync.ShowDialog();
 
-                            // Se o usuário cancelou, não recarregar
                             if (resultado == DialogResult.Cancel)
                             {
                                 btnSincronizar.Enabled = true;
@@ -3284,71 +3279,119 @@ namespace EtiquetaFORNew
                         Cursor = Cursors.Default;
                         btnSincronizar.Enabled = true;
 
-                        MessageBox.Show(
-                            $"Erro ao sincronizar SoftcomShop:\n\n{ex.Message}",
-                            "Erro",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
+                        MessageBox.Show($"Erro ao sincronizar SoftcomShop:\n\n{ex.Message}",
+                            "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
                 else
                 {
-                    // ⭐ MODO SQL SERVER (código original)
+                    // ⭐ MODO SQL SERVER
                     total = LocalDatabaseManager.SincronizarMercadorias();
                 }
 
-                // ⭐ LIMPAR CACHE E RECARREGAR MERCADORIAS
-                // CRÍTICO: Forçar limpeza do DataTable para garantir dados atualizados
+                // ⭐⭐⭐ LIMPEZA TOTAL E RECARREGAMENTO FORÇADO ⭐⭐⭐
+
+                // 1. LIMPAR DATATABLE
                 if (mercadorias != null)
                 {
-                    mercadorias.Clear();
-                    mercadorias.Dispose();
+                    try
+                    {
+                        mercadorias.Clear();
+                        mercadorias.Dispose();
+                    }
+                    catch { }
                     mercadorias = null;
                 }
 
-                // ⭐ LIMPAR COMBOBOXES ANTES DE RECARREGAR
+                // 2. LIMPAR COMBOBOX NOME
                 if (cmbBuscaNome != null)
                 {
-                    cmbBuscaNome.Items.Clear();
-                    cmbBuscaNome.Text = "";
-                }
-                if (cmbBuscaReferencia != null)
-                {
-                    cmbBuscaReferencia.Items.Clear();
-                    cmbBuscaReferencia.Text = "";
-                }
-                if (cmbBuscaCodigo != null)
-                {
-                    cmbBuscaCodigo.Items.Clear();
-                    cmbBuscaCodigo.Text = "";
+                    try
+                    {
+                        cmbBuscaNome.DataSource = null;
+                        cmbBuscaNome.Items.Clear();
+                        cmbBuscaNome.Text = "";
+                        if (cmbBuscaNome.AutoCompleteCustomSource != null)
+                        {
+                            cmbBuscaNome.AutoCompleteCustomSource.Clear();
+                        }
+                    }
+                    catch { }
                 }
 
-                // ⭐ FORÇAR RECARREGAMENTO
+                // 3. LIMPAR COMBOBOX REFERÊNCIA
+                if (cmbBuscaReferencia != null)
+                {
+                    try
+                    {
+                        cmbBuscaReferencia.DataSource = null;
+                        cmbBuscaReferencia.Items.Clear();
+                        cmbBuscaReferencia.Text = "";
+                        if (cmbBuscaReferencia.AutoCompleteCustomSource != null)
+                        {
+                            cmbBuscaReferencia.AutoCompleteCustomSource.Clear();
+                        }
+                    }
+                    catch { }
+                }
+
+                // 4. LIMPAR COMBOBOX CÓDIGO
+                if (cmbBuscaCodigo != null)
+                {
+                    try
+                    {
+                        cmbBuscaCodigo.DataSource = null;
+                        cmbBuscaCodigo.Items.Clear();
+                        cmbBuscaCodigo.Text = "";
+                        if (cmbBuscaCodigo.AutoCompleteCustomSource != null)
+                        {
+                            cmbBuscaCodigo.AutoCompleteCustomSource.Clear();
+                        }
+                    }
+                    catch { }
+                }
+
+                // 5. FORÇAR FLAG DE RECARREGAMENTO
                 mercadoriasCarregadas = false;
-                CarregarTodasMercadorias();
+
+                // 6. AGUARDAR UM MOMENTO PARA GARANTIR LIMPEZA
+                Application.DoEvents();
+                System.Threading.Thread.Sleep(100);
+
+                // 7. RECARREGAR TUDO
+                try
+                {
+                    CarregarTodasMercadorias();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro ao recarregar mercadorias:\n\n{ex.Message}",
+                        "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                // 8. FORÇAR ATUALIZAÇÃO DA INTERFACE
+                Application.DoEvents();
 
                 Cursor = Cursors.Default;
                 btnSincronizar.Enabled = true;
 
-                // ⭐ MENSAGEM DE SUCESSO PERSONALIZADA
+                // ⭐ MENSAGEM DE SUCESSO
+                string modoTexto = isSoftcomShop ? "SoftcomShop" : "SQL Server";
+
                 if (isSoftcomShop)
                 {
                     MessageBox.Show(
                         "Sincronização SoftcomShop concluída com sucesso!\n\n" +
                         "Os produtos foram atualizados.",
-                        "Sucesso",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
                     MessageBox.Show(
                         $"Sincronização SQL Server concluída com sucesso!\n\n" +
                         $"Total de mercadorias importadas: {total:N0}",
-                        "Sucesso",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
@@ -3356,13 +3399,123 @@ namespace EtiquetaFORNew
                 Cursor = Cursors.Default;
                 btnSincronizar.Enabled = true;
 
-                MessageBox.Show(
-                    $"Erro ao sincronizar:\n\n{ex.Message}",
-                    "Erro",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show($"Erro ao sincronizar:\n\n{ex.Message}",
+                    "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        private void DEBUG_VerificarBancoECache()
+{
+    try
+    {
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.AppendLine("=== DEBUG - VERIFICAÇÃO COMPLETA ===");
+        sb.AppendLine();
+        
+        // 1. Verificar connection string
+        string connStr = LocalDatabaseManager.GetConnectionString();
+        sb.AppendLine($"Connection String: {connStr}");
+        sb.AppendLine();
+        
+        // 2. Verificar banco SQLite diretamente
+        using (var conn = new System.Data.SQLite.SQLiteConnection(connStr))
+        {
+            conn.Open();
+            
+            // Total de produtos
+            var cmd = new System.Data.SQLite.SQLiteCommand("SELECT COUNT(*) FROM Mercadorias", conn);
+            int totalBanco = Convert.ToInt32(cmd.ExecuteScalar());
+            sb.AppendLine($"📊 Total no banco SQLite: {totalBanco}");
+            
+            // Por origem
+            cmd.CommandText = "SELECT Origem, COUNT(*) FROM Mercadorias GROUP BY Origem";
+            using (var reader = cmd.ExecuteReader())
+            {
+                sb.AppendLine("\n📊 Por Origem:");
+                while (reader.Read())
+                {
+                    string origem = reader.IsDBNull(0) ? "NULL" : reader.GetString(0);
+                    int count = reader.GetInt32(1);
+                    sb.AppendLine($"   - {origem}: {count}");
+                }
+            }
+            
+            // Primeiros 5 produtos
+            cmd.CommandText = "SELECT Mercadoria, Origem FROM Mercadorias LIMIT 5";
+            using (var reader = cmd.ExecuteReader())
+            {
+                sb.AppendLine("\n📋 Primeiros 5 produtos:");
+                while (reader.Read())
+                {
+                    string nome = reader.GetString(0);
+                    string origem = reader.IsDBNull(1) ? "NULL" : reader.GetString(1);
+                    sb.AppendLine($"   - {nome} (Origem: {origem})");
+                }
+            }
+        }
+        
+        sb.AppendLine();
+        
+        // 3. Verificar DataTable em memória
+        if (mercadorias != null)
+        {
+            sb.AppendLine($"📊 DataTable 'mercadorias': {mercadorias.Rows.Count} rows");
+            
+            if (mercadorias.Rows.Count > 0 && mercadorias.Rows.Count <= 5)
+            {
+                sb.AppendLine("\n📋 Produtos no DataTable:");
+                foreach (System.Data.DataRow row in mercadorias.Rows)
+                {
+                    string nome = row["Mercadoria"]?.ToString();
+                    sb.AppendLine($"   - {nome}");
+                }
+            }
+        }
+        else
+        {
+            sb.AppendLine("❌ DataTable 'mercadorias' é NULL");
+        }
+        
+        sb.AppendLine();
+        
+        // 4. Verificar ComboBoxes
+        if (cmbBuscaNome != null)
+        {
+            sb.AppendLine($"📊 ComboBox Nome: {cmbBuscaNome.Items.Count} items");
+            if (cmbBuscaNome.Items.Count > 0 && cmbBuscaNome.Items.Count <= 5)
+            {
+                sb.AppendLine("   Itens:");
+                foreach (var item in cmbBuscaNome.Items)
+                {
+                    sb.AppendLine($"   - {item}");
+                }
+            }
+        }
+        
+        if (cmbBuscaReferencia != null)
+        {
+            sb.AppendLine($"📊 ComboBox Referência: {cmbBuscaReferencia.Items.Count} items");
+        }
+        
+        if (cmbBuscaCodigo != null)
+        {
+            sb.AppendLine($"📊 ComboBox Código: {cmbBuscaCodigo.Items.Count} items");
+        }
+        
+        sb.AppendLine();
+        sb.AppendLine($"🚩 Flag mercadoriasCarregadas: {mercadoriasCarregadas}");
+        
+        sb.AppendLine();
+        sb.AppendLine("=== FIM DO DEBUG ===");
+        
+        MessageBox.Show(sb.ToString(), "DEBUG - Verificação Completa", 
+            MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Erro no DEBUG:\n\n{ex.Message}", "Erro", 
+            MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+}
     }
 
 

@@ -145,40 +145,89 @@ namespace EtiquetaFORNew
         /// <summary>
         /// Insere um produto no banco local
         /// </summary>
+        // ================================================================================
+        // CORREÇÃO - SoftcomShopDataManager.cs
+        // SUBSTITUIR MÉTODO InserirProduto (LINHA ~148)
+        // ================================================================================
+        // PROBLEMA: Estava preenchendo "Referencia" mas ComboBox usa "CodFabricante"
+        // SOLUÇÃO: Preencher AMBOS os campos
+        // ================================================================================
+
         private void InserirProduto(SQLiteConnection conn, JToken produto, string versao)
         {
             var cmd = new SQLiteCommand(@"
-                INSERT INTO Mercadorias (
-                    ID_SoftcomShop, CodigoMercadoria, CodBarras, CodBarras_Grade, 
-                    Mercadoria, Referencia, PrecoVenda, Marca, Fabricante, Grupo, 
-                    UltimaAtualizacao, Ativo, Tam, Cores, Origem,
-                    GerarEtiqueta, QuantidadeEtiqueta
-                ) VALUES (
-                    @id, @codMerc, @codBarras, @codBarrasGrade, 
-                    @descricao, @referencia, @preco, @marca, @fabricante, @grupo,
-                    @dataAtualizacao, @ativo, @tam, @cor, 'SOFTCOMSHOP',
-                    0, 1
-                )", conn);
+        INSERT INTO Mercadorias (
+            ID_SoftcomShop, CodigoMercadoria, CodFabricante, CodBarras, CodBarras_Grade, 
+            Mercadoria, PrecoVenda, Fabricante, Grupo, 
+            UltimaAtualizacao, Ativo, Tam, Cores, Origem,
+            GerarEtiqueta, QuantidadeEtiqueta
+        ) VALUES (
+            @id, @codMerc, @codFabricante, @codBarras, @codBarrasGrade, 
+            @mercadoria, @preco, @fabricante, @grupo,
+            @dataAtualizacao, @ativo, @tam, @cor, 'SOFTCOMSHOP',
+            0, 1
+        )", conn);
 
             long produtoId = produto["produto_id"]?.ToObject<long>() ?? 0;
-            
+
             cmd.Parameters.AddWithValue("@id", produtoId);
-            cmd.Parameters.AddWithValue("@codMerc", produtoId); // Usar mesmo ID do SoftcomShop
+            cmd.Parameters.AddWithValue("@codMerc", produtoId);
+
+            // Referência
+            string referencia = produto["referencia"]?.ToString() ?? "";
+            if (string.IsNullOrWhiteSpace(referencia))
+            {
+                referencia = produtoId.ToString();
+            }
+            cmd.Parameters.AddWithValue("@codFabricante", referencia);
+
             cmd.Parameters.AddWithValue("@codBarras", produto["codigo_barras"]?.ToString() ?? "");
             cmd.Parameters.AddWithValue("@codBarrasGrade", produto["codigo_barras_grade"]?.ToString() ?? "");
-            cmd.Parameters.AddWithValue("@descricao", produto["produto_nome"]?.ToString() ?? "");
-            cmd.Parameters.AddWithValue("@referencia", produto["referencia"]?.ToString() ?? "");
-            
-            decimal preco = decimal.TryParse(produto["preco_venda"]?.ToString().Replace(".", ","), out decimal p) ? p : 0;
+
+            // ⭐ CORREÇÃO: Tentar múltiplos campos para o nome do produto
+            string nomeProduto = null;
+
+            // Tentar campo "produto_nome"
+            if (!string.IsNullOrWhiteSpace(produto["produto_nome"]?.ToString()))
+            {
+                nomeProduto = produto["produto_nome"].ToString();
+            }
+            // Se vazio, tentar "descricao"
+            else if (!string.IsNullOrWhiteSpace(produto["descricao"]?.ToString()))
+            {
+                nomeProduto = produto["descricao"].ToString();
+            }
+            // Se vazio, tentar "nome"
+            else if (!string.IsNullOrWhiteSpace(produto["nome"]?.ToString()))
+            {
+                nomeProduto = produto["nome"].ToString();
+            }
+            // Se vazio, tentar "produto_descricao"
+            else if (!string.IsNullOrWhiteSpace(produto["produto_descricao"]?.ToString()))
+            {
+                nomeProduto = produto["produto_descricao"].ToString();
+            }
+            // Fallback: usar referência ou ID
+            else
+            {
+                nomeProduto = !string.IsNullOrWhiteSpace(referencia)
+                    ? referencia
+                    : $"Produto {produtoId}";
+            }
+
+            cmd.Parameters.AddWithValue("@mercadoria", nomeProduto);
+
+            // Preço
+            decimal preco = decimal.TryParse(
+                produto["preco_venda"]?.ToString().Replace(".", ","),
+                out decimal p) ? p : 0;
             cmd.Parameters.AddWithValue("@preco", preco);
-            
-            cmd.Parameters.AddWithValue("@marca", produto["marca_nome"]?.ToString() ?? "");
-            cmd.Parameters.AddWithValue("@fabricante", produto["marca_nome"]?.ToString() ?? ""); // Marca como Fabricante
+
+            cmd.Parameters.AddWithValue("@fabricante", produto["marca_nome"]?.ToString() ?? "");
             cmd.Parameters.AddWithValue("@grupo", produto["grupo_nome"]?.ToString() ?? "");
             cmd.Parameters.AddWithValue("@dataAtualizacao", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             cmd.Parameters.AddWithValue("@ativo", 1);
-            
-            // Campos confecção (TAM/COR) - serão preenchidos por ProcessarAtributos
+
             cmd.Parameters.AddWithValue("@tam", "");
             cmd.Parameters.AddWithValue("@cor", "");
 
@@ -450,11 +499,17 @@ namespace EtiquetaFORNew
             using (var conn = new SQLiteConnection(_connectionString))
             {
                 conn.Open();
-                
+
                 using (var cmd = conn.CreateCommand())
                 {
-                    // Limpar APENAS produtos do SoftcomShop, preservar produtos SQL
-                    cmd.CommandText = "DELETE FROM Mercadorias WHERE Origem = 'SOFTCOMSHOP'";
+                    // ⭐ CORREÇÃO: Limpar TODOS os produtos
+                    // Quando está em modo SoftcomShop, só deve ter produtos do SoftcomShop
+                    // Não faz sentido misturar SQL Server + SoftcomShop
+                    cmd.CommandText = "DELETE FROM Mercadorias";
+                    cmd.ExecuteNonQuery();
+
+                    // Também limpar ProdutosSelecionados para evitar referências quebradas
+                    cmd.CommandText = "DELETE FROM ProdutosSelecionados";
                     cmd.ExecuteNonQuery();
                 }
             }

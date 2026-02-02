@@ -225,29 +225,29 @@ namespace EtiquetaFORNew.Data
                 string camposVendaDE = incluirVendaDE ? "[VendaD] as VendaD,\n                            [VendaE] as VendaE," : "";
 
                 string query = @"
-                    SELECT TOP " + (limite > 0 ? limite.ToString() : "999999") + @"
-                        [Código da Mercadoria] as CodigoMercadoria,
-                        [Cód Fabricante] as CodFabricante,
-                        [Cód Barra] as CodBarras,
-                        [Mercadoria],
-                        [Preço de Venda] as PrecoVenda,
-                        [VendaA] as VendaA,
-                        [VendaB] as VendaB,
-                        [VendaC] as VendaC,
-                        " + camposVendaDE + @"
-                        [Fornecedor] as Fornecedor,
-                        [Fabricante] as Fabricante,
-                        [Grupo] as Grupo,
-                        [Prateleira] as Prateleira,
-                        [Garantia] as Garantia,    
-                        [Tam] as Tam,
-                        [Cores] as Cores,
-                        [CodBarras] as CodBarras_Grade
-                    FROM [memoria_MercadoriasLojas]
-                    WHERE [Loja] = '" + loja + @"'
-                    " + (string.IsNullOrEmpty(filtro) ? "" : "AND " + filtro) + @"
-                    ORDER BY [Código da Mercadoria]
-                ";
+            SELECT TOP " + (limite > 0 ? limite.ToString() : "999999") + @"
+                [Código da Mercadoria] as CodigoMercadoria,
+                [Cód Fabricante] as CodFabricante,
+                [Cód Barra] as CodBarras,
+                [Mercadoria],
+                [Preço de Venda] as PrecoVenda,
+                [VendaA] as VendaA,
+                [VendaB] as VendaB,
+                [VendaC] as VendaC,
+                " + camposVendaDE + @"
+                [Fornecedor] as Fornecedor,
+                [Fabricante] as Fabricante,
+                [Grupo] as Grupo,
+                [Prateleira] as Prateleira,
+                [Garantia] as Garantia,    
+                [Tam] as Tam,
+                [Cores] as Cores,
+                [CodBarras] as CodBarras_Grade
+            FROM [memoria_MercadoriasLojas]
+            WHERE [Loja] = '" + loja + @"'
+            " + (string.IsNullOrEmpty(filtro) ? "" : "AND " + filtro) + @"
+            ORDER BY [Código da Mercadoria]
+        ";
 
                 using (var sqlCmd = new SqlCommand(query, sqlConn))
                 using (var reader = sqlCmd.ExecuteReader())
@@ -257,8 +257,15 @@ namespace EtiquetaFORNew.Data
                     {
                         localConn.Open();
 
-                        // Limpar dados antigos APENAS de origem SQL
-                        using (var deleteCmd = new SQLiteCommand("DELETE FROM Mercadorias WHERE Origem = 'SQL' OR Origem IS NULL", localConn))
+                        // ⭐ CORREÇÃO: Limpar TODOS os produtos
+                        // Quando sincroniza SQL Server, NÃO deve ter produtos SoftcomShop
+                        using (var deleteCmd = new SQLiteCommand("DELETE FROM Mercadorias", localConn))
+                        {
+                            deleteCmd.ExecuteNonQuery();
+                        }
+
+                        // Também limpar produtos selecionados
+                        using (var deleteCmd = new SQLiteCommand("DELETE FROM ProdutosSelecionados", localConn))
                         {
                             deleteCmd.ExecuteNonQuery();
                         }
@@ -268,17 +275,17 @@ namespace EtiquetaFORNew.Data
                         {
                             // ⭐ ATUALIZADO: Incluir campo Origem = 'SQL'
                             string insertQuery = @"
-                                INSERT INTO Mercadorias 
-                                (CodigoMercadoria, CodFabricante, CodBarras, Mercadoria, PrecoVenda, 
-                                 VendaA, VendaB, VendaC, VendaD, VendaE, 
-                                 Fornecedor, Fabricante, Grupo, Prateleira, Garantia, 
-                                 Tam, Cores, CodBarras_Grade, Origem)
-                                VALUES 
-                                (@cod, @fabr, @barras, @merc, @preco, 
-                                 @vendaA, @vendaB, @vendaC, @vendaD, @vendaE, 
-                                 @fornecedor, @fabricante, @grupo, @prateleira, @garantia, 
-                                 @tam, @cores, @codbarras_grade, 'SQL')
-                            ";
+                        INSERT INTO Mercadorias 
+                        (CodigoMercadoria, CodFabricante, CodBarras, Mercadoria, PrecoVenda, 
+                         VendaA, VendaB, VendaC, VendaD, VendaE, 
+                         Fornecedor, Fabricante, Grupo, Prateleira, Garantia, 
+                         Tam, Cores, CodBarras_Grade, Origem)
+                        VALUES 
+                        (@cod, @fabr, @barras, @merc, @preco, 
+                         @vendaA, @vendaB, @vendaC, @vendaD, @vendaE, 
+                         @fornecedor, @fabricante, @grupo, @prateleira, @garantia, 
+                         @tam, @cores, @codbarras_grade, 'SQL')
+                    ";
 
                             using (var insertCmd = new SQLiteCommand(insertQuery, localConn))
                             {
@@ -325,9 +332,9 @@ namespace EtiquetaFORNew.Data
 
                         // ⭐ ATUALIZADO: Atualizar info de sincronização com tipo
                         string updateSync = @"
-                            INSERT OR REPLACE INTO ConfiguracaoSync (Id, UltimaSincronizacao, TotalRegistros, TipoOrigem)
-                            VALUES (1, datetime('now'), @total, 'SQL')
-                        ";
+                    INSERT OR REPLACE INTO ConfiguracaoSync (Id, UltimaSincronizacao, TotalRegistros, TipoOrigem)
+                    VALUES (1, datetime('now'), @total, 'SQL')
+                ";
                         using (var syncCmd = new SQLiteCommand(updateSync, localConn))
                         {
                             syncCmd.Parameters.AddWithValue("@total", registrosImportados);
