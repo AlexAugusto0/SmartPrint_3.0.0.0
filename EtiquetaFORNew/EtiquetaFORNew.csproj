@@ -498,6 +498,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="etiqueta-icone-softcom.ico" />
+    <None Include="Resources\Sincronizando3.jpg" />
+    <None Include="Resources\pngegg30x30.png" />
+    <None Include="Resources\pngegg2.png" />
+    <None Include="Resources\Engrenagem20x20.png" />
+    <None Include="Resources\Engrenagem2.png" />
     <None Include="Resources\Sincronização20x23.jpg" />
     <None Include="Resources\Sincronização15x17.jpg" />
     <None Include="Resources\Sincronização2.jpg" />

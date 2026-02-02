@@ -71,11 +71,12 @@
             this.chkSelecionarTodos = new System.Windows.Forms.CheckBox();
             this.btnLimparTodos = new System.Windows.Forms.Button();
             this.btnCarregar = new System.Windows.Forms.Button();
-            this.btnSincronizar = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.btnConfig = new System.Windows.Forms.Button();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.btnSincronizar2 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.btnSincronizar = new System.Windows.Forms.Button();
             this.groupProduto.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numQtd)).BeginInit();
@@ -442,6 +443,7 @@
             this.panelTop.BackColor = System.Drawing.Color.White;
             this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTop.Controls.Add(this.btnSincronizar);
+            this.panelTop.Controls.Add(this.btnConfig);
             this.panelTop.Controls.Add(this.pictureBox4);
             this.panelTop.Controls.Add(this.btnDesigner);
             this.panelTop.Controls.Add(this.btnSincronizar2);
@@ -505,31 +507,32 @@
             this.btnCarregar.UseVisualStyleBackColor = false;
             this.btnCarregar.Click += new System.EventHandler(this.btnCarregar_Click);
             // 
-            // btnSincronizar
+            // btnConfig
             // 
-            this.btnSincronizar.BackColor = System.Drawing.Color.Transparent;
-            this.btnSincronizar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnSincronizar.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSincronizar.FlatAppearance.BorderSize = 0;
-            this.btnSincronizar.Image = global::EtiquetaFORNew.Properties.Resources.Sincronização2;
-            this.btnSincronizar.Location = new System.Drawing.Point(899, 5);
-            this.btnSincronizar.Name = "btnSincronizar";
-            this.btnSincronizar.Size = new System.Drawing.Size(45, 34);
-            this.btnSincronizar.TabIndex = 7;
-            this.toolTip1.SetToolTip(this.btnSincronizar, "Clique para Sincronizar os dados");
-            this.btnSincronizar.UseVisualStyleBackColor = false;
-            this.btnSincronizar.Click += new System.EventHandler(this.btnSincronizar_Click);
+            this.btnConfig.BackColor = System.Drawing.Color.Transparent;
+            this.btnConfig.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnConfig.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnConfig.FlatAppearance.BorderSize = 0;
+            this.btnConfig.Image = global::EtiquetaFORNew.Properties.Resources.Engrenagem20x20;
+            this.btnConfig.Location = new System.Drawing.Point(953, 6);
+            this.btnConfig.Name = "btnConfig";
+            this.btnConfig.Size = new System.Drawing.Size(45, 34);
+            this.btnConfig.TabIndex = 8;
+            this.toolTip1.SetToolTip(this.btnConfig, "Configurações");
+            this.btnConfig.UseVisualStyleBackColor = false;
+            this.btnConfig.Click += new System.EventHandler(this.pictureBox4_Click);
             // 
             // pictureBox4
             // 
             this.pictureBox4.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pictureBox4.Image = global::EtiquetaFORNew.Properties.Resources.Engrenagem;
-            this.pictureBox4.Location = new System.Drawing.Point(950, 9);
+            this.pictureBox4.Location = new System.Drawing.Point(629, 7);
             this.pictureBox4.Name = "pictureBox4";
             this.pictureBox4.Size = new System.Drawing.Size(44, 27);
             this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox4.TabIndex = 6;
             this.pictureBox4.TabStop = false;
+            this.pictureBox4.Visible = false;
             this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
             // 
             // btnSincronizar2
@@ -554,6 +557,21 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
+            // 
+            // btnSincronizar
+            // 
+            this.btnSincronizar.BackColor = System.Drawing.Color.Transparent;
+            this.btnSincronizar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnSincronizar.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSincronizar.FlatAppearance.BorderSize = 0;
+            this.btnSincronizar.Image = global::EtiquetaFORNew.Properties.Resources.Sincronizando3;
+            this.btnSincronizar.Location = new System.Drawing.Point(902, 6);
+            this.btnSincronizar.Name = "btnSincronizar";
+            this.btnSincronizar.Size = new System.Drawing.Size(45, 34);
+            this.btnSincronizar.TabIndex = 9;
+            this.toolTip1.SetToolTip(this.btnSincronizar, "Sincronização de Dados");
+            this.btnSincronizar.UseVisualStyleBackColor = false;
+            this.btnSincronizar.Click += new System.EventHandler(this.btnSincronizar_Click);
             // 
             // FormPrincipal
             // 
@@ -618,7 +636,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colCor;
         private System.Windows.Forms.DataGridViewButtonColumn colRemover;
         private System.Windows.Forms.PictureBox pictureBox4;
-        private System.Windows.Forms.Button btnSincronizar;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Button btnConfig;
+        private System.Windows.Forms.Button btnSincronizar;
     }
 }
