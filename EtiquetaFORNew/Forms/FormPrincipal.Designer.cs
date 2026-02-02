@@ -165,6 +165,7 @@
             // BtnAdicionar2
             // 
             this.BtnAdicionar2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(143)))), ((int)(((byte)(0)))));
+            this.BtnAdicionar2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnAdicionar2.FlatAppearance.BorderSize = 0;
             this.BtnAdicionar2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnAdicionar2.ForeColor = System.Drawing.Color.Black;
@@ -411,6 +412,7 @@
             // btnDesigner
             // 
             this.btnDesigner.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(143)))), ((int)(((byte)(0)))));
+            this.btnDesigner.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDesigner.FlatAppearance.BorderSize = 0;
             this.btnDesigner.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDesigner.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -426,6 +428,7 @@
             // btnImprimir
             // 
             this.btnImprimir.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(143)))), ((int)(((byte)(0)))));
+            this.btnImprimir.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnImprimir.FlatAppearance.BorderSize = 0;
             this.btnImprimir.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnImprimir.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -479,6 +482,7 @@
             // btnLimparTodos
             // 
             this.btnLimparTodos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
+            this.btnLimparTodos.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnLimparTodos.FlatAppearance.BorderSize = 0;
             this.btnLimparTodos.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLimparTodos.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -495,6 +499,7 @@
             // btnCarregar
             // 
             this.btnCarregar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(143)))), ((int)(((byte)(0)))));
+            this.btnCarregar.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCarregar.FlatAppearance.BorderSize = 0;
             this.btnCarregar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCarregar.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);

@@ -42,6 +42,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.Versao = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.btnConfig = new System.Windows.Forms.Button();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
@@ -49,7 +50,6 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
@@ -100,6 +100,7 @@
             // 
             // btnLogar
             // 
+            this.btnLogar.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnLogar.Location = new System.Drawing.Point(170, 161);
             this.btnLogar.Name = "btnLogar";
             this.btnLogar.Size = new System.Drawing.Size(79, 21);
@@ -110,6 +111,7 @@
             // 
             // btnFechar
             // 
+            this.btnFechar.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnFechar.Location = new System.Drawing.Point(62, 162);
             this.btnFechar.Name = "btnFechar";
             this.btnFechar.Size = new System.Drawing.Size(82, 20);
