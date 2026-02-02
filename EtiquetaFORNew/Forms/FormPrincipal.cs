@@ -1875,114 +1875,151 @@ namespace EtiquetaFORNew
 
 
         private void pictureBox2_Click(object sender, EventArgs e)
-
         {
-
             try
-
             {
+                // ⭐ DETECTAR MODO DE OPERAÇÃO
+                ConfiguracaoSistema config = null;
+                bool isSoftcomShop = false;
 
-                if (MessageBox.Show(
-
-                    "Deseja sincronizar as mercadorias do SQL Server?\n\n" +
-
-                    "Isso pode levar alguns minutos dependendo da quantidade de registros.",
-
-                    "Confirmar Sincronização",
-
-                    MessageBoxButtons.YesNo,
-
-                    MessageBoxIcon.Question) != DialogResult.Yes)
-
+                try
                 {
-
-                    return;
-
+                    config = ConfiguracaoSistema.Carregar();
+                    isSoftcomShop = config.TipoConexaoAtiva == TipoConexao.SoftcomShop;
+                }
+                catch
+                {
+                    // Se erro ao carregar config, assume SQL Server
+                    isSoftcomShop = false;
                 }
 
+                // ⭐ MENSAGEM PERSONALIZADA POR MODO
+                string mensagem = isSoftcomShop
+                    ? "Deseja sincronizar os produtos do SoftcomShop?\n\n" +
+                      "Isso irá buscar produtos e promoções atualizados da API."
+                    : "Deseja sincronizar as mercadorias do SQL Server?\n\n" +
+                      "Isso pode levar alguns minutos dependendo da quantidade de registros.";
 
+                if (MessageBox.Show(
+                    mensagem,
+                    "Confirmar Sincronização",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) != DialogResult.Yes)
+                {
+                    return;
+                }
 
                 Cursor = Cursors.WaitCursor;
-
                 pictureBox2.Enabled = false;
 
-                //pictureBox2.Text = "Sincronizando...";
+                int total = 0;
 
+                if (isSoftcomShop)
+                {
+                    // ⭐ MODO SOFTCOMSHOP - Abrir FormSincronizacaoSoftcomShop
+                    try
+                    {
+                        Cursor = Cursors.Default; // Restaurar cursor para o formulário
 
+                        using (var formSync = new FormSincronizacaoSoftcomShop())
+                        {
+                            var resultado = formSync.ShowDialog();
 
-                // 1. SINCRONIZAR O BANCO DE DADOS LOCAL
+                            // Se o usuário cancelou, não recarregar
+                            if (resultado == DialogResult.Cancel)
+                            {
+                                pictureBox2.Enabled = true;
+                                return;
+                            }
+                        }
 
-                int total = LocalDatabaseManager.SincronizarMercadorias();
+                        Cursor = Cursors.WaitCursor;
+                    }
+                    catch (Exception ex)
+                    {
+                        Cursor = Cursors.Default;
+                        pictureBox2.Enabled = true;
 
+                        MessageBox.Show(
+                            $"Erro ao sincronizar SoftcomShop:\n\n{ex.Message}",
+                            "Erro",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    // ⭐ MODO SQL SERVER (código original)
+                    total = LocalDatabaseManager.SincronizarMercadorias();
+                }
 
+                // ⭐ LIMPAR CACHE E RECARREGAR MERCADORIAS
+                // CRÍTICO: Forçar limpeza do DataTable para garantir dados atualizados
+                if (mercadorias != null)
+                {
+                    mercadorias.Clear();
+                    mercadorias.Dispose();
+                    mercadorias = null;
+                }
 
-                // ⭐ 2. RECARREGAR AS MERCADORIAS NA MEMÓRIA E ATUALIZAR OS COMBOBOXES
+                // ⭐ LIMPAR COMBOBOXES ANTES DE RECARREGAR
+                if (cmbBuscaNome != null)
+                {
+                    cmbBuscaNome.Items.Clear();
+                    cmbBuscaNome.Text = "";
+                }
+                if (cmbBuscaReferencia != null)
+                {
+                    cmbBuscaReferencia.Items.Clear();
+                    cmbBuscaReferencia.Text = "";
+                }
+                if (cmbBuscaCodigo != null)
+                {
+                    cmbBuscaCodigo.Items.Clear();
+                    cmbBuscaCodigo.Text = "";
+                }
 
-
-                // ⭐ OTIMIZAÇÃO: Reseta flag para forçar recarregamento após sincronização manual
+                // ⭐ FORÇAR RECARREGAMENTO
                 mercadoriasCarregadas = false;
-
                 CarregarTodasMercadorias();
 
-
-
-                // Se a linha a seguir for para atualizar status no rodapé, mantenha-a.
-
-                //CarregarEstatisticas();
-
-
-
                 Cursor = Cursors.Default;
-
                 pictureBox2.Enabled = true;
 
-                //pictureBox2.Text = "🔄 Sincronizar";
-
-
-
-                MessageBox.Show(
-
-                    $"Sincronização concluída com sucesso!\n\n" +
-
-                    $"Total de mercadorias importadas: {total:N0}",
-
-                    "Sucesso",
-
-                    MessageBoxButtons.OK,
-
-                    MessageBoxIcon.Information);
-
-
-
-
-
+                // ⭐ MENSAGEM DE SUCESSO PERSONALIZADA
+                if (isSoftcomShop)
+                {
+                    MessageBox.Show(
+                        "Sincronização SoftcomShop concluída com sucesso!\n\n" +
+                        "Os produtos foram atualizados.",
+                        "Sucesso",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"Sincronização SQL Server concluída com sucesso!\n\n" +
+                        $"Total de mercadorias importadas: {total:N0}",
+                        "Sucesso",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
             }
-
             catch (Exception ex)
-
             {
-
                 Cursor = Cursors.Default;
-
                 pictureBox2.Enabled = true;
 
-                //btnSincronizar.Text = "🔄 Sincronizar";
-
-
-
                 MessageBox.Show(
-
                     $"Erro ao sincronizar:\n\n{ex.Message}",
-
                     "Erro",
-
                     MessageBoxButtons.OK,
-
                     MessageBoxIcon.Error);
-
             }
-
         }
+
 
 
 

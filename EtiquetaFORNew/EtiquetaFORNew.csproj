@@ -351,6 +351,12 @@
     <Compile Include="Softcomshop\FormConfiguracao.Designer.cs">
       <DependentUpon>FormConfiguracao.cs</DependentUpon>
     </Compile>
+    <Compile Include="Softcomshop\FormSincronizacaoSoftcomShop.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Softcomshop\FormSincronizacaoSoftcomShop.Designer.cs">
+      <DependentUpon>FormSincronizacaoSoftcomShop.cs</DependentUpon>
+    </Compile>
     <Compile Include="Softcomshop\SoftcomShopConfig.cs" />
     <Compile Include="Softcomshop\SoftcomShopService.cs" />
     <Compile Include="TemplateManager.cs" />

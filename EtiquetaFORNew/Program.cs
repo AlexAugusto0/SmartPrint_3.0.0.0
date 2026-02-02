@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using EtiquetaFORNew.Data;
 
 namespace EtiquetaFORNew
 {
@@ -12,6 +14,7 @@ namespace EtiquetaFORNew
         /// Ponto de entrada principal para o aplicativo.
         /// Suporta:
         /// - Modo Normal: SmartPrint.exe (uso padrão com login)
+        /// - Modo SoftcomShop: Pula login e vai direto para FormPrincipal
         /// - Modo Importação: SmartPrint.exe "caminho\arquivo.json" (Softshop Access)
         /// - Modo API: SmartPrint.exe --api-import:dados (futuro - sistema web)
         /// </summary>
@@ -20,6 +23,21 @@ namespace EtiquetaFORNew
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // ========================================
+            // ⭐ INICIALIZAR BANCO LOCAL PRIMEIRO
+            // ========================================
+            InicializarBancoLocal();
+
+            // ========================================
+            // ⭐ VERIFICAR SE É MODO SOFTCOMSHOP
+            // ========================================
+            if (VerificarModoSoftcomShop())
+            {
+                // Modo SoftcomShop - pula login e vai direto para FormPrincipal
+                Application.Run(new FormPrincipal());
+                return;
+            }
 
             // ========================================
             // 🔹 DETECTAR TIPO DE INICIALIZAÇÃO
@@ -39,16 +57,87 @@ namespace EtiquetaFORNew
                     break;
 
                 case IntegracaoExterna.TipoImportacao.ArquivoXML:
-                    // 🔜 FUTURO: Importação XML se necessário
+                    // 📜 FUTURO: Importação XML se necessário
                     IniciarComImportacao(args[0], tipoImportacao);
                     break;
 
                 case IntegracaoExterna.TipoImportacao.WebAPI:
-                    // 🔜 FUTURO: Importação via API REST
+                    // 📜 FUTURO: Importação via API REST
                     IniciarComImportacao(args[0], tipoImportacao);
                     break;
             }
             //testeGit
+        }
+
+        /// <summary>
+        /// ⭐ NOVO: Inicializa o banco local SQLite
+        /// Trata erro de migração caso banco antigo não tenha os campos necessários
+        /// </summary>
+        private static void InicializarBancoLocal()
+        {
+            try
+            {
+                LocalDatabaseManager.InicializarBanco();
+            }
+            catch (Exception ex)
+            {
+                // Se erro é relacionado a coluna faltando, tentar migração
+                if (ex.Message.Contains("no such column") ||
+                    ex.Message.Contains("ID_SoftcomShop"))
+                {
+                    try
+                    {
+                        // Deletar banco antigo e recriar
+                        string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalData.db");
+
+                        if (File.Exists(dbPath))
+                        {
+                            File.Delete(dbPath);
+                        }
+
+                        // Tentar criar novamente
+                        LocalDatabaseManager.InicializarBanco();
+                    }
+                    catch (Exception ex2)
+                    {
+                        MessageBox.Show(
+                            $"Erro ao inicializar banco de dados local:\n\n{ex2.Message}\n\n" +
+                            "O sistema pode não funcionar corretamente.",
+                            "Erro Crítico",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    // Outro tipo de erro
+                    MessageBox.Show(
+                        $"Aviso ao inicializar banco local:\n\n{ex.Message}\n\n" +
+                        "O sistema continuará funcionando, mas alguns recursos podem estar limitados.",
+                        "Aviso",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ⭐ NOVO: Verifica se o sistema está configurado para modo SoftcomShop
+        /// </summary>
+        private static bool VerificarModoSoftcomShop()
+        {
+            try
+            {
+                var config = ConfiguracaoSistema.Carregar();
+
+                // Se tipo de conexão ativa é SoftcomShop E está configurado
+                return config.TipoConexaoAtiva == TipoConexao.SoftcomShop &&
+                       config.SoftcomShopConfigurado();
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -83,7 +172,7 @@ namespace EtiquetaFORNew
                     Application.Run(formPrincipal);
 
                     // Limpar arquivo temporário após fechar o formulário
-                    if (tipo == IntegracaoExterna.TipoImportacao.ArquivoJSON || 
+                    if (tipo == IntegracaoExterna.TipoImportacao.ArquivoJSON ||
                         tipo == IntegracaoExterna.TipoImportacao.ArquivoXML)
                     {
                         IntegracaoExterna.LimparArquivoTemporario(parametro);

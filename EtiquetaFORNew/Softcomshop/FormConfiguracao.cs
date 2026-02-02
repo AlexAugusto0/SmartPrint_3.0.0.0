@@ -285,7 +285,31 @@ namespace EtiquetaFORNew
                     return;
             }
 
+            // Detectar se mudou o tipo de conexão
+            var configAnterior = ConfiguracaoSistema.Carregar();
+            bool mudouTipoConexao = configAnterior.TipoConexaoAtiva !=
+                (cboTipoConexao.SelectedIndex == 0 ? TipoConexao.SqlServer : TipoConexao.SoftcomShop);
+
             SalvarConfiguracoes();
+
+            // Se mudou tipo de conexão, perguntar se quer reiniciar
+            if (mudouTipoConexao)
+            {
+                var result = MessageBox.Show(
+                    "Tipo de conexão alterado!\n\n" +
+                    "Para aplicar as mudanças, o sistema precisa ser reiniciado.\n\n" +
+                    "Deseja reiniciar agora?",
+                    "Reiniciar Sistema",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    // Reiniciar aplicação
+                    Application.Restart();
+                    Environment.Exit(0);
+                }
+            }
         }
 
         private async void btnTestarConexao_Click(object sender, EventArgs e)
