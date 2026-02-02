@@ -1,7 +1,8 @@
 using System;
-using System.Windows.Forms;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace EtiquetaFORNew
 {
@@ -83,9 +84,22 @@ namespace EtiquetaFORNew
                     _config.SoftcomShop.DeviceName = txtDeviceName.Text.Trim();
                     _config.SoftcomShop.DeviceId = txtDeviceId.Text.Trim();
                 }
+                else
+                {
+                    var formProd = Application.OpenForms.OfType<ConfigForm>().FirstOrDefault();
 
-                _config.Salvar();
+                    if (formProd != null)
+                    {
+                        formProd.btnSalvar_Click(null, null);
+                    }
+                    else
+                    {
+                        MessageBox.Show("O formulário de configuração não foi encontrado aberto.");
+                    }
+                }
 
+                    _config.Salvar();
+                    this.Close();
                 MessageBox.Show("Configurações salvas com sucesso!",
                     "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

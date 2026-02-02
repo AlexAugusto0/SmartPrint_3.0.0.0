@@ -340,7 +340,7 @@ namespace EtiquetaFORNew
             return true;
         }
 
-        private void btnSalvar_Click(object sender, EventArgs e)
+        public void btnSalvar_Click(object sender, EventArgs e)
         {
             if (!ValidarCampos())
                 return;
@@ -369,7 +369,7 @@ namespace EtiquetaFORNew
                 }
 
                 this.DialogResult = DialogResult.OK;
-                this.Close();
+                //this.Close();
             }
             catch (Exception ex)
             {

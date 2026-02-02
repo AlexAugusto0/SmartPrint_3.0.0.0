@@ -116,7 +116,7 @@ namespace EtiquetaFORNew
             this.groupBox2.Size = new System.Drawing.Size(625, 85);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "2⃣ Cole a URL do dispositivo cadastrado no Softcomshop ou informe os dados.";
+            this.groupBox2.Text = "1 - Cole a URL do dispositivo cadastrado no Softcomshop ou informe os dados.";
             // 
             // labelUrlDispositivo
             // 
@@ -277,7 +277,7 @@ namespace EtiquetaFORNew
             this.groupBox4.Size = new System.Drawing.Size(625, 95);
             this.groupBox4.TabIndex = 2;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "3⃣ Informe uma chave de no mínimo 16 caracteres e clique em conectar.";
+            this.groupBox4.Text = "2- Informe uma chave de no mínimo 16 caracteres e clique em conectar.";
             // 
             // label8
             // 

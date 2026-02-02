@@ -400,6 +400,9 @@
     <EmbeddedResource Include="Softcomshop\FormConfiguracao.resx">
       <DependentUpon>FormConfiguracao.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Softcomshop\FormSincronizacaoSoftcomShop.resx">
+      <DependentUpon>FormSincronizacaoSoftcomShop.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -91,7 +91,7 @@ namespace EtiquetaFORNew
             this.lblUltimaSinc.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUltimaSinc.Location = new System.Drawing.Point(12, 15);
             this.lblUltimaSinc.Name = "lblUltimaSinc";
-            this.lblUltimaSinc.Size = new System.Drawing.Size(180, 15);
+            this.lblUltimaSinc.Size = new System.Drawing.Size(166, 15);
             this.lblUltimaSinc.TabIndex = 1;
             this.lblUltimaSinc.Text = "Última sincronização: --/--/----";
             // 
@@ -101,7 +101,7 @@ namespace EtiquetaFORNew
             this.lblStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblStatus.Location = new System.Drawing.Point(12, 250);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(45, 15);
+            this.lblStatus.Size = new System.Drawing.Size(43, 15);
             this.lblStatus.TabIndex = 2;
             this.lblStatus.Text = "Pronto";
             // 

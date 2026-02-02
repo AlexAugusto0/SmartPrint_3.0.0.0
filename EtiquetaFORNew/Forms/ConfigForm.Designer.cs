@@ -69,7 +69,6 @@ namespace EtiquetaFORNew
             // 
             // groupBox1
             // 
-            this.groupBox1.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.groupBox1.Controls.Add(this.txtModuloApp);
             this.groupBox1.Controls.Add(this.lblModuloApp);
             this.groupBox1.Controls.Add(this.chkMostrarSenha);
@@ -277,7 +276,6 @@ namespace EtiquetaFORNew
             // 
             // groupBox2
             // 
-            this.groupBox2.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.groupBox2.Controls.Add(this.cmbLoja);
             this.groupBox2.Location = new System.Drawing.Point(12, 295);
             this.groupBox2.Name = "groupBox2";
