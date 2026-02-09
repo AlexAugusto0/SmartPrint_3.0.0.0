@@ -2258,43 +2258,110 @@ namespace EtiquetaFORNew
         /// <summary>
         /// Configura a visibilidade dos controles específicos do módulo CONFECÇÃO
         /// </summary>
+        //private void ConfigurarControlesConfeccao()
+        //{
+        //    // Mostra/oculta os controles de Tamanho e Cor baseado no módulo
+        //    if (isConfeccao)
+        //    {
+        //        txtNome.Size = new System.Drawing.Size(220, 23);
+        //        cmbBuscaNome.Size = new System.Drawing.Size(500, 23);
+        //        colNome.Width = 500;
+
+        //        // ⭐ NOVO: Redimensionar formulário, grid E cabeçalho para acomodar colunas de confecção
+        //        // Grid precisa de ~140px extras para colTam (60px) e colCor (80px)
+        //        this.Width = 1200;  // Aumenta de 1039 para 1200
+        //        dgvProdutos.Width = 1160;  // Aumenta proporcionalmente
+        //        groupProduto.Width = 1160;  // Cabeçalho acompanha o grid
+
+        //        System.Diagnostics.Debug.WriteLine("[ConfigurarControlesConfeccao] Formulário redimensionado para modo CONFECÇÃO");
+        //    }
+        //    else
+        //    {
+        //        // ⭐ Restaurar tamanho original para modo padrão
+        //        this.Width = 1039;
+        //        dgvProdutos.Width = 1004;
+        //        groupProduto.Width = 1004;  // Cabeçalho volta ao tamanho original
+
+        //        System.Diagnostics.Debug.WriteLine("[ConfigurarControlesConfeccao] Formulário em modo PADRÃO");
+        //    }
+
+        //    if (cmbTamanho != null) cmbTamanho.Visible = isConfeccao;
+        //    if (lblTamanho != null) lblTamanho.Visible = isConfeccao;
+        //    if (cmbCor != null) cmbCor.Visible = isConfeccao;
+        //    if (lblCor != null) lblCor.Visible = isConfeccao;
+
+        //    // Configura colunas do DataGridView
+        //    if (dgvProdutos.Columns.Contains("colTam"))
+        //        dgvProdutos.Columns["colTam"].Visible = isConfeccao;
+        //    if (dgvProdutos.Columns.Contains("colCor"))
+        //        dgvProdutos.Columns["colCor"].Visible = isConfeccao;
+        //}
         private void ConfigurarControlesConfeccao()
         {
-            // Mostra/oculta os controles de Tamanho e Cor baseado no módulo
+            // Suspendemos o layout para evitar o efeito de "controles pulando" na tela
+            this.SuspendLayout();
+
             if (isConfeccao)
             {
-                txtNome.Size = new System.Drawing.Size(220, 23);
-                cmbBuscaNome.Size = new System.Drawing.Size(500, 23);
-                colNome.Width = 500;
+                // 1. Definimos o tamanho total do formulário e containers
+                this.Width = 1200;
+                groupProduto.Width = 1160;
+                panel1.Width = 1160;
+                panel2.Width = 1160;
+                panelTop.Width = 1160;
+                dgvProdutos.Width = 1160;
+                groupProduto.Width = 1160;
 
-                // ⭐ NOVO: Redimensionar formulário, grid E cabeçalho para acomodar colunas de confecção
-                // Grid precisa de ~140px extras para colTam (60px) e colCor (80px)
-                this.Width = 1200;  // Aumenta de 1039 para 1200
-                dgvProdutos.Width = 1160;  // Aumenta proporcionalmente
-                groupProduto.Width = 1160;  // Cabeçalho acompanha o grid
+                // 2. Ajuste dos campos de busca para caber tudo na mesma linha
+                // Reduzimos a Mercadoria (cmbBuscaNome) para abrir espaço para Tam e Cor
+                cmbBuscaNome.Width = 580;
 
-                System.Diagnostics.Debug.WriteLine("[ConfigurarControlesConfeccao] Formulário redimensionado para modo CONFECÇÃO");
+                // 3. Posicionamento relativo (Tam e Cor aparecem após a Mercadoria)
+                lblTamanho.Left = cmbBuscaNome.Right + 15;
+                cmbTamanho.Left = lblTamanho.Left;
+                cmbTamanho.Width = 80;
+
+                lblCor.Left = cmbTamanho.Right + 15;
+                cmbCor.Left = lblCor.Left;
+                cmbCor.Width = 100;
+
+                // 4. Garante que o botão Adicionar e Qtd fiquem no final do cabeçalho
+                BtnAdicionar2.Left = groupProduto.Width - BtnAdicionar2.Width - 15;
+                numQtd.Left = BtnAdicionar2.Left - numQtd.Width - 10;
+                lblQtd.Left = numQtd.Left;
+
+                //5. Ajuste dos demais botões para alinhar à direita
+                btnConfig.Left = panelTop.Width - btnConfig.Width - 15;
+                btnSincronizar.Left = btnConfig.Left - btnSincronizar.Width - 10;
+                btnDesigner.Left = btnSincronizar.Left - btnDesigner.Width - 10;
+                btnLimparTodos.Left = this.Width - btnLimparTodos.Width - 30;
+                btnImprimir.Left = this.Width - btnImprimir.Width - 30;
+                btnCarregar.Left = btnLimparTodos.Left - btnCarregar.Width - 10;
             }
             else
             {
-                // ⭐ Restaurar tamanho original para modo padrão
+                // Modo Padrão: Restaurar layout original
                 this.Width = 1039;
                 dgvProdutos.Width = 1004;
-                groupProduto.Width = 1004;  // Cabeçalho volta ao tamanho original
+                groupProduto.Width = 1004;
 
-                System.Diagnostics.Debug.WriteLine("[ConfigurarControlesConfeccao] Formulário em modo PADRÃO");
+                // No modo padrão, a Mercadoria pode ocupar o espaço que era do Tam/Cor
+                cmbBuscaNome.Width = 550;
             }
 
-            if (cmbTamanho != null) cmbTamanho.Visible = isConfeccao;
-            if (lblTamanho != null) lblTamanho.Visible = isConfeccao;
-            if (cmbCor != null) cmbCor.Visible = isConfeccao;
-            if (lblCor != null) lblCor.Visible = isConfeccao;
+            // Controle de Visibilidade
+            bool mostrarConfeccao = isConfeccao;
+            if (cmbTamanho != null) cmbTamanho.Visible = mostrarConfeccao;
+            if (lblTamanho != null) lblTamanho.Visible = mostrarConfeccao;
+            if (cmbCor != null) cmbCor.Visible = mostrarConfeccao;
+            if (lblCor != null) lblCor.Visible = mostrarConfeccao;
 
-            // Configura colunas do DataGridView
-            if (dgvProdutos.Columns.Contains("colTam"))
-                dgvProdutos.Columns["colTam"].Visible = isConfeccao;
-            if (dgvProdutos.Columns.Contains("colCor"))
-                dgvProdutos.Columns["colCor"].Visible = isConfeccao;
+            // Atualiza o Grid
+            if (dgvProdutos.Columns.Contains("colTam")) dgvProdutos.Columns["colTam"].Visible = mostrarConfeccao;
+            if (dgvProdutos.Columns.Contains("colCor")) dgvProdutos.Columns["colCor"].Visible = mostrarConfeccao;
+
+            this.ResumeLayout();
+            this.PerformLayout();
         }
         private void CentralizarControles()
         {

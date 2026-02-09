@@ -169,7 +169,7 @@
             this.BtnAdicionar2.FlatAppearance.BorderSize = 0;
             this.BtnAdicionar2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnAdicionar2.ForeColor = System.Drawing.Color.Black;
-            this.BtnAdicionar2.Location = new System.Drawing.Point(891, 22);
+            this.BtnAdicionar2.Location = new System.Drawing.Point(891, 21);
             this.BtnAdicionar2.Name = "BtnAdicionar2";
             this.BtnAdicionar2.Size = new System.Drawing.Size(90, 25);
             this.BtnAdicionar2.TabIndex = 14;
@@ -237,7 +237,7 @@
             // 
             // numQtd
             // 
-            this.numQtd.Location = new System.Drawing.Point(845, 24);
+            this.numQtd.Location = new System.Drawing.Point(845, 23);
             this.numQtd.Maximum = new decimal(new int[] {
             1000,
             0,
