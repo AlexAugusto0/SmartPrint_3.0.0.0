@@ -30,7 +30,7 @@ namespace EtiquetaFORNew
                     "Atenção",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-                
+
                 this.Close();
                 return;
             }
@@ -80,7 +80,7 @@ namespace EtiquetaFORNew
             {
                 // Desabilitar botões
                 HabilitarBotoes(false);
-                
+
                 // Criar progress
                 var progress = new Progress<string>(mensagem =>
                 {
@@ -95,9 +95,12 @@ namespace EtiquetaFORNew
                 // Sincronizar
                 var syncResult = await _dataManager.SincronizarProdutosAsync("v2", progress);
 
+                // ⭐ REGISTRAR USO DO SISTEMA
+                await RegistrarUsoSistemaAsync();
+
                 // Mostrar resultado
                 progressBar.Visible = false;
-                
+
                 if (syncResult.Sucesso)
                 {
                     MessageBox.Show(
@@ -117,7 +120,7 @@ namespace EtiquetaFORNew
                         "Erro",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
-                    
+
                     lblStatus.Text = "Erro na sincronização";
                 }
             }
@@ -129,7 +132,7 @@ namespace EtiquetaFORNew
                     "Erro",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                
+
                 lblStatus.Text = "Erro";
             }
             finally
@@ -189,7 +192,7 @@ namespace EtiquetaFORNew
                         "Atenção",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
-                    
+
                     lblStatus.Text = "Nenhum produto encontrado";
                 }
             }
@@ -201,7 +204,7 @@ namespace EtiquetaFORNew
                     "Erro",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                
+
                 lblStatus.Text = "Erro";
             }
             finally
@@ -265,7 +268,7 @@ namespace EtiquetaFORNew
                         "Atenção",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
-                    
+
                     lblStatus.Text = "Venda não encontrada";
                 }
             }
@@ -277,7 +280,7 @@ namespace EtiquetaFORNew
                     "Erro",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                
+
                 lblStatus.Text = "Erro";
             }
             finally
@@ -301,6 +304,41 @@ namespace EtiquetaFORNew
             btnBuscarNotaFiscal.Enabled = false;
             btnBuscarVenda.Enabled = false;
             btnFechar.Enabled = habilitar;
+        }
+
+        /// <summary>
+        /// ⭐ NOVO: Registra o uso do sistema no servidor (contabilização de clientes)
+        /// </summary>
+        private async Task RegistrarUsoSistemaAsync()
+        {
+            try
+            {
+                if (_config == null || _config.SoftcomShop == null)
+                    return;
+
+                string cnpj = _config.SoftcomShop.CompanyCNPJ ?? "";
+                string fantasia = _config.SoftcomShop.CompanyName ?? "";
+                string codigoSuporte = _config.SoftcomShop.DeviceId ?? "";
+
+                // Validar dados mínimos
+                if (string.IsNullOrEmpty(cnpj) || string.IsNullOrEmpty(fantasia) || string.IsNullOrEmpty(codigoSuporte))
+                {
+                    System.Diagnostics.Debug.WriteLine("[REGISTRO SOFTCOMSHOP] Dados incompletos para registro");
+                    return;
+                }
+
+                // Chamar função de registro
+                System.Diagnostics.Debug.WriteLine($"[REGISTRO SOFTCOMSHOP] Registrando uso: {fantasia} - CNPJ: {cnpj}");
+
+                string resultado = await DatabaseConfig.GetSetRegistroJsonAsync(codigoSuporte, cnpj, fantasia);
+
+                System.Diagnostics.Debug.WriteLine($"[REGISTRO SOFTCOMSHOP] Resultado: {resultado}");
+            }
+            catch (Exception ex)
+            {
+                // Não exibir erro ao usuário, apenas logar
+                System.Diagnostics.Debug.WriteLine($"[REGISTRO SOFTCOMSHOP] Erro ao registrar uso: {ex.Message}");
+            }
         }
 
         #endregion
@@ -424,7 +462,7 @@ namespace EtiquetaFORNew
         private void BtnOK_Click(object sender, EventArgs e)
         {
             DataEntrada = dtpDataEntrada.Value;
-            
+
             if (!string.IsNullOrWhiteSpace(txtNumeroNota.Text))
             {
                 if (int.TryParse(txtNumeroNota.Text, out int numero))
