@@ -785,11 +785,51 @@ namespace EtiquetaFORNew.Data
 
         public static bool PrecisaSincronizar()
         {
-            var (ultima, _) = ObterInfoSincronizacao();
+            try
+            {
+                // ✅ VERIFICAR SE ESTÁ CONFIGURADO PARA SQL SERVER
+                var configSistema = ConfiguracaoSistema.Carregar();
 
-            if (ultima == null) return true;
+                // Se for SoftcomShop, NÃO pedir sincronização automática do SQL
+                if (configSistema != null && configSistema.TipoConexaoAtiva == TipoConexao.SoftcomShop)
+                {
+                    return false; // SoftcomShop tem sua própria sincronização
+                }
 
-            return (DateTime.Now - ultima.Value).TotalHours > 24;
+                // Se não tiver SQL Server configurado, não pedir sincronização
+                string sqlConnectionString = DatabaseConfig.GetConnectionString();
+                if (string.IsNullOrEmpty(sqlConnectionString))
+                {
+                    return false; // Não tem SQL Server configurado
+                }
+
+                // ✅ VERIFICAR SE JÁ TEM PRODUTOS NO BANCO LOCAL
+                int totalProdutos = ObterTotalMercadorias();
+                if (totalProdutos > 0)
+                {
+                    // Tem produtos, verificar data da última sincronização
+                    var (ultima, _) = ObterInfoSincronizacao();
+
+                    if (ultima == null)
+                    {
+                        // Tem produtos mas não tem registro de sincronização
+                        // Provavelmente importado do SoftcomShop
+                        return false;
+                    }
+
+                    // Verificar se passou mais de 24h
+                    return (DateTime.Now - ultima.Value).TotalHours > 24;
+                }
+                else
+                {
+                    // ✅ NÃO TEM PRODUTOS - Perguntar se quer sincronizar
+                    return true;
+                }
+            }
+            catch
+            {
+                return false; // Em caso de erro, não forçar sincronização
+            }
         }
 
         public static int ObterTotalMercadorias()
