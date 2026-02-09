@@ -9,17 +9,17 @@ namespace EtiquetaFORNew.Data
 {
     /// <summary>
     /// Gerenciador de carregamento de produtos por diferentes tipos
-    /// Equivalente ÃƒÂ s queries do SoftShop: GeradordeEtiquetas_Carregar*
+    /// Equivalente ÃƒÆ’Ã‚Â s queries do SoftShop: GeradordeEtiquetas_Carregar*
     /// </summary>
     public static class CarregadorDados
     {
-        // Ã¢Â­Â ConnectionString local (mesmo do LocalDatabaseManager)
+        // ÃƒÂ¢Ã‚Â­Ã‚Â ConnectionString local (mesmo do LocalDatabaseManager)
         private static readonly string DbPath = Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory,
             "LocalData.db");
         private static readonly string ConnectionString = $"Data Source={DbPath};Version=3;";
         // ========================================
-        // Ã°Å¸â€Â¹ CARREGAMENTO POR TIPO
+        // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ CARREGAMENTO POR TIPO
         // ========================================
 
         /// <summary>
@@ -36,29 +36,29 @@ namespace EtiquetaFORNew.Data
             string fornecedor = null,
             string produto = null,
             bool isConfeccao = false,
-            int? idPromocao = null) // Ã¢Â­Â NOVO parÃƒÂ¢metro
+            int? idPromocao = null) // ÃƒÂ¢Ã‚Â­Ã‚Â NOVO parÃƒÆ’Ã‚Â¢metro
         {
             switch (tipo.ToUpper())
             {
                 case "AJUSTES":
                     return CarregarAjustes(documento, dataInicial, dataFinal);
 
-                case "BALANÇOS":
+                case "BALANÃ‡OS":
                     return CarregarBalancos(documento, dataInicial, dataFinal);
 
                 case "NOTAS ENTRADA":
                     return CarregarNotasEntrada(documento, dataInicial, dataFinal);
 
-                case "PREÇOS ALTERADOS":
+                case "PREÃ‡OS ALTERADOS":
                     return CarregarPrecosAlterados(dataInicial.Value, dataFinal.Value);
 
-                case "PROMOÇÕES":
-                    // Ã¢Â­Â Usa o mÃƒÂ©todo do PromocoesManager com ID da promoçÃƒÂ£o
+                case "PROMOÃ‡Ã•ES":
+                    // ÃƒÂ¢Ã‚Â­Ã‚Â Usa o mÃƒÆ’Ã‚Â©todo do PromocoesManager com ID da promoÃ§ÃƒÆ’Ã‚Â£o
                     if (idPromocao.HasValue)
                     {
                         return PromocoesManager.BuscarProdutosDaPromocao(
                             idPromocao.Value,
-                            null, // loja (usa padrÃƒÂ£o)
+                            null, // loja (usa padrÃƒÆ’Ã‚Â£o)
                             produto,
                             grupo,
                             subGrupo,
@@ -67,12 +67,12 @@ namespace EtiquetaFORNew.Data
                     }
                     else
                     {
-                        throw new Exception("ID da promoçÃƒÂ£o nÃƒÂ£o foi informado!");
+                        throw new Exception("ID da promoÃ§ÃƒÆ’Ã‚Â£o nÃƒÆ’Ã‚Â£o foi informado!");
                     }
 
                 case "FILTROS MANUAIS":
                 default:
-                    // Para filtros manuais, usa o mÃƒÂ©todo existente do LocalDatabaseManager
+                    // Para filtros manuais, usa o mÃƒÆ’Ã‚Â©todo existente do LocalDatabaseManager
                     // que aceita: grupo, fabricante, fornecedor, isConfeccao
                     return LocalDatabaseManager.BuscarMercadoriasPorFiltros(
                         grupo,
@@ -83,7 +83,7 @@ namespace EtiquetaFORNew.Data
         }
 
         // ========================================
-        // Ã°Å¸â€Â¹ AJUSTES DE ESTOQUE
+        // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ AJUSTES DE ESTOQUE
         // ========================================
         /// <summary>
         /// Carrega produtos de ajustes de estoque
@@ -120,7 +120,7 @@ namespace EtiquetaFORNew.Data
                     List<string> condicoes = new List<string>();
                     var parametros = new List<SQLiteParameter>();
 
-                    // Filtro por número do ajuste (se implementado em campo especÃƒÂ­fico)
+                    // Filtro por nÃºmero do ajuste (se implementado em campo especÃƒÆ’Ã‚Â­fico)
                     if (!string.IsNullOrEmpty(numeroAjuste))
                     {
                         // TODO: Implementar quando houver campo de controle de ajustes
@@ -173,10 +173,10 @@ namespace EtiquetaFORNew.Data
         }
 
         // ========================================
-        // Ã°Å¸â€Â¹ BALANÇOS
+        // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ BALANÃ‡OS
         // ========================================
         /// <summary>
-        /// Carrega produtos de balanços de estoque
+        /// Carrega produtos de balanÃ§os de estoque
         /// Equivalente: GeradordeEtiquetas_CarregarBalancos
         /// </summary>
         private static DataTable CarregarBalancos(string numeroBalanco, DateTime? dataInicial, DateTime? dataFinal)
@@ -210,10 +210,10 @@ namespace EtiquetaFORNew.Data
                     List<string> condicoes = new List<string>();
                     var parametros = new List<SQLiteParameter>();
 
-                    // Filtro por número do balanço
+                    // Filtro por nÃºmero do balanÃ§o
                     if (!string.IsNullOrEmpty(numeroBalanco))
                     {
-                        // TODO: Implementar quando houver campo de controle de balanços
+                        // TODO: Implementar quando houver campo de controle de balanÃ§os
                         // condicoes.Add("m.NumeroBalanco = @numeroBalanco");
                         // parametros.Add(new SQLiteParameter("@numeroBalanco", numeroBalanco));
                     }
@@ -221,12 +221,12 @@ namespace EtiquetaFORNew.Data
                     // Filtro por data
                     if (dataInicial.HasValue)
                     {
-                        // TODO: Implementar quando houver campo de data de balanço
+                        // TODO: Implementar quando houver campo de data de balanÃ§o
                     }
 
                     if (dataFinal.HasValue)
                     {
-                        // TODO: Implementar quando houver campo de data de balanço
+                        // TODO: Implementar quando houver campo de data de balanÃ§o
                     }
 
                     if (condicoes.Count > 0)
@@ -254,12 +254,13 @@ namespace EtiquetaFORNew.Data
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao carregar balanços: {ex.Message}", ex);
+                throw new Exception($"Erro ao carregar balanÃ§os: {ex.Message}", ex);
             }
         }
 
+
         // ========================================
-        // Ã°Å¸â€Â¹ NOTAS DE ENTRADA
+        // 🔹 NOTAS DE ENTRADA
         // ========================================
         /// <summary>
         /// Carrega produtos de notas fiscais de entrada
@@ -267,66 +268,89 @@ namespace EtiquetaFORNew.Data
         /// </summary>
         private static DataTable CarregarNotasEntrada(string numeroNF, DateTime? dataInicial, DateTime? dataFinal)
         {
-            DataTable itensNF = BuscarItensNotaFiscalSQL(numeroNF);
             DataTable resultado = CriarTabelaResultadoPadrao();
 
-            if (itensNF == null || itensNF.Rows.Count == 0) return resultado;
-
-            using (var conn = new SQLiteConnection(ConnectionString))
+            try
             {
-                conn.Open();
-                foreach (DataRow itemNF in itensNF.Rows)
+                string connectionStringSQLServer = DatabaseConfig.GetConnectionString();
+                if (string.IsNullOrEmpty(connectionStringSQLServer))
+                    throw new Exception("Conexão SQL Server não configurada!");
+
+                using (var connSQL = new System.Data.SqlClient.SqlConnection(connectionStringSQLServer))
+                using (var connLocal = new SQLiteConnection(ConnectionString))
                 {
-                    string codBarrasNF = itemNF["CodBarras"]?.ToString()?.Trim() ?? "";
-                    string codigoMestre = itemNF["Codigo_Mercadoria"]?.ToString()?.Trim() ?? "";
-                    int qtd = itemNF["Quantidade_Item"] != DBNull.Value ? Convert.ToInt32(itemNF["Quantidade_Item"]) : 1;
-                    decimal precoNF = itemNF["Preco_Item"] != DBNull.Value ? Convert.ToDecimal(itemNF["Preco_Item"]) : 0m;
+                    connSQL.Open();
+                    connLocal.Open();
 
-                    bool encontrouVariação = false;
+                    // BUSCAR ITENS DA NF
+                    string queryNF = @"
+                        SELECT 
+                            [Código da Mercadoria] AS Codigo_Mercadoria,
+                            CODBARRAS AS CodBarras,
+                            Quantidade_Item
+                        FROM memoria_NF_Entrada
+                        WHERE [Nº Nota Fiscal] = @numeroNota";
 
-                    // 1. TENTA BUSCAR PELA GRADE (CODBARRAS)
-                    if (!string.IsNullOrEmpty(codBarrasNF))
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(queryNF, connSQL))
                     {
-                        string queryGrade = "SELECT * FROM Mercadorias WHERE CodBarras_Grade = @cb OR CodBarras = @cb LIMIT 1";
-                        using (var cmd = new SQLiteCommand(queryGrade, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@cb", codBarrasNF);
-                            using (var reader = cmd.ExecuteReader())
-                            {
-                                if (reader.Read())
-                                {
-                                    string tam = reader["Tam"]?.ToString() ?? "";
-                                    string cor = reader["Cores"]?.ToString() ?? "";
+                        cmd.Parameters.AddWithValue("@numeroNota", numeroNF);
 
-                                    // SE HOUVER TAMANHO OU COR, É UM ITEM DE GRADE (CONFECÇÃO)
-                                    if (!string.IsNullOrWhiteSpace(tam) || !string.IsNullOrWhiteSpace(cor))
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                string codigoMercadoria = reader["Codigo_Mercadoria"]?.ToString()?.Trim() ?? "";
+                                string codBarras = reader["CodBarras"]?.ToString()?.Trim() ?? "";
+                                int qtd = reader["Quantidade_Item"] != DBNull.Value
+                                    ? Convert.ToInt32(reader["Quantidade_Item"])
+                                    : 1;
+
+                                bool encontrado = false;
+
+                                // CONFECÇÃO: Buscar por CodBarras_Grade
+                                if (!string.IsNullOrEmpty(codBarras))
+                                {
+                                    string queryGrade = "SELECT * FROM Mercadorias WHERE CodBarras_Grade = @cod LIMIT 1";
+                                    using (var cmdLocal = new SQLiteCommand(queryGrade, connLocal))
                                     {
-                                        AdicionarRow(resultado, reader, codBarrasNF, qtd, precoNF);
-                                        encontrouVariação = true;
+                                        cmdLocal.Parameters.AddWithValue("@cod", codBarras);
+                                        using (var readerLocal = cmdLocal.ExecuteReader())
+                                        {
+                                            if (readerLocal.Read())
+                                            {
+                                                AdicionarRowCompleto(resultado, readerLocal, qtd);
+                                                encontrado = true;
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
-                    }
 
-                    // 2. SE NÃO ACHOU VARIAÇÃO, BUSCA PELO CÓDIGO DA MERCADORIA (PADRÃO ORIGINAL)
-                    if (!encontrouVariação && !string.IsNullOrEmpty(codigoMestre))
-                    {
-                        string queryPadrao = "SELECT * FROM Mercadorias WHERE CodigoMercadoria = @mestre LIMIT 1";
-                        using (var cmd = new SQLiteCommand(queryPadrao, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@mestre", codigoMestre);
-                            using (var reader = cmd.ExecuteReader())
-                            {
-                                if (reader.Read())
+                                // PADRÃO: Buscar por CodigoMercadoria
+                                if (!encontrado && !string.IsNullOrEmpty(codigoMercadoria))
                                 {
-                                    AdicionarRow(resultado, reader, codBarrasNF, qtd, precoNF);
+                                    string queryPadrao = "SELECT * FROM Mercadorias WHERE CodigoMercadoria = @cod LIMIT 1";
+                                    using (var cmdLocal = new SQLiteCommand(queryPadrao, connLocal))
+                                    {
+                                        cmdLocal.Parameters.AddWithValue("@cod", codigoMercadoria);
+                                        using (var readerLocal = cmdLocal.ExecuteReader())
+                                        {
+                                            if (readerLocal.Read())
+                                            {
+                                                AdicionarRowCompleto(resultado, readerLocal, qtd);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao carregar NF {numeroNF}: {ex.Message}", ex);
+            }
+
             return resultado;
         }
 
@@ -350,60 +374,48 @@ namespace EtiquetaFORNew.Data
             dt.Rows.Add(row);
         }
 
-
-        private static DataTable BuscarItensNotaFiscalSQL(string numeroNota)
+        // Método NOVO para Notas de Entrada - pega TUDO do banco local
+        private static void AdicionarRowCompleto(DataTable dt, SQLiteDataReader reader, int quantidade)
         {
-            try
+            DataRow row = dt.NewRow();
+
+            // Função helper
+            T GetValue<T>(string columnName, T defaultValue = default(T))
             {
-                string connectionString = DatabaseConfig.GetConnectionString();
-
-                if (string.IsNullOrEmpty(connectionString))
+                try
                 {
-                    throw new Exception("ConexÃ£o com SQL Server nÃ£o configurada!");
+                    if (reader[columnName] != DBNull.Value)
+                        return (T)Convert.ChangeType(reader[columnName], typeof(T));
                 }
-
-                using (var conn = new System.Data.SqlClient.SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    string query = @"
-                        SELECT 
-                            [Código da Mercadoria] AS Codigo_Mercadoria,
-                            Mercadoria,
-                            Preco_Item,
-                            Quantidade_Item,
-                            CODBARRAS AS CodBarras
-                        FROM memoria_NF_Entrada
-                        WHERE [Nº Nota Fiscal] = @numeroNota
-                        ORDER BY [Código da Mercadoria], CODBARRAS
-                    ";
-
-                    using (var cmd = new System.Data.SqlClient.SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@numeroNota", numeroNota);
-
-                        using (var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd))
-                        {
-                            DataTable dt = new DataTable();
-                            adapter.Fill(dt);
-
-                            // ⭐ DEBUG: Log quantos registros foram encontrados
-                            System.Diagnostics.Debug.WriteLine($"[BuscarItensNF] NF: {numeroNota} - Registros encontrados: {dt.Rows.Count}");
-                            foreach (DataRow row in dt.Rows)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"  - Cod: {row["Codigo_Mercadoria"]}, CodBarras: {row["CodBarras"]}, Qtd: {row["Quantidade_Item"]}");
-                            }
-
-                            return dt;
-                        }
-                    }
-                }
+                catch { }
+                return defaultValue;
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"Erro ao buscar itens da NF no SQL Server: {ex.Message}", ex);
-            }
+
+            row["CodigoMercadoria"] = GetValue<string>("CodigoMercadoria", "");
+            row["Mercadoria"] = GetValue<string>("Mercadoria", "");
+            row["PrecoVenda"] = GetValue<decimal>("PrecoVenda", 0m);
+            row["VendaA"] = GetValue<decimal>("VendaA", 0m);
+            row["VendaB"] = GetValue<decimal>("VendaB", 0m);
+            row["VendaC"] = GetValue<decimal>("VendaC", 0m);
+            row["VendaD"] = GetValue<decimal>("VendaD", 0m);
+            row["VendaE"] = GetValue<decimal>("VendaE", 0m);
+            row["Grupo"] = GetValue<string>("Grupo", "");
+            row["SubGrupo"] = GetValue<string>("SubGrupo", "");
+            row["Fabricante"] = GetValue<string>("Fabricante", "");
+            row["Fornecedor"] = GetValue<string>("Fornecedor", "");
+            row["CodBarras"] = GetValue<string>("CodBarras", "");
+            row["CodFabricante"] = GetValue<string>("CodFabricante", "");
+            row["Tam"] = GetValue<string>("Tam", "");
+            row["Cores"] = GetValue<string>("Cores", "");
+            row["CodBarras_Grade"] = GetValue<string>("CodBarras_Grade", "");
+            row["Prateleira"] = GetValue<string>("Prateleira", "");
+            row["Garantia"] = GetValue<string>("Garantia", "");
+            row["Registro"] = GetValue<int>("Registro", 0);
+            row["Quantidade"] = quantidade;
+
+            dt.Rows.Add(row);
         }
+
 
         private static DataTable CriarTabelaResultadoPadrao()
         {
@@ -433,10 +445,10 @@ namespace EtiquetaFORNew.Data
         }
 
         // ========================================
-        // Ã°Å¸â€Â¹ PREÇOS ALTERADOS
+        // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ PREÃ‡OS ALTERADOS
         // ========================================
         /// <summary>
-        /// Carrega produtos com preços alterados no perÃƒÂ­odo
+        /// Carrega produtos com preÃ§os alterados no perÃƒÆ’Ã‚Â­odo
         /// Equivalente: GeradordeEtiquetas_CarregarAlteracaoPrecos
         /// </summary>
         private static DataTable CarregarPrecosAlterados(DateTime dataInicial, DateTime dataFinal)
@@ -467,7 +479,7 @@ namespace EtiquetaFORNew.Data
                         WHERE 1=1
                     ";
 
-                    // TODO: Implementar quando houver campo de data de alteraçÃƒÂ£o de preço
+                    // TODO: Implementar quando houver campo de data de alteraÃ§ÃƒÆ’Ã‚Â£o de preÃ§o
                     // query += @"
                     //     AND DATE(m.DataAlteracaoPreco) >= DATE(@dataInicial)
                     //     AND DATE(m.DataAlteracaoPreco) <= DATE(@dataFinal)
@@ -491,15 +503,15 @@ namespace EtiquetaFORNew.Data
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao carregar preços alterados: {ex.Message}", ex);
+                throw new Exception($"Erro ao carregar preÃ§os alterados: {ex.Message}", ex);
             }
         }
 
         // ========================================
-        // Ã°Å¸â€Â¹ PROMOÇÕES
+        // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ PROMOÃ‡Ã•ES
         // ========================================
         /// <summary>
-        /// Carrega produtos em promoçÃƒÂ£o com filtros especÃƒÂ­ficos
+        /// Carrega produtos em promoÃ§ÃƒÆ’Ã‚Â£o com filtros especÃƒÆ’Ã‚Â­ficos
         /// Equivalente: Promocoes_GeradorEtiquetasAnexar
         /// </summary>
         private static DataTable CarregarPromocoes(
@@ -535,7 +547,7 @@ namespace EtiquetaFORNew.Data
                         WHERE 1=1
                     ";
 
-                    // TODO: Quando houver tabela de promoçÃƒÂµes:
+                    // TODO: Quando houver tabela de promoÃ§ÃƒÆ’Ã‚Âµes:
                     // query += " INNER JOIN Promocoes p ON m.CodigoMercadoria = p.CodigoMercadoria";
                     // query += " WHERE p.Ativa = 1";
 
@@ -597,30 +609,30 @@ namespace EtiquetaFORNew.Data
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao carregar promoçÃƒÂµes: {ex.Message}", ex);
+                throw new Exception($"Erro ao carregar promoÃ§ÃƒÆ’Ã‚Âµes: {ex.Message}", ex);
             }
         }
 
         // ========================================
-        // Ã°Å¸â€Â¹ LIMPAR ETIQUETAS EXISTENTES
+        // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¹ LIMPAR ETIQUETAS EXISTENTES
         // ========================================
         /// <summary>
-        /// Limpa produtos jÃƒÂ¡ carregados (equivalente ao DELETE no SoftShop)
+        /// Limpa produtos jÃƒÆ’Ã‚Â¡ carregados (equivalente ao DELETE no SoftShop)
         /// </summary>
         public static bool LimparEtiquetasCarregadas()
         {
             // Esta funcionalidade pode ser implementada se houver
-            // uma "ÃƒÂ¡rea de staging" para produtos carregados
+            // uma "ÃƒÆ’Ã‚Â¡rea de staging" para produtos carregados
             // Por enquanto, apenas retorna true
             return true;
         }
 
         // ========================================
-        // ðŸ”¹ MÃ‰TODOS AUXILIARES - LEITURA SEGURA
+        // Ã°Å¸â€Â¹ MÃƒâ€°TODOS AUXILIARES - LEITURA SEGURA
         // ========================================
 
         /// <summary>
-        /// LÃª campo string do reader verificando se existe
+        /// LÃƒÂª campo string do reader verificando se existe
         /// </summary>
         private static object LerCampoSeguro(SQLiteDataReader reader, string nomeCampo)
         {
@@ -638,7 +650,7 @@ namespace EtiquetaFORNew.Data
         }
 
         /// <summary>
-        /// LÃª campo decimal do reader verificando se existe
+        /// LÃƒÂª campo decimal do reader verificando se existe
         /// </summary>
         private static object LerCampoDecimal(SQLiteDataReader reader, string nomeCampo)
         {
@@ -656,7 +668,7 @@ namespace EtiquetaFORNew.Data
         }
 
         /// <summary>
-        /// LÃª campo int do reader verificando se existe
+        /// LÃƒÂª campo int do reader verificando se existe
         /// </summary>
         private static object LerCampoInt(SQLiteDataReader reader, string nomeCampo)
         {
