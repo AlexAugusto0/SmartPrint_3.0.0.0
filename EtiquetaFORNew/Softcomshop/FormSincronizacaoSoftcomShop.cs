@@ -291,6 +291,9 @@ namespace EtiquetaFORNew
 
         private void btnFechar_Click(object sender, EventArgs e)
         {
+            // ⭐ Define DialogResult como OK para sinalizar sucesso
+            // Isso permite que FormPrincipal recarregue as comboboxes automaticamente
+            this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
