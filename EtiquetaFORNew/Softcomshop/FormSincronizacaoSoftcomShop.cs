@@ -18,14 +18,14 @@ namespace EtiquetaFORNew
 
         private void FormSincronizacaoSoftcomShop_Load(object sender, EventArgs e)
         {
-            // Carregar configurações
+            // Carregar configuraÃ§Ãµes
             _config = ConfiguracaoSistema.Carregar();
 
-            // Verificar se SoftcomShop está configurado
+            // Verificar se SoftcomShop estÃ¡ configurado
             if (!_config.SoftcomShopConfigurado())
             {
                 MessageBox.Show(
-                    "SoftcomShop não está configurado!\n\n" +
+                    "SoftcomShop não está¡ configurado!\n\n" +
                     "Configure em: Menu > Configurações",
                     "Atenção",
                     MessageBoxButtons.OK,
@@ -49,7 +49,7 @@ namespace EtiquetaFORNew
         {
             if (_config.SoftcomShop.DataSync != null && !string.IsNullOrEmpty(_config.SoftcomShop.DataSync))
             {
-                lblUltimaSinc.Text = $"Última sincronização: {_config.SoftcomShop.DataSync}";
+                lblUltimaSinc.Text = $"última sincronização: {_config.SoftcomShop.DataSync}";
             }
             else
             {
@@ -57,7 +57,7 @@ namespace EtiquetaFORNew
             }
         }
 
-        #region Eventos dos Botões
+        #region Eventos dos BotÃµes
 
         private async void btnSincronizarProdutos_Click(object sender, EventArgs e)
         {
@@ -78,7 +78,7 @@ namespace EtiquetaFORNew
         {
             try
             {
-                // Desabilitar botões
+                // Desabilitar botÃµes
                 HabilitarBotoes(false);
 
                 // Criar progress
@@ -95,7 +95,7 @@ namespace EtiquetaFORNew
                 // Sincronizar
                 var syncResult = await _dataManager.SincronizarProdutosAsync("v2", progress);
 
-                // ⭐ REGISTRAR USO DO SISTEMA
+                // â­ REGISTRAR USO DO SISTEMA
                 await RegistrarUsoSistemaAsync();
 
                 // Mostrar resultado
@@ -143,7 +143,7 @@ namespace EtiquetaFORNew
 
         private async void btnBuscarNotaFiscal_Click(object sender, EventArgs e)
         {
-            // Criar formulário de entrada
+            // Criar formulÃ¡rio de entrada
             using (var form = new FormBuscarNotaFiscal())
             {
                 if (form.ShowDialog() == DialogResult.OK)
@@ -265,11 +265,11 @@ namespace EtiquetaFORNew
                 {
                     MessageBox.Show(
                         syncResult.MensagemErro,
-                        "Atenção",
+                        "AtenÃ§Ã£o",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
 
-                    lblStatus.Text = "Venda não encontrada";
+                    lblStatus.Text = "Venda nÃ£o encontrada";
                 }
             }
             catch (Exception ex)
@@ -291,7 +291,7 @@ namespace EtiquetaFORNew
 
         private void btnFechar_Click(object sender, EventArgs e)
         {
-            // ⭐ Define DialogResult como OK para sinalizar sucesso
+            // â­ Define DialogResult como OK para sinalizar sucesso
             // Isso permite que FormPrincipal recarregue as comboboxes automaticamente
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -299,7 +299,7 @@ namespace EtiquetaFORNew
 
         #endregion
 
-        #region Métodos Auxiliares
+        #region MÃ©todos Auxiliares
 
         private void HabilitarBotoes(bool habilitar)
         {
@@ -310,7 +310,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// ⭐ NOVO: Registra o uso do sistema no servidor (contabilização de clientes)
+        /// â­ NOVO: Registra o uso do sistema no servidor (contabilizaÃ§Ã£o de clientes)
         /// </summary>
         private async Task RegistrarUsoSistemaAsync()
         {
@@ -321,16 +321,20 @@ namespace EtiquetaFORNew
 
                 string cnpj = _config.SoftcomShop.CompanyCNPJ ?? "";
                 string fantasia = _config.SoftcomShop.CompanyName ?? "";
-                string codigoSuporte = _config.SoftcomShop.DeviceId ?? "";
+                // ClientId é o identificador real da empresa no servidor Softcom.
+                // DeviceId é apenas um ID local de máquina gerado automaticamente e não é reconhecido
+                // pelo wsRegistro como CodigoSuporte válido (ao contrário do modo SQL Server
+                // que busca CodigoSuporte direto da tabela Integrar_Lojas).
+                string codigoSuporte = _config.SoftcomShop.ClientId ?? "";
 
-                // Validar dados mínimos
+                // Validar dados mÃ­nimos
                 if (string.IsNullOrEmpty(cnpj) || string.IsNullOrEmpty(fantasia) || string.IsNullOrEmpty(codigoSuporte))
                 {
                     System.Diagnostics.Debug.WriteLine("[REGISTRO SOFTCOMSHOP] Dados incompletos para registro");
                     return;
                 }
 
-                // Chamar função de registro
+                // Chamar funÃ§Ã£o de registro
                 System.Diagnostics.Debug.WriteLine($"[REGISTRO SOFTCOMSHOP] Registrando uso: {fantasia} - CNPJ: {cnpj}");
 
                 string resultado = await DatabaseConfig.GetSetRegistroJsonAsync(codigoSuporte, cnpj, fantasia);
@@ -339,7 +343,7 @@ namespace EtiquetaFORNew
             }
             catch (Exception ex)
             {
-                // Não exibir erro ao usuário, apenas logar
+                // NÃ£o exibir erro ao usuÃ¡rio, apenas logar
                 System.Diagnostics.Debug.WriteLine($"[REGISTRO SOFTCOMSHOP] Erro ao registrar uso: {ex.Message}");
             }
         }
@@ -385,7 +389,7 @@ namespace EtiquetaFORNew
     }
 
     /// <summary>
-    /// Formulário auxiliar para entrada de dados da nota fiscal
+    /// FormulÃ¡rio auxiliar para entrada de dados da nota fiscal
     /// </summary>
     public class FormBuscarNotaFiscal : Form
     {
@@ -441,7 +445,7 @@ namespace EtiquetaFORNew
             txtNumeroNota.Size = new System.Drawing.Size(200, 20);
             this.Controls.Add(txtNumeroNota);
 
-            // Botão OK
+            // BotÃ£o OK
             btnOK = new Button();
             btnOK.Text = "OK";
             btnOK.Location = new System.Drawing.Point(195, 135);
@@ -450,7 +454,7 @@ namespace EtiquetaFORNew
             btnOK.Click += BtnOK_Click;
             this.Controls.Add(btnOK);
 
-            // Botão Cancelar
+            // BotÃ£o Cancelar
             btnCancelar = new Button();
             btnCancelar.Text = "Cancelar";
             btnCancelar.Location = new System.Drawing.Point(280, 135);

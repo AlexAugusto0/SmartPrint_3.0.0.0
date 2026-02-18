@@ -45,8 +45,8 @@
             this.panelModo = new System.Windows.Forms.Panel();
             this.lblModo = new System.Windows.Forms.Label();
             this.panelTitulo = new System.Windows.Forms.Panel();
-            this.lblTitulo = new System.Windows.Forms.Label();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.lblTitulo = new System.Windows.Forms.Label();
             this.panelPrincipal.SuspendLayout();
             this.panelConteudo.SuspendLayout();
             this.groupBoxDeteccao.SuspendLayout();
@@ -290,6 +290,16 @@
             this.panelTitulo.Size = new System.Drawing.Size(860, 60);
             this.panelTitulo.TabIndex = 0;
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::EtiquetaFORNew.Properties.Resources.icone_novo_2025_PNG;
+            this.pictureBox2.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(67, 54);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 1;
+            this.pictureBox2.TabStop = false;
+            // 
             // lblTitulo
             // 
             this.lblTitulo.AutoSize = true;
@@ -300,16 +310,6 @@
             this.lblTitulo.Size = new System.Drawing.Size(254, 32);
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "Instalação de Drivers";
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = global::EtiquetaFORNew.Properties.Resources.icone_novo_2025_PNG;
-            this.pictureBox2.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(67, 54);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox2.TabIndex = 1;
-            this.pictureBox2.TabStop = false;
             // 
             // telaTecnico
             // 
@@ -322,7 +322,6 @@
             this.MinimumSize = new System.Drawing.Size(900, 600);
             this.Name = "telaTecnico";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Instalação de Drivers - Técnico";
             this.panelPrincipal.ResumeLayout(false);
             this.panelConteudo.ResumeLayout(false);
             this.groupBoxDeteccao.ResumeLayout(false);

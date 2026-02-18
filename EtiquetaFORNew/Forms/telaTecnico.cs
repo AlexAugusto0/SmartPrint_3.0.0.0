@@ -21,7 +21,7 @@ namespace EtiquetaFORNew
             driverInstaller = new DriverInstaller(this);
 
             CarregarImpressoras();
-            this.Text = Main.AppInfo.GetTituloAplicacao();
+            VersaoHelper.DefinirTituloComVersao(this, "Instalação de Drivers");
             InicializarListView();
 
             // Timer para atualizar lista periodicamente
