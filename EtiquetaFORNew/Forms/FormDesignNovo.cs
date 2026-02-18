@@ -26,7 +26,7 @@ namespace EtiquetaFORNew.Forms
 
         // Controles do painel de configuração
         private Panel panelConfiguracao;
-        private Button btnToggleConfig;  // Botão para mostrar/ocultar painel de configurações
+        private Button btnToggleConfig;
         private NumericUpDown numLargura;
         private NumericUpDown numAltura;
         private ComboBox cmbImpressora;
@@ -53,8 +53,7 @@ namespace EtiquetaFORNew.Forms
         private Button btnFundoBranco;
         private Button btnFundoTransparente;
         private Label lblPropriedadesElemento;
-        private ComboBox cmbFonte;  // ✅ NOVO: ComboBox de seleção de fonte
-
+        private ComboBox cmbFonte;
 
         // Toolbox de elementos
         private Panel panelToolbox;
@@ -70,14 +69,36 @@ namespace EtiquetaFORNew.Forms
         private bool redimensionando = false;
         private Point pontoInicialMouse;
         private Rectangle boundsIniciais;
-        private Point deltaArrasto;  // Delta do movimento (em pixels) para aplicar no final
+        private Point deltaArrasto;
         private int handleSelecionado = -1;
-        private int handleSobMouse = -1;  // Handle que está sob o cursor do mouse
+        private int handleSobMouse = -1;
 
         private List<ElementoEtiqueta> elementosSelecionados = new List<ElementoEtiqueta>();
         private bool selecionandoComRetangulo = false;
         private Point pontoInicialSelecao;
         private Rectangle retanguloSelecao;
+
+        // =========================================================
+        // RÉGUA DE ALINHAMENTO (Snap Lines)
+        // =========================================================
+        /// <summary>
+        /// Linhas guia ativas durante o arrasto.
+        /// bool = isVertical (true = linha vertical / alinhamento em X)
+        /// float = posição em pixels no canvas
+        /// </summary>
+        private List<(bool isVertical, float posicaoPx)> linhasGuiaAtivas
+            = new List<(bool, float)>();
+
+        /// <summary>
+        /// Tolerância em pixels para ativar o snap
+        /// </summary>
+        private const float SNAP_THRESHOLD_PX = 6f;
+
+        /// <summary>
+        /// Habilita/desabilita as linhas de alinhamento
+        /// </summary>
+        private bool snapAtivo = true;
+        // =========================================================
 
         // Constantes
         private const float MM_PARA_PIXEL = 3.78f;
@@ -94,7 +115,6 @@ namespace EtiquetaFORNew.Forms
             this.template = templateInicial ?? new TemplateEtiqueta();
             this.nomeTemplateAtual = nomeTemplate;
 
-            // Carrega ou cria configuração
             if (!string.IsNullOrEmpty(nomeTemplate))
             {
                 configuracao = ConfiguracaoManager.CarregarConfiguracao(nomeTemplate);
@@ -119,7 +139,6 @@ namespace EtiquetaFORNew.Forms
                 };
             }
 
-            // Sincroniza template com config
             template.Largura = configuracao.LarguraEtiqueta;
             template.Altura = configuracao.AlturaEtiqueta;
 
@@ -132,7 +151,6 @@ namespace EtiquetaFORNew.Forms
             CriarInterface();
             CarregarDadosNaInterface();
 
-            // Posicionar o botão de toggle após a interface estar criada
             if (btnToggleConfig != null && panelConfiguracao != null)
             {
                 btnToggleConfig.Location = new Point(
@@ -168,13 +186,12 @@ namespace EtiquetaFORNew.Forms
             };
             this.Controls.Add(panelTop);
 
-            // Logo e título
             Label lblEmoji = new Label
             {
                 Text = "🎨",
                 Location = new Point(20, 15),
-                Size = new Size(30, 30), // Pequeno, apenas para o emoji
-                Font = new Font("Segoe UI", 14, FontStyle.Bold), // Sem sublinhado
+                Size = new Size(30, 30),
+                Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 ForeColor = Color.FromArgb(231, 129, 39)
             };
             panelTop.Controls.Add(lblEmoji);
@@ -190,21 +207,19 @@ namespace EtiquetaFORNew.Forms
             panelTop.Controls.Add(lblTitulo);
 
             // ==================== BOTÕES DE AÇÃO ====================
-            // Painel para os botões (ancorado à direita)
             Panel panelBotoes = new Panel
             {
                 Dock = DockStyle.Right,
-                Width = 450,  // Aumentado para caber mais um botão
+                Width = 560,
                 Height = 60,
                 BackColor = Color.Transparent
             };
             panelTop.Controls.Add(panelBotoes);
 
-            // Botão Fechar (mais à direita)
             Button btnFechar = new Button
             {
                 Text = "✕ Fechar",
-                Location = new Point(340, 15),
+                Location = new Point(450, 15),
                 Size = new Size(100, 30),
                 Font = new Font("Segoe UI", 9, FontStyle.Bold),
                 BackColor = Color.FromArgb(231, 76, 60),
@@ -217,14 +232,13 @@ namespace EtiquetaFORNew.Forms
             btnFechar.Click += BtnFechar_Click;
             panelBotoes.Controls.Add(btnFechar);
 
-            // Botão Preview
             Button btnPreview = new Button
             {
                 Text = "👁 Preview",
-                Location = new Point(230, 15),
+                Location = new Point(340, 15),
                 Size = new Size(100, 30),
                 Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                BackColor = Color.FromArgb(155, 89, 182),  // Roxo
+                BackColor = Color.FromArgb(155, 89, 182),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
@@ -234,11 +248,10 @@ namespace EtiquetaFORNew.Forms
             btnPreview.Click += BtnPreview_Click;
             panelBotoes.Controls.Add(btnPreview);
 
-            // Botão Novo (meio)
             Button btnNovo = new Button
             {
                 Text = "📄 Novo",
-                Location = new Point(120, 15),
+                Location = new Point(230, 15),
                 Size = new Size(100, 30),
                 Font = new Font("Segoe UI", 9, FontStyle.Bold),
                 BackColor = Color.FromArgb(52, 152, 219),
@@ -251,11 +264,10 @@ namespace EtiquetaFORNew.Forms
             btnNovo.Click += BtnNovo_Click;
             panelBotoes.Controls.Add(btnNovo);
 
-            // Botão Salvar (mais à esquerda do painel)
             Button btnSalvar = new Button
             {
                 Text = "💾 Salvar",
-                Location = new Point(10, 15),
+                Location = new Point(120, 15),
                 Size = new Size(100, 30),
                 Font = new Font("Segoe UI", 9, FontStyle.Bold),
                 BackColor = Color.FromArgb(46, 204, 113),
@@ -267,6 +279,37 @@ namespace EtiquetaFORNew.Forms
             btnSalvar.FlatAppearance.BorderColor = Color.Black;
             btnSalvar.Click += BtnSalvar_Click;
             panelBotoes.Controls.Add(btnSalvar);
+
+            // =========================================================
+            // BOTÃO TOGGLE SNAP LINES
+            // =========================================================
+            Button btnToggleSnap = new Button
+            {
+                Text = "📐 Guias ON",
+                Location = new Point(10, 15),
+                Size = new Size(100, 30),
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                BackColor = Color.FromArgb(39, 174, 96),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+                
+            };
+            btnToggleSnap.FlatAppearance.BorderSize = 1;
+            btnToggleSnap.FlatAppearance.BorderColor = Color.Black;
+            btnToggleSnap.Click += (s, ev) =>            
+            {
+                snapAtivo = !snapAtivo;
+                btnToggleSnap.Text = snapAtivo ? "📐 Guias ON" : "📐 Guias OFF";
+                btnToggleSnap.BackColor = snapAtivo
+                    ? Color.FromArgb(39, 174, 96)
+                    : Color.FromArgb(149, 165, 166);
+                if (!snapAtivo) linhasGuiaAtivas.Clear();
+                pbCanvas?.Invalidate();
+            };
+            btnToggleSnap.Visible = false;
+            panelBotoes.Controls.Add(btnToggleSnap);
+            // =========================================================
 
             // ==================== PAINEL LATERAL DIREITO - CONFIGURAÇÃO ====================
             panelConfiguracao = new Panel
@@ -281,12 +324,11 @@ namespace EtiquetaFORNew.Forms
 
             CriarPainelConfiguracao();
 
-            // Botão para ocultar/mostrar painel de configurações (flutuante)
             btnToggleConfig = new Button
             {
-                Text = "▶",  // Seta para DIREITA quando visível (clicar para ocultar)
+                Text = "▶",
                 Size = new Size(30, 80),
-                BackColor = Color.FromArgb(46, 204, 113),  // VERDE quando visível
+                BackColor = Color.FromArgb(46, 204, 113),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
@@ -297,7 +339,6 @@ namespace EtiquetaFORNew.Forms
             this.Controls.Add(btnToggleConfig);
             btnToggleConfig.BringToFront();
 
-            // Reposicionar ao redimensionar a janela
             this.Resize += (s, e) =>
             {
                 if (btnToggleConfig == null) return;
@@ -322,10 +363,9 @@ namespace EtiquetaFORNew.Forms
             {
                 if (panelConfiguracao.Width > 0)
                 {
-                    // Ocultar - botão fica AZUL com seta para ESQUERDA (mostrar)
                     panelConfiguracao.Width = 0;
-                    btnToggleConfig.Text = "◀";  // Seta para ESQUERDA
-                    btnToggleConfig.BackColor = Color.FromArgb(52, 152, 219);  // AZUL
+                    btnToggleConfig.Text = "◀";
+                    btnToggleConfig.BackColor = Color.FromArgb(52, 152, 219);
                     btnToggleConfig.Location = new Point(
                         this.ClientSize.Width - btnToggleConfig.Width - 5,
                         btnToggleConfig.Location.Y
@@ -333,10 +373,9 @@ namespace EtiquetaFORNew.Forms
                 }
                 else
                 {
-                    // Mostrar - botão fica VERDE com seta para DIREITA (ocultar)
                     panelConfiguracao.Width = 350;
-                    btnToggleConfig.Text = "▶";  // Seta para DIREITA
-                    btnToggleConfig.BackColor = Color.FromArgb(46, 204, 113);  // VERDE
+                    btnToggleConfig.Text = "▶";
+                    btnToggleConfig.BackColor = Color.FromArgb(46, 204, 113);
                     btnToggleConfig.Location = new Point(
                         this.ClientSize.Width - panelConfiguracao.Width - btnToggleConfig.Width,
                         btnToggleConfig.Location.Y
@@ -351,7 +390,7 @@ namespace EtiquetaFORNew.Forms
                 Width = 200,
                 BackColor = Color.FromArgb(236, 240, 241),
                 Padding = new Padding(10),
-                AutoScroll = true,                      // ✅ ADICIONAR
+                AutoScroll = true,
                 AutoScrollMinSize = new Size(0, 800)
             };
             this.Controls.Add(panelToolbox);
@@ -373,7 +412,7 @@ namespace EtiquetaFORNew.Forms
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
                 Location = new Point(50, 50),
-                Size = new Size(400, 300)  // Tamanho inicial, será atualizado
+                Size = new Size(400, 300)
             };
             pbCanvas.Paint += PbCanvas_Paint;
             pbCanvas.MouseDown += PbCanvas_MouseDown;
@@ -394,7 +433,6 @@ namespace EtiquetaFORNew.Forms
         {
             int yPos = 10;
 
-            // Título
             Label lblTituloConfig = new Label
             {
                 Text = "⚙ CONFIGURAÇÕES DA PÁGINA",
@@ -406,7 +444,6 @@ namespace EtiquetaFORNew.Forms
             panelConfiguracao.Controls.Add(lblTituloConfig);
             yPos += 40;
 
-            // Linha separadora
             Panel linha1 = new Panel
             {
                 Location = new Point(10, yPos),
@@ -416,7 +453,6 @@ namespace EtiquetaFORNew.Forms
             panelConfiguracao.Controls.Add(linha1);
             yPos += 15;
 
-            // DIMENSÕES DA ETIQUETA
             Label lblDimensoes = CriarLabelSecao("📐 Dimensões da Etiqueta", yPos);
             panelConfiguracao.Controls.Add(lblDimensoes);
             yPos += 25;
@@ -438,7 +474,6 @@ namespace EtiquetaFORNew.Forms
             panelConfiguracao.Controls.Add(linha2);
             yPos += 15;
 
-            // IMPRESSORA E PAPEL
             Label lblImpressao = CriarLabelSecao("🖨️ Impressão", yPos);
             panelConfiguracao.Controls.Add(lblImpressao);
             yPos += 25;
@@ -490,7 +525,6 @@ namespace EtiquetaFORNew.Forms
             panelConfiguracao.Controls.Add(linha3);
             yPos += 15;
 
-            // LAYOUT
             Label lblLayout = CriarLabelSecao("📊 Layout da Página", yPos);
             panelConfiguracao.Controls.Add(lblLayout);
             yPos += 25;
@@ -543,7 +577,6 @@ namespace EtiquetaFORNew.Forms
             panelConfiguracao.Controls.Add(linha4);
             yPos += 15;
 
-            // ESPAÇAMENTOS
             Label lblEspacamento = CriarLabelSecao("↔️ Espaçamentos", yPos);
             panelConfiguracao.Controls.Add(lblEspacamento);
             yPos += 25;
@@ -567,23 +600,9 @@ namespace EtiquetaFORNew.Forms
             panelConfiguracao.Controls.Add(linha5);
             yPos += 15;
 
-            // MARGENS
             Label lblMargens = CriarLabelSecao("📏 Margens da Página", yPos);
             panelConfiguracao.Controls.Add(lblMargens);
             yPos += 25;
-
-            //chkPadraoDesativar = new CheckBox
-            //{
-            //    Text = "Ir no Painel de Controle, clicar no item 'Propriedades do servidor de impressão'",
-            //    Location = new Point(15, yPos),
-            //    Size = new Size(300, 40),
-            //    Font = new Font("Segoe UI", 8),
-            //    ForeColor = Color.FromArgb(127, 140, 141),
-            //    Checked = configuracao.MargemSuperior == 0
-            //};
-            //chkPadraoDesativar.CheckedChanged += ChkPadraoDesativar_CheckedChanged;
-            //panelConfiguracao.Controls.Add(chkPadraoDesativar);
-            //yPos += 45;
 
             yPos = CriarCampoNumerico("Superior (mm):", out numMargemSuperior, yPos, 0, 50,
                 (decimal)configuracao.MargemSuperior, 0.1m);
@@ -609,7 +628,6 @@ namespace EtiquetaFORNew.Forms
             };
             panelConfiguracao.Controls.Add(linha6);
             yPos += 15;
-            //AtualizarEstadoMargens();
         }
 
         private Label CriarLabelSecao(string texto, int yPos)
@@ -679,7 +697,6 @@ namespace EtiquetaFORNew.Forms
 
             int yPos = 45;
 
-            // Label Campos
             Label lblCampos = new Label
             {
                 Text = "Campos Dinâmicos:",
@@ -691,7 +708,6 @@ namespace EtiquetaFORNew.Forms
             panelToolbox.Controls.Add(lblCampos);
             yPos += 25;
 
-            // ComboBox de Campos
             ComboBox cmbCampos = new ComboBox
             {
                 Location = new Point(10, yPos),
@@ -700,26 +716,10 @@ namespace EtiquetaFORNew.Forms
                 Font = new Font("Segoe UI", 8)
             };
             cmbCampos.Items.AddRange(new object[] {
-                "Mercadoria",
-                "CodigoMercadoria",
-                "CodFabricante",
-                "CodBarras",
-                "PrecoVenda",
-                "VendaA",
-                "VendaB",
-                "VendaC",
-                "VendaD",
-                "VendaE",
-                "Fornecedor",
-                "Fabricante",
-                "Grupo",
-                "Prateleira",
-                "Garantia",
-                "Tam",
-                "Cores",
-                "CodBarras_Grade",
-                "PrecoOriginal",
-                "PrecoPromocional"
+                "Mercadoria", "CodigoMercadoria", "CodFabricante", "CodBarras",
+                "PrecoVenda", "VendaA", "VendaB", "VendaC", "VendaD", "VendaE",
+                "Fornecedor", "Fabricante", "Grupo", "Prateleira", "Garantia",
+                "Tam", "Cores", "CodBarras_Grade", "PrecoOriginal", "PrecoPromocional"
             });
             cmbCampos.SelectedIndexChanged += (s, e) => {
                 if (cmbCampos.SelectedItem != null)
@@ -731,7 +731,6 @@ namespace EtiquetaFORNew.Forms
             panelToolbox.Controls.Add(cmbCampos);
             yPos += 35;
 
-            // Label Códigos de Barras
             Label lblCodigoBarras = new Label
             {
                 Text = "Códigos de Barras:",
@@ -743,7 +742,6 @@ namespace EtiquetaFORNew.Forms
             panelToolbox.Controls.Add(lblCodigoBarras);
             yPos += 25;
 
-            // ComboBox de Códigos de Barras
             ComboBox cmbCodigoBarras = new ComboBox
             {
                 Location = new Point(10, yPos),
@@ -752,10 +750,7 @@ namespace EtiquetaFORNew.Forms
                 Font = new Font("Segoe UI", 8)
             };
             cmbCodigoBarras.Items.AddRange(new object[] {
-                "CodigoMercadoria",
-                "CodFabricante",
-                "CodBarras",
-                "CodBarras_Grade"
+                "CodigoMercadoria", "CodFabricante", "CodBarras", "CodBarras_Grade"
             });
             cmbCodigoBarras.SelectedIndexChanged += (s, e) => {
                 if (cmbCodigoBarras.SelectedItem != null)
@@ -767,19 +762,17 @@ namespace EtiquetaFORNew.Forms
             panelToolbox.Controls.Add(cmbCodigoBarras);
             yPos += 35;
 
-            // Botão Texto
             Button btnTexto = CriarBotaoElemento("📝 Texto", yPos, () => AdicionarElemento(TipoElemento.Texto));
             yPos += 40;
 
-            // Botão Imagem
             Button btnImagem = CriarBotaoElemento("🖼️ Imagem", yPos, () => AdicionarImagem());
             yPos += 40;
 
-            // Botão Remover
             Button btnRemover = CriarBotaoElemento("🗑️ Remover", yPos, () => RemoverElementoSelecionado());
             btnRemover.BackColor = Color.FromArgb(231, 76, 60);
             CriarPainelPropriedades();
         }
+
         private void CriarPainelPropriedades()
         {
             panelPropriedades = new Panel
@@ -789,13 +782,12 @@ namespace EtiquetaFORNew.Forms
                 AutoScroll = true,
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
-                Visible = false  // Invisível até selecionar elemento
+                Visible = false
             };
             panelToolbox.Controls.Add(panelPropriedades);
 
             int yPos = 10;
 
-            // Título
             lblPropriedadesElemento = new Label
             {
                 Text = "⚙ PROPRIEDADES",
@@ -832,7 +824,7 @@ namespace EtiquetaFORNew.Forms
                 Size = new Size(160, 20),
                 Font = new Font("Segoe UI", 8, FontStyle.Bold),
                 ForeColor = Color.Gray,
-                Visible = false  // Inicialmente invisível
+                Visible = false
             };
             panelPropriedades.Controls.Add(lblConteudo);
             yPos += 25;
@@ -843,7 +835,7 @@ namespace EtiquetaFORNew.Forms
                 Location = new Point(10, yPos),
                 Size = new Size(160, 25),
                 Font = new Font("Segoe UI", 9),
-                Visible = false  // Inicialmente invisível
+                Visible = false
             };
             txtConteudo.TextChanged += (s, e) =>
             {
@@ -856,7 +848,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(txtConteudo);
             yPos += 35;
 
-            // Label Alinhamento
             Label lblAlinhamento = new Label
             {
                 Text = "Alinhamento:",
@@ -868,7 +859,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(lblAlinhamento);
             yPos += 25;
 
-            // Botões de alinhamento
             btnAlinharEsquerda = new Button
             {
                 Text = "←",
@@ -912,7 +902,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(btnAlinharDireita);
             yPos += 45;
 
-            // ✅ NOVO: Seleção de Fonte
             Label lblFamilia = new Label
             {
                 Text = "Família da Fonte:",
@@ -931,8 +920,6 @@ namespace EtiquetaFORNew.Forms
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Font = new Font("Segoe UI", 9)
             };
-
-            // Adiciona as fontes disponíveis
             foreach (var fontFamily in FontFamily.Families)
             {
                 cmbFonte.Items.Add(fontFamily.Name);
@@ -941,7 +928,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(cmbFonte);
             yPos += 35;
 
-            // Label Fonte
             Label lblFonte = new Label
             {
                 Text = "Tamanho da Fonte:",
@@ -965,7 +951,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(numTamanhoFonte);
             yPos += 35;
 
-            // Estilo
             Label lblEstilo = new Label
             {
                 Text = "Estilo:",
@@ -998,7 +983,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(chkItalico);
             yPos += 35;
 
-            // Cor
             Label lblCor = new Label
             {
                 Text = "Cor do Texto:",
@@ -1024,7 +1008,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(btnCor);
             yPos += 35;
 
-            // ⭐ NOVO: Botões rápidos de cor de texto (Preto/Branco)
             Label lblCoresRapidas = new Label
             {
                 Text = "Atalhos:",
@@ -1064,7 +1047,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(btnTextoBranco);
             yPos += 35;
 
-            // ⭐ NOVO: Cor de Fundo
             Label lblCorFundo = new Label
             {
                 Text = "Cor de Fundo:",
@@ -1090,7 +1072,6 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(btnCorFundo);
             yPos += 35;
 
-            // ⭐ NOVO: Botões rápidos de cor de fundo
             Label lblFundoRapido = new Label
             {
                 Text = "Atalhos:",
@@ -1103,7 +1084,6 @@ namespace EtiquetaFORNew.Forms
 
             btnFundoPreto = new Button
             {
-                //Text = "▓",
                 Location = new Point(65, yPos),
                 Size = new Size(30, 25),
                 BackColor = Color.Black,
@@ -1117,7 +1097,6 @@ namespace EtiquetaFORNew.Forms
 
             btnFundoBranco = new Button
             {
-                //Text = "▓",
                 Location = new Point(100, yPos),
                 Size = new Size(30, 25),
                 BackColor = Color.White,
@@ -1142,10 +1121,6 @@ namespace EtiquetaFORNew.Forms
             };
             btnFundoTransparente.Click += (s, e) => AplicarCorFundo(null);
             panelPropriedades.Controls.Add(btnFundoTransparente);
-
-            Cursor = Cursors.Hand;
-        btnCor.Click += BtnCor_Click;
-            panelPropriedades.Controls.Add(btnCor);
         }
 
         private Button CriarBotaoElemento(string texto, int yPos, Action onClick)
@@ -1292,6 +1267,7 @@ namespace EtiquetaFORNew.Forms
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
         private void AtualizarPainelPropriedades()
         {
             if (elementoSelecionado == null)
@@ -1330,29 +1306,22 @@ namespace EtiquetaFORNew.Forms
                 lblNomeAtual.Visible = true;
             }
 
-            // Atualiza valores baseado no elemento selecionado
             if (elementoSelecionado.Fonte != null)
             {
                 numTamanhoFonte.Value = (decimal)elementoSelecionado.Fonte.Size;
                 chkNegrito.Checked = elementoSelecionado.Fonte.Bold;
                 chkItalico.Checked = elementoSelecionado.Fonte.Italic;
 
-                // ✅ NOVO: Atualiza ComboBox de fonte
                 string nomeFonte = elementoSelecionado.NomeFonte ?? elementoSelecionado.Fonte.FontFamily.Name;
                 if (cmbFonte.Items.Contains(nomeFonte))
-                {
                     cmbFonte.SelectedItem = nomeFonte;
-                }
                 else
-                {
                     cmbFonte.SelectedIndex = -1;
-                }
             }
 
             btnCor.BackColor = elementoSelecionado.Cor;
             btnCor.ForeColor = elementoSelecionado.Cor.GetBrightness() > 0.5 ? Color.Black : Color.White;
 
-            // ⭐ ATUALIZAR cor de fundo
             if (elementoSelecionado.CorFundo.HasValue)
             {
                 btnCorFundo.BackColor = elementoSelecionado.CorFundo.Value;
@@ -1364,36 +1333,21 @@ namespace EtiquetaFORNew.Forms
                 btnCorFundo.ForeColor = Color.Black;
             }
 
-            // Atualiza visual dos botões de alinhamento
             AtualizarBotoesAlinhamento();
             panelToolbox.ScrollControlIntoView(panelPropriedades);
+
             var txtConteudo = panelPropriedades.Controls.Find("txtConteudoElemento", false).FirstOrDefault() as TextBox;
             var lblConteudo = panelPropriedades.Controls.Find("lblConteudoTexto", false).FirstOrDefault() as Label;
 
             if (elementoSelecionado.Tipo == TipoElemento.Texto)
             {
-                // Mostra e preenche o campo de texto
-                if (txtConteudo != null)
-                {
-                    txtConteudo.Visible = true;
-                    txtConteudo.Text = elementoSelecionado.Conteudo ?? "Texto";
-                }
-                if (lblConteudo != null)
-                {
-                    lblConteudo.Visible = true;
-                }
+                if (txtConteudo != null) { txtConteudo.Visible = true; txtConteudo.Text = elementoSelecionado.Conteudo ?? "Texto"; }
+                if (lblConteudo != null) lblConteudo.Visible = true;
             }
             else
             {
-                // Esconde o campo de texto para outros tipos
-                if (txtConteudo != null)
-                {
-                    txtConteudo.Visible = false;
-                }
-                if (lblConteudo != null)
-                {
-                    lblConteudo.Visible = false;
-                }
+                if (txtConteudo != null) txtConteudo.Visible = false;
+                if (lblConteudo != null) lblConteudo.Visible = false;
             }
         }
 
@@ -1401,14 +1355,11 @@ namespace EtiquetaFORNew.Forms
         {
             if (elementoSelecionado == null) return;
 
-            // Reseta cores
             btnAlinharEsquerda.BackColor = Color.FromArgb(236, 240, 241);
             btnAlinharCentro.BackColor = Color.FromArgb(236, 240, 241);
             btnAlinharDireita.BackColor = Color.FromArgb(236, 240, 241);
 
-            // Destaca o alinhamento atual
             StringAlignment alinhamento = elementoSelecionado.Alinhamento;
-
             if (alinhamento == StringAlignment.Near)
                 btnAlinharEsquerda.BackColor = Color.FromArgb(52, 152, 219);
             else if (alinhamento == StringAlignment.Center)
@@ -1420,7 +1371,6 @@ namespace EtiquetaFORNew.Forms
         private void AlterarAlinhamento(StringAlignment novoAlinhamento)
         {
             if (elementoSelecionado == null) return;
-
             elementoSelecionado.Alinhamento = novoAlinhamento;
             AtualizarBotoesAlinhamento();
             pbCanvas.Invalidate();
@@ -1451,10 +1401,8 @@ namespace EtiquetaFORNew.Forms
         private void AlterarTamanhoFonte()
         {
             if (elementoSelecionado == null || elementoSelecionado.Fonte == null) return;
-
             float novoTamanho = (float)numTamanhoFonte.Value;
             FontStyle estilo = elementoSelecionado.Fonte.Style;
-
             string nomeFonte = elementoSelecionado.NomeFonte ?? elementoSelecionado.Fonte.FontFamily.Name;
             elementoSelecionado.Fonte = new Font(nomeFonte, novoTamanho, estilo);
             pbCanvas.Invalidate();
@@ -1465,94 +1413,56 @@ namespace EtiquetaFORNew.Forms
             if (elementoSelecionado == null || elementoSelecionado.Fonte == null) return;
 
             FontStyle estilo = FontStyle.Regular;
-
-            if (chkNegrito.Checked)
-                estilo |= FontStyle.Bold;
-
-            if (chkItalico.Checked)
-                estilo |= FontStyle.Italic;
+            if (chkNegrito.Checked) estilo |= FontStyle.Bold;
+            if (chkItalico.Checked) estilo |= FontStyle.Italic;
 
             string nomeFonte = elementoSelecionado.NomeFonte ?? elementoSelecionado.Fonte.FontFamily.Name;
-            elementoSelecionado.Fonte = new Font(
-                nomeFonte,
-                elementoSelecionado.Fonte.Size,
-                estilo);
-
-            // Salvar as flags no elemento
+            elementoSelecionado.Fonte = new Font(nomeFonte, elementoSelecionado.Fonte.Size, estilo);
             elementoSelecionado.Negrito = chkNegrito.Checked;
             elementoSelecionado.Italico = chkItalico.Checked;
-
             pbCanvas.Invalidate();
         }
 
         private void BtnCor_Click(object sender, EventArgs e)
         {
             if (elementoSelecionado == null && elementosSelecionados.Count == 0) return;
-
             using (ColorDialog colorDialog = new ColorDialog())
             {
                 colorDialog.Color = elementoSelecionado?.Cor ?? Color.Black;
-
                 if (colorDialog.ShowDialog() == DialogResult.OK)
-                {
                     AplicarCorTexto(colorDialog.Color);
-                }
             }
         }
 
         private void BtnCorFundo_Click(object sender, EventArgs e)
         {
             if (elementoSelecionado == null && elementosSelecionados.Count == 0) return;
-
             using (ColorDialog colorDialog = new ColorDialog())
             {
                 colorDialog.Color = elementoSelecionado?.CorFundo ?? Color.Transparent;
-
                 if (colorDialog.ShowDialog() == DialogResult.OK)
-                {
                     AplicarCorFundo(colorDialog.Color);
-                }
             }
         }
 
-        /// <summary>
-        /// ⭐ NOVO: Aplica cor do texto a todos os elementos selecionados
-        /// </summary>
         private void AplicarCorTexto(Color cor)
         {
             if (elementosSelecionados.Count > 0)
-            {
-                foreach (var elem in elementosSelecionados)
-                {
-                    elem.Cor = cor;
-                }
-            }
+                foreach (var elem in elementosSelecionados) elem.Cor = cor;
             else if (elementoSelecionado != null)
-            {
                 elementoSelecionado.Cor = cor;
-            }
 
             btnCor.BackColor = cor;
             btnCor.ForeColor = cor.GetBrightness() > 0.5 ? Color.Black : Color.White;
             pbCanvas.Invalidate();
         }
 
-        /// <summary>
-        /// ⭐ NOVO: Aplica cor de fundo a todos os elementos selecionados
-        /// </summary>
         private void AplicarCorFundo(Color? cor)
         {
             if (elementosSelecionados.Count > 0)
-            {
-                foreach (var elem in elementosSelecionados)
-                {
-                    elem.CorFundo = cor;
-                }
-            }
+                foreach (var elem in elementosSelecionados) elem.CorFundo = cor;
             else if (elementoSelecionado != null)
-            {
                 elementoSelecionado.CorFundo = cor;
-            }
 
             if (cor.HasValue)
             {
@@ -1569,6 +1479,159 @@ namespace EtiquetaFORNew.Forms
 
         #endregion
 
+        #region Régua de Alinhamento (Snap Lines)
+
+        /// <summary>
+        /// Calcula as linhas guia de alinhamento durante o arrasto de um elemento.
+        /// Compara bordas/centros do elemento arrastado com bordas/centros dos demais
+        /// elementos e das bordas da etiqueta. Quando dentro do limiar SNAP_THRESHOLD_PX,
+        /// adiciona a linha guia à lista para ser desenhada no Paint.
+        /// </summary>
+        private void AtualizarLinhasGuia(RectangleF rectEtiqueta)
+        {
+            linhasGuiaAtivas.Clear();
+
+            if (!snapAtivo) return;
+            if (elementoSelecionado == null && elementosSelecionados.Count == 0) return;
+
+            float scale = MM_PARA_PIXEL * zoom;
+            float thresholdMM = SNAP_THRESHOLD_PX / scale;
+
+            // ------------------------------------------------------------------
+            // Calcular bounds atual do elemento sendo arrastado (em MM, com delta)
+            // ------------------------------------------------------------------
+            float deltaXMM = deltaArrasto.X / scale;
+            float deltaYMM = deltaArrasto.Y / scale;
+
+            RectangleF b;
+            if (elementoSelecionado != null)
+            {
+                b = new RectangleF(
+                    elementoSelecionado.Bounds.X + deltaXMM,
+                    elementoSelecionado.Bounds.Y + deltaYMM,
+                    elementoSelecionado.Bounds.Width,
+                    elementoSelecionado.Bounds.Height);
+            }
+            else
+            {
+                // seleção múltipla: usar o bounding box do conjunto
+                float minX = elementosSelecionados.Min(el => el.Bounds.X) + deltaXMM;
+                float minY = elementosSelecionados.Min(el => el.Bounds.Y) + deltaYMM;
+                float maxX = elementosSelecionados.Max(el => el.Bounds.Right) + deltaXMM;
+                float maxY = elementosSelecionados.Max(el => el.Bounds.Bottom) + deltaYMM;
+                b = new RectangleF(minX, minY, maxX - minX, maxY - minY);
+            }
+
+            // Pontos de interesse do elemento arrastado (em MM)
+            float[] bX = { b.Left, b.Left + b.Width / 2f, b.Right };
+            float[] bY = { b.Top,  b.Top  + b.Height / 2f, b.Bottom };
+
+            // ------------------------------------------------------------------
+            // Referências: bordas da etiqueta + bordas dos outros elementos
+            // ------------------------------------------------------------------
+            var refX = new List<float> { 0f, configuracao.LarguraEtiqueta / 2f, configuracao.LarguraEtiqueta };
+            var refY = new List<float> { 0f, configuracao.AlturaEtiqueta / 2f,  configuracao.AlturaEtiqueta };
+
+            foreach (var outro in template.Elementos)
+            {
+                // Ignorar o próprio elemento (ou os elementos da seleção múltipla)
+                if (outro == elementoSelecionado) continue;
+                if (elementosSelecionados.Contains(outro)) continue;
+
+                refX.Add(outro.Bounds.X);
+                refX.Add(outro.Bounds.X + outro.Bounds.Width / 2f);
+                refX.Add(outro.Bounds.Right);
+
+                refY.Add(outro.Bounds.Y);
+                refY.Add(outro.Bounds.Y + outro.Bounds.Height / 2f);
+                refY.Add(outro.Bounds.Bottom);
+            }
+
+            // ------------------------------------------------------------------
+            // Detectar alinhamentos e converter para pixels para desenho
+            // ------------------------------------------------------------------
+            var adicionadasX = new HashSet<float>();
+            var adicionadasY = new HashSet<float>();
+
+            foreach (float bx in bX)
+            {
+                foreach (float rx in refX)
+                {
+                    if (Math.Abs(bx - rx) <= thresholdMM)
+                    {
+                        float px = rectEtiqueta.X + rx * scale;
+                        // Evitar linhas duplicadas (arredondado a 1px)
+                        float chave = (float)Math.Round(px);
+                        if (adicionadasX.Add(chave))
+                            linhasGuiaAtivas.Add((true, px));
+                    }
+                }
+            }
+
+            foreach (float by in bY)
+            {
+                foreach (float ry in refY)
+                {
+                    if (Math.Abs(by - ry) <= thresholdMM)
+                    {
+                        float py = rectEtiqueta.Y + ry * scale;
+                        float chave = (float)Math.Round(py);
+                        if (adicionadasY.Add(chave))
+                            linhasGuiaAtivas.Add((false, py));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Desenha as linhas guia ativas sobre o canvas.
+        /// Chamado no final do PbCanvas_Paint.
+        /// </summary>
+        private void DesenharLinhasGuia(Graphics g, RectangleF rectEtiqueta)
+        {
+            if (!snapAtivo || linhasGuiaAtivas.Count == 0) return;
+
+            // Cor magenta semitransparente — visível sobre qualquer fundo
+            using (Pen penGuia = new Pen(Color.FromArgb(210, 255, 0, 128), 1f))
+            {
+                penGuia.DashStyle = DashStyle.Dash;
+
+                foreach (var (isVertical, posPx) in linhasGuiaAtivas)
+                {
+                    if (isVertical)
+                    {
+                        // Linha vertical — percorre toda a altura da etiqueta
+                        g.DrawLine(penGuia,
+                            posPx, rectEtiqueta.Top - 4,
+                            posPx, rectEtiqueta.Bottom + 4);
+                    }
+                    else
+                    {
+                        // Linha horizontal — percorre toda a largura da etiqueta
+                        g.DrawLine(penGuia,
+                            rectEtiqueta.Left - 4, posPx,
+                            rectEtiqueta.Right + 4, posPx);
+                    }
+                }
+            }
+
+            // Círculos nos cruzamentos de linhas guia para destaque extra
+            var verticais = linhasGuiaAtivas.Where(l => l.isVertical).Select(l => l.posicaoPx).ToList();
+            var horizontais = linhasGuiaAtivas.Where(l => !l.isVertical).Select(l => l.posicaoPx).ToList();
+
+            if (verticais.Count > 0 && horizontais.Count > 0)
+            {
+                using (SolidBrush brushPonto = new SolidBrush(Color.FromArgb(230, 255, 0, 128)))
+                {
+                    foreach (float vx in verticais)
+                        foreach (float hy in horizontais)
+                            g.FillEllipse(brushPonto, vx - 3, hy - 3, 6, 6);
+                }
+            }
+        }
+
+        #endregion
+
         #region Desenhar Canvas
 
         private void PbCanvas_Paint(object sender, PaintEventArgs e)
@@ -1577,9 +1640,6 @@ namespace EtiquetaFORNew.Forms
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(Color.White);
 
-            float escala = zoom * MM_PARA_PIXEL;
-
-            // Desenha fundo da etiqueta
             RectangleF rectEtiqueta = new RectangleF(
                 25, 25,
                 configuracao.LarguraEtiqueta * MM_PARA_PIXEL * zoom,
@@ -1589,16 +1649,12 @@ namespace EtiquetaFORNew.Forms
             g.FillRectangle(Brushes.White, rectEtiqueta);
             g.DrawRectangle(new Pen(Color.FromArgb(230, 126, 34), 2), Rectangle.Round(rectEtiqueta));
 
-            // Desenha grid de colunas/linhas se > 1
             if (configuracao.NumColunas > 1 || configuracao.NumLinhas > 1)
-            {
                 DesenharGrid(g, rectEtiqueta);
-            }
 
-            // Desenha elementos do template
             DesenharElementos(g, rectEtiqueta);
 
-            // NOVO: Desenhar retângulo de seleção múltipla
+            // Retângulo de seleção múltipla
             if (selecionandoComRetangulo)
             {
                 using (Pen penSelecao = new Pen(Color.DodgerBlue, 1))
@@ -1609,6 +1665,12 @@ namespace EtiquetaFORNew.Forms
                     g.DrawRectangle(penSelecao, retanguloSelecao);
                 }
             }
+
+            // =========================================================
+            // DESENHAR LINHAS GUIA DE ALINHAMENTO (por último, sobre tudo)
+            // =========================================================
+            if (arrastando)
+                DesenharLinhasGuia(g, rectEtiqueta);
         }
 
         private void DesenharGrid(Graphics g, RectangleF rect)
@@ -1617,7 +1679,6 @@ namespace EtiquetaFORNew.Forms
             {
                 penGrid.DashStyle = DashStyle.Dash;
 
-                // Grid vertical (colunas)
                 if (configuracao.NumColunas > 1)
                 {
                     float larguraColuna = configuracao.LarguraEtiqueta / configuracao.NumColunas;
@@ -1628,7 +1689,6 @@ namespace EtiquetaFORNew.Forms
                     }
                 }
 
-                // Grid horizontal (linhas)
                 if (configuracao.NumLinhas > 1)
                 {
                     float alturaLinha = configuracao.AlturaEtiqueta / configuracao.NumLinhas;
@@ -1666,22 +1726,17 @@ namespace EtiquetaFORNew.Forms
                 {
                     Rectangle bounds = ConverterParaPixels(elem.Bounds, rectEtiqueta);
 
-                    // Aplicar delta de arrasto se estiver arrastando
                     if (arrastando)
                     {
                         bounds.X += deltaArrasto.X;
                         bounds.Y += deltaArrasto.Y;
                     }
 
-                    // ⭐ Aplicar rotação aos bounds e handles se elemento tiver rotação
                     GraphicsState selectionState = null;
                     if (elem.Rotacao != 0)
                     {
                         selectionState = g.Save();
-                        PointF centro = new PointF(
-                            bounds.X + bounds.Width / 2f,
-                            bounds.Y + bounds.Height / 2f
-                        );
+                        PointF centro = new PointF(bounds.X + bounds.Width / 2f, bounds.Y + bounds.Height / 2f);
                         g.TranslateTransform(centro.X, centro.Y);
                         g.RotateTransform(elem.Rotacao);
                         g.TranslateTransform(-centro.X, -centro.Y);
@@ -1693,24 +1748,17 @@ namespace EtiquetaFORNew.Forms
                         g.DrawRectangle(penSelecao, bounds);
                     }
 
-                    // Desenhar handles apenas se for seleção única
                     if (elementoSelecionado == elem && elementosSelecionados.Count == 0)
-                    {
                         DesenharHandles(g, bounds);
-                    }
 
-                    // ⭐ Restaurar estado gráfico após desenhar seleção e handles
                     if (selectionState != null)
-                    {
                         g.Restore(selectionState);
-                    }
                 }
             }
         }
 
         private void DesenharElemento(Graphics g, ElementoEtiqueta elem, RectangleF rectEtiqueta, Produto produto)
         {
-            // Calcular bounds considerando o delta de arrasto se este elemento está sendo arrastado
             Rectangle bounds = ConverterParaPixels(elem.Bounds, rectEtiqueta);
             if (elem == elementoSelecionado && arrastando && deltaArrasto != Point.Empty)
             {
@@ -1721,31 +1769,19 @@ namespace EtiquetaFORNew.Forms
             GraphicsState state = null;
             if (elem.Rotacao != 0)
             {
-                state = g.Save();  // Salvar estado
-
-                // Transladar para o centro
-                PointF centro = new PointF(
-                    bounds.X + bounds.Width / 2f,
-                    bounds.Y + bounds.Height / 2f
-                );
+                state = g.Save();
+                PointF centro = new PointF(bounds.X + bounds.Width / 2f, bounds.Y + bounds.Height / 2f);
                 g.TranslateTransform(centro.X, centro.Y);
-
-                // Rotacionar
                 g.RotateTransform(elem.Rotacao);
-
-                // Voltar
                 g.TranslateTransform(-centro.X, -centro.Y);
             }
 
-
-            // ⭐ NOVO: Desenhar cor de fundo se definida
             if (elem.CorFundo.HasValue && elem.CorFundo.Value != Color.Transparent)
             {
                 using (SolidBrush fundoBrush = new SolidBrush(elem.CorFundo.Value))
-                {
                     g.FillRectangle(fundoBrush, bounds);
-                }
             }
+
             switch (elem.Tipo)
             {
                 case TipoElemento.Texto:
@@ -1756,8 +1792,8 @@ namespace EtiquetaFORNew.Forms
                         {
                             Alignment = elem.Alinhamento,
                             LineAlignment = StringAlignment.Center,
-                            Trimming = StringTrimming.EllipsisCharacter,  // ← ADICIONAR
-                            FormatFlags = StringFormatFlags.LineLimit     // ← ADICIONAR
+                            Trimming = StringTrimming.EllipsisCharacter,
+                            FormatFlags = StringFormatFlags.LineLimit
                         };
                         g.DrawString(elem.Conteudo ?? "Texto", fonteComZoom, brush, bounds, sf);
                     }
@@ -1772,8 +1808,8 @@ namespace EtiquetaFORNew.Forms
                         {
                             Alignment = elem.Alinhamento,
                             LineAlignment = StringAlignment.Center,
-                            Trimming = StringTrimming.EllipsisCharacter,  // ← ADICIONAR
-                            FormatFlags = StringFormatFlags.LineLimit     // ← ADICIONAR
+                            Trimming = StringTrimming.EllipsisCharacter,
+                            FormatFlags = StringFormatFlags.LineLimit
                         };
                         g.DrawString(valor, fonteComZoom, brush, bounds, sf);
                     }
@@ -1786,25 +1822,20 @@ namespace EtiquetaFORNew.Forms
 
                 case TipoElemento.Imagem:
                     if (elem.Imagem != null)
-                    {
                         g.DrawImage(elem.Imagem, bounds);
-                    }
                     else
                     {
                         g.FillRectangle(Brushes.LightGray, bounds);
                         using (Font fonteComZoom = new Font("Arial", 8 * zoom, FontStyle.Regular))
-                        {
                             g.DrawString("Imagem", fonteComZoom, Brushes.Black, bounds);
-                        }
                     }
                     break;
             }
 
             g.DrawRectangle(Pens.LightGray, bounds);
+
             if (state != null)
-            {
                 g.Restore(state);
-            }
         }
 
         #endregion
@@ -1824,7 +1855,6 @@ namespace EtiquetaFORNew.Forms
         private Rectangle ConverterParaMM(Rectangle boundsEmPixels, RectangleF rectEtiqueta)
         {
             const float pixelParaMM = 1f / MM_PARA_PIXEL;
-
             return new Rectangle(
                 (int)((boundsEmPixels.X - rectEtiqueta.X) * pixelParaMM / zoom),
                 (int)((boundsEmPixels.Y - rectEtiqueta.Y) * pixelParaMM / zoom),
@@ -1835,40 +1865,36 @@ namespace EtiquetaFORNew.Forms
 
         private string ObterValorCampo(string campo, Produto produto)
         {
-            if (produto == null)
-            {
-                return $"[{campo}]";
-            }
+            if (produto == null) return $"[{campo}]";
 
             switch (campo)
             {
-                case "Mercadoria": return produto.Nome ?? "";
+                case "Mercadoria":       return produto.Nome ?? "";
                 case "CodigoMercadoria": return produto.Codigo ?? "";
-                case "CodFabricante": return produto.CodFabricante ?? "";
-                case "CodBarras": return produto.CodBarras ?? "";
-                case "PrecoVenda": return produto.Preco.ToString("F2");
-                case "VendaA": return produto.Preco.ToString("F2");
-                case "VendaB": return produto.Preco.ToString("F2");
-                case "VendaC": return produto.Preco.ToString("F2");
-                case "VendaD": return produto.Preco.ToString("F2");
-                case "VendaE": return produto.Preco.ToString("F2");
-                case "Fornecedor": return produto.Nome ?? "";
-                case "Fabricante": return produto.Nome ?? "";
-                case "Grupo": return "";
-                case "Prateleira": return "";
-                case "Garantia": return "";
-                case "Tam": return "";
-                case "Cores": return "";
-                case "CodBarras_Grade": return produto.CodBarras_Grade ?? "";
+                case "CodFabricante":    return produto.CodFabricante ?? "";
+                case "CodBarras":        return produto.CodBarras ?? "";
+                case "PrecoVenda":       return produto.Preco.ToString("F2");
+                case "VendaA":           return produto.Preco.ToString("F2");
+                case "VendaB":           return produto.Preco.ToString("F2");
+                case "VendaC":           return produto.Preco.ToString("F2");
+                case "VendaD":           return produto.Preco.ToString("F2");
+                case "VendaE":           return produto.Preco.ToString("F2");
+                case "Fornecedor":       return produto.Nome ?? "";
+                case "Fabricante":       return produto.Nome ?? "";
+                case "Grupo":            return "";
+                case "Prateleira":       return "";
+                case "Garantia":         return "";
+                case "Tam":              return "";
+                case "Cores":            return "";
+                case "CodBarras_Grade":  return produto.CodBarras_Grade ?? "";
                 case "PrecoOriginal":
-                    return produto.PrecoOriginal.HasValue ?
-                           produto.PrecoOriginal.Value.ToString("F2") :
-                           produto.Preco.ToString("C2");
-
+                    return produto.PrecoOriginal.HasValue
+                        ? produto.PrecoOriginal.Value.ToString("F2")
+                        : produto.Preco.ToString("C2");
                 case "PrecoPromocional":
-                    return produto.PrecoPromocional.HasValue ?
-                           produto.PrecoPromocional.Value.ToString("F2") :
-                           produto.Preco.ToString("C2");
+                    return produto.PrecoPromocional.HasValue
+                        ? produto.PrecoPromocional.Value.ToString("F2")
+                        : produto.Preco.ToString("C2");
                 default: return "";
             }
         }
@@ -1880,83 +1906,24 @@ namespace EtiquetaFORNew.Forms
             if (codigoLimpo.Length < 8) codigoLimpo = codigoLimpo.PadLeft(8, '0');
 
             float larguraBarra = (float)bounds.Width / (codigoLimpo.Length * 2);
-            float alturaBarras = bounds.Height;// * 0.7f;
+            float alturaBarras = bounds.Height;
 
             for (int i = 0; i < codigoLimpo.Length; i++)
             {
                 int digito = int.Parse(codigoLimpo[i].ToString());
                 float larguraAtual = (digito % 2 == 0) ? larguraBarra : larguraBarra * 1.5f;
-
                 float x = bounds.X + (i * larguraBarra * 2);
 
                 using (SolidBrush brush = new SolidBrush(Color.Black))
-                {
                     g.FillRectangle(brush, x, bounds.Y, larguraAtual, alturaBarras);
-                }
             }
-
-            //using (Font fonte = new Font("Arial", 7 * zoom))  // Aplicar zoom na fonte
-            //using (SolidBrush brush = new SolidBrush(Color.Black))
-            //{
-            //    StringFormat sf = new StringFormat
-            //    {
-            //        Alignment = StringAlignment.Center,
-            //        LineAlignment = StringAlignment.Far
-            //    };
-            //    g.DrawString(codigoLimpo, fonte, brush, bounds, sf);
-            //}
         }
 
-        //private void DesenharHandles(Graphics g, Rectangle bounds)
-        //{
-        //    int handleSize = 8;
-        //    using (SolidBrush brush = new SolidBrush(Color.White))
-        //    using (Pen pen = new Pen(Color.Blue, 1))
-        //    {
-        //        Point[] handles = new Point[]
-        //        {
-        //            new Point(bounds.Left, bounds.Top),
-        //            new Point(bounds.Right, bounds.Top),
-        //            new Point(bounds.Right, bounds.Bottom),
-        //            new Point(bounds.Left, bounds.Bottom),
-        //            new Point(bounds.Left + bounds.Width / 2, bounds.Top),
-        //            new Point(bounds.Right, bounds.Top + bounds.Height / 2),
-        //            new Point(bounds.Left + bounds.Width / 2, bounds.Bottom),
-        //            new Point(bounds.Left, bounds.Top + bounds.Height / 2)
-        //        };
-
-        //        foreach (Point handle in handles)
-        //        {
-        //            Rectangle handleRect = new Rectangle(
-        //                handle.X - handleSize / 2,
-        //                handle.Y - handleSize / 2,
-        //                handleSize,
-        //                handleSize
-        //            );
-        //            g.FillRectangle(brush, handleRect);
-        //            g.DrawRectangle(pen, handleRect);
-        //        }
-        //    }
-        //}
-
-        /// <summary>
-        /// Verifica se um ponto está dentro de um retângulo rotacionado
-        /// </summary>
         private bool PontoEmRetanguloRotacionado(Point ponto, Rectangle bounds, float rotacao)
         {
-            if (rotacao == 0)
-            {
-                return bounds.Contains(ponto);
-            }
+            if (rotacao == 0) return bounds.Contains(ponto);
 
-            // Centro do retângulo
-            PointF centro = new PointF(
-                bounds.X + bounds.Width / 2f,
-                bounds.Y + bounds.Height / 2f
-            );
-
-            // Transformar o ponto do mouse para o sistema de coordenadas rotacionado
-            // (rotação inversa em torno do centro)
+            PointF centro = new PointF(bounds.X + bounds.Width / 2f, bounds.Y + bounds.Height / 2f);
             double anguloRad = -rotacao * Math.PI / 180.0;
             float dx = ponto.X - centro.X;
             float dy = ponto.Y - centro.Y;
@@ -1964,31 +1931,18 @@ namespace EtiquetaFORNew.Forms
             float pontoRotacionadoX = centro.X + (float)(dx * Math.Cos(anguloRad) - dy * Math.Sin(anguloRad));
             float pontoRotacionadoY = centro.Y + (float)(dx * Math.Sin(anguloRad) + dy * Math.Cos(anguloRad));
 
-            // Verificar se o ponto rotacionado está dentro do bounds original
             return bounds.Contains((int)pontoRotacionadoX, (int)pontoRotacionadoY);
         }
 
-        /// <summary>
-        /// Desenha uma pequena seta curva para indicar rotação
-        /// </summary>
         private void DesenharSetaRotacao(Graphics g, PointF centro, float raio, bool sentidoHorario, Color cor)
         {
             using (Pen pen = new Pen(cor, 1.5f))
             {
                 pen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-
-                // Ângulos para a seta curva
                 float anguloInicio = sentidoHorario ? -45 : 45;
-                float anguloFim = sentidoHorario ? -135 : 135;
+                float anguloFim    = sentidoHorario ? -135 : 135;
 
-                // Desenhar arco
-                RectangleF rect = new RectangleF(
-                    centro.X - raio,
-                    centro.Y - raio,
-                    raio * 2,
-                    raio * 2
-                );
-
+                RectangleF rect = new RectangleF(centro.X - raio, centro.Y - raio, raio * 2, raio * 2);
                 using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddArc(rect, anguloInicio, anguloFim - anguloInicio);
@@ -2000,106 +1954,52 @@ namespace EtiquetaFORNew.Forms
         private void DesenharHandles(Graphics g, Rectangle bounds)
         {
             const int handleSize = 6;
-            Color handleColor = Color.FromArgb(0, 120, 215);
-            Color rotateHandleColor = Color.Black; // ⭐ MUDADO: Preto para setas de rotação
+            Color handleColor    = Color.FromArgb(0, 120, 215);
+            Color rotateHandleColor = Color.Black;
 
-            // Handles de redimensionamento existentes
             Brush handleBrush = new SolidBrush(handleColor);
 
-            // 8 handles de canto/lado
             Point[] handlePositions = new Point[]
             {
-                new Point(bounds.Left, bounds.Top),                           // 0: Superior esquerdo
-                new Point(bounds.Right, bounds.Top),                          // 1: Superior direito
-                new Point(bounds.Right, bounds.Bottom),                       // 2: Inferior direito
-                new Point(bounds.Left, bounds.Bottom),                        // 3: Inferior esquerdo
-                new Point(bounds.Left + bounds.Width / 2, bounds.Top),        // 4: Centro superior
-                new Point(bounds.Right, bounds.Top + bounds.Height / 2),      // 5: Centro direito
-                new Point(bounds.Left + bounds.Width / 2, bounds.Bottom),     // 6: Centro inferior
-                new Point(bounds.Left, bounds.Top + bounds.Height / 2)        // 7: Centro esquerdo
+                new Point(bounds.Left,                        bounds.Top),
+                new Point(bounds.Right,                       bounds.Top),
+                new Point(bounds.Right,                       bounds.Bottom),
+                new Point(bounds.Left,                        bounds.Bottom),
+                new Point(bounds.Left + bounds.Width / 2,    bounds.Top),
+                new Point(bounds.Right,                       bounds.Top + bounds.Height / 2),
+                new Point(bounds.Left + bounds.Width / 2,    bounds.Bottom),
+                new Point(bounds.Left,                        bounds.Top + bounds.Height / 2)
             };
 
-            // Desenhar handles de redimensionamento (0-7)
             foreach (var pos in handlePositions)
             {
-                g.FillRectangle(handleBrush,
-                    pos.X - handleSize / 2,
-                    pos.Y - handleSize / 2,
-                    handleSize,
-                    handleSize);
-                g.DrawRectangle(Pens.White,
-                    pos.X - handleSize / 2,
-                    pos.Y - handleSize / 2,
-                    handleSize,
-                    handleSize);
+                g.FillRectangle(handleBrush, pos.X - handleSize / 2, pos.Y - handleSize / 2, handleSize, handleSize);
+                g.DrawRectangle(Pens.White,  pos.X - handleSize / 2, pos.Y - handleSize / 2, handleSize, handleSize);
             }
 
-            // ⭐ NOVO: Handles de rotação nos 4 cantos com setas curvas
-            // Só desenhar se o mouse estiver sobre um dos handles de rotação
             if (handleSobMouse >= 8 && handleSobMouse <= 11)
             {
-                // Posições dos cantos (fora do elemento)
-                int rotateOffset = 12; // ⭐ Distância dos cantos (mais próximo)
+                int rotateOffset = 12;
                 PointF[] rotatePositions = new PointF[]
                 {
-                    new PointF(bounds.Left - rotateOffset, bounds.Top - rotateOffset),           // 8: Canto superior esquerdo
-                    new PointF(bounds.Right + rotateOffset, bounds.Top - rotateOffset),          // 9: Canto superior direito
-                    new PointF(bounds.Right + rotateOffset, bounds.Bottom + rotateOffset),       // 10: Canto inferior direito
-                    new PointF(bounds.Left - rotateOffset, bounds.Bottom + rotateOffset)         // 11: Canto inferior esquerdo
+                    new PointF(bounds.Left  - rotateOffset, bounds.Top    - rotateOffset),
+                    new PointF(bounds.Right + rotateOffset, bounds.Top    - rotateOffset),
+                    new PointF(bounds.Right + rotateOffset, bounds.Bottom + rotateOffset),
+                    new PointF(bounds.Left  - rotateOffset, bounds.Bottom + rotateOffset)
                 };
-
-                // Sentidos das setas (para dar indicação visual de rotação)
                 bool[] sentidosHorarios = new bool[] { false, true, false, true };
-
-                // Desenhar apenas a seta do handle que está sob o mouse
-                int indexSeta = handleSobMouse - 8; // Converter 8-11 para 0-3
-                DesenharSetaRotacao(g, rotatePositions[indexSeta], 8f, sentidosHorarios[indexSeta], rotateHandleColor); // ⭐ AUMENTADO: raio de 8f
+                int indexSeta = handleSobMouse - 8;
+                DesenharSetaRotacao(g, rotatePositions[indexSeta], 8f, sentidosHorarios[indexSeta], rotateHandleColor);
             }
 
             handleBrush.Dispose();
         }
 
-        //private int ObterHandleClicado(Point mouse, Rectangle bounds)
-        //{
-        //    // Mantém handleSize fixo em pixels, independente do zoom
-        //    int handleSize = 8;
-        //    int tolerance = 4;
-
-        //    Point[] handles = new Point[]
-        //    {
-        //        new Point(bounds.Left, bounds.Top),
-        //        new Point(bounds.Right, bounds.Top),
-        //        new Point(bounds.Right, bounds.Bottom),
-        //        new Point(bounds.Left, bounds.Bottom),
-        //        new Point(bounds.Left + bounds.Width / 2, bounds.Top),
-        //        new Point(bounds.Right, bounds.Top + bounds.Height / 2),
-        //        new Point(bounds.Left + bounds.Width / 2, bounds.Bottom),
-        //        new Point(bounds.Left, bounds.Top + bounds.Height / 2)
-        //    };
-
-        //    for (int i = 0; i < handles.Length; i++)
-        //    {
-        //        Rectangle handleRect = new Rectangle(
-        //            handles[i].X - handleSize / 2 - tolerance,
-        //            handles[i].Y - handleSize / 2 - tolerance,
-        //            handleSize + tolerance * 2,
-        //            handleSize + tolerance * 2
-        //        );
-
-        //        if (handleRect.Contains(mouse))
-        //        {
-        //            return i;
-        //        }
-        //    }
-
-        //    return -1;
-        //}
         private int ObterHandleClicado(Point mouse, Rectangle bounds, float rotacao = 0)
         {
             const int handleSize = 6;
-            const int tolerance = 3;
+            const int tolerance  = 3;
 
-            // ⭐ Se houver rotação, transformar o ponto do mouse para o sistema de coordenadas rotacionado
             Point mouseTransformado = mouse;
             if (rotacao != 0)
             {
@@ -2113,39 +2013,35 @@ namespace EtiquetaFORNew.Forms
                 );
             }
 
-            // ⭐ Verificar handles de rotação (4 cantos externos) - índices 8, 9, 10, 11
-            int rotateOffset = 12; // ⭐ Distância dos cantos para detecção
-            int rotateClickRadius = 10; // Raio de detecção maior para facilitar o clique
+            int rotateOffset      = 12;
+            int rotateClickRadius = 10;
 
             PointF[] rotatePositions = new PointF[]
             {
-                new PointF(bounds.Left - rotateOffset, bounds.Top - rotateOffset),           // 8: Superior esquerdo
-                new PointF(bounds.Right + rotateOffset, bounds.Top - rotateOffset),          // 9: Superior direito
-                new PointF(bounds.Right + rotateOffset, bounds.Bottom + rotateOffset),       // 10: Inferior direito
-                new PointF(bounds.Left - rotateOffset, bounds.Bottom + rotateOffset)         // 11: Inferior esquerdo
+                new PointF(bounds.Left  - rotateOffset, bounds.Top    - rotateOffset),
+                new PointF(bounds.Right + rotateOffset, bounds.Top    - rotateOffset),
+                new PointF(bounds.Right + rotateOffset, bounds.Bottom + rotateOffset),
+                new PointF(bounds.Left  - rotateOffset, bounds.Bottom + rotateOffset)
             };
 
             for (int i = 0; i < rotatePositions.Length; i++)
             {
                 float dx = mouseTransformado.X - rotatePositions[i].X;
                 float dy = mouseTransformado.Y - rotatePositions[i].Y;
-                float distancia = (float)Math.Sqrt(dx * dx + dy * dy);
-
-                if (distancia <= rotateClickRadius)
-                    return 8 + i; // Retorna 8, 9, 10 ou 11
+                if ((float)Math.Sqrt(dx * dx + dy * dy) <= rotateClickRadius)
+                    return 8 + i;
             }
 
-            // Handles de redimensionamento (0-7)
             Point[] handlePositions = new Point[]
             {
-                new Point(bounds.Left, bounds.Top),                           // 0: Superior esquerdo
-                new Point(bounds.Right, bounds.Top),                          // 1: Superior direito
-                new Point(bounds.Right, bounds.Bottom),                       // 2: Inferior direito
-                new Point(bounds.Left, bounds.Bottom),                        // 3: Inferior esquerdo
-                new Point(bounds.Left + bounds.Width / 2, bounds.Top),        // 4: Centro superior
-                new Point(bounds.Right, bounds.Top + bounds.Height / 2),      // 5: Centro direito
-                new Point(bounds.Left + bounds.Width / 2, bounds.Bottom),     // 6: Centro inferior
-                new Point(bounds.Left, bounds.Top + bounds.Height / 2)        // 7: Centro esquerdo
+                new Point(bounds.Left,                     bounds.Top),
+                new Point(bounds.Right,                    bounds.Top),
+                new Point(bounds.Right,                    bounds.Bottom),
+                new Point(bounds.Left,                     bounds.Bottom),
+                new Point(bounds.Left + bounds.Width / 2,  bounds.Top),
+                new Point(bounds.Right,                    bounds.Top + bounds.Height / 2),
+                new Point(bounds.Left + bounds.Width / 2,  bounds.Bottom),
+                new Point(bounds.Left,                     bounds.Top + bounds.Height / 2)
             };
 
             for (int i = 0; i < handlePositions.Length; i++)
@@ -2156,9 +2052,7 @@ namespace EtiquetaFORNew.Forms
                     handleSize + tolerance * 2,
                     handleSize + tolerance * 2
                 );
-
-                if (handleRect.Contains(mouse))
-                    return i;
+                if (handleRect.Contains(mouse)) return i;
             }
 
             return -1;
@@ -2176,7 +2070,6 @@ namespace EtiquetaFORNew.Forms
                 configuracao.LarguraEtiqueta * MM_PARA_PIXEL * zoom,
                 configuracao.AlturaEtiqueta * MM_PARA_PIXEL * zoom);
 
-            // Verificar se clicou em um elemento já selecionado
             if (elementoSelecionado != null)
             {
                 Rectangle bounds = ConverterParaPixels(elementoSelecionado.Bounds, rectEtiqueta);
@@ -2184,19 +2077,14 @@ namespace EtiquetaFORNew.Forms
 
                 if (handleSelecionado >= 0)
                 {
-                    if (handleSelecionado >= 8 && handleSelecionado <= 11) // ⭐ Handle de rotação
+                    if (handleSelecionado >= 8 && handleSelecionado <= 11)
                     {
                         rotacionando = true;
                         pontoInicialMouse = e.Location;
                         anguloInicial = elementoSelecionado.Rotacao;
-
-                        // Calcular centro de rotação (centro do elemento)
-                        centroRotacao = new PointF(
-                            bounds.X + bounds.Width / 2f,
-                            bounds.Y + bounds.Height / 2f
-                        );
+                        centroRotacao = new PointF(bounds.X + bounds.Width / 2f, bounds.Y + bounds.Height / 2f);
                     }
-                    else // Handles de redimensionamento (0-7)
+                    else
                     {
                         redimensionando = true;
                         pontoInicialMouse = e.Location;
@@ -2206,7 +2094,6 @@ namespace EtiquetaFORNew.Forms
                     return;
                 }
 
-                // ⭐ Usar detecção considerando rotação
                 if (PontoEmRetanguloRotacionado(e.Location, bounds, elementoSelecionado.Rotacao))
                 {
                     arrastando = true;
@@ -2216,11 +2103,9 @@ namespace EtiquetaFORNew.Forms
                 }
             }
 
-            // Verificar se clicou em algum dos elementos da seleção múltipla
             foreach (var elem in elementosSelecionados)
             {
                 Rectangle bounds = ConverterParaPixels(elem.Bounds, rectEtiqueta);
-                // ⭐ Usar detecção considerando rotação
                 if (PontoEmRetanguloRotacionado(e.Location, bounds, elem.Rotacao))
                 {
                     arrastando = true;
@@ -2229,12 +2114,10 @@ namespace EtiquetaFORNew.Forms
                 }
             }
 
-            // Procurar elemento clicado
             ElementoEtiqueta elementoClicado = null;
             for (int i = template.Elementos.Count - 1; i >= 0; i--)
             {
                 Rectangle bounds = ConverterParaPixels(template.Elementos[i].Bounds, rectEtiqueta);
-                // ⭐ Usar detecção considerando rotação
                 if (PontoEmRetanguloRotacionado(e.Location, bounds, template.Elementos[i].Rotacao))
                 {
                     elementoClicado = template.Elementos[i];
@@ -2244,22 +2127,18 @@ namespace EtiquetaFORNew.Forms
 
             if (elementoClicado != null)
             {
-                // CTRL pressionado = adicionar/remover da seleção múltipla
                 if (ModifierKeys == Keys.Control)
                 {
                     if (elementosSelecionados.Contains(elementoClicado))
-                    {
                         elementosSelecionados.Remove(elementoClicado);
-                    }
                     else
                     {
                         elementosSelecionados.Add(elementoClicado);
-                        elementoSelecionado = null; // Limpar seleção única
+                        elementoSelecionado = null;
                     }
                 }
                 else
                 {
-                    // Clique normal = selecionar apenas este elemento
                     elementoSelecionado = elementoClicado;
                     elementosSelecionados.Clear();
                     pontoInicialMouse = e.Location;
@@ -2268,14 +2147,8 @@ namespace EtiquetaFORNew.Forms
                     boundsIniciais = bounds;
                     handleSelecionado = ObterHandleClicado(e.Location, bounds, elementoSelecionado.Rotacao);
 
-                    if (handleSelecionado >= 0)
-                    {
-                        redimensionando = true;
-                    }
-                    else
-                    {
-                        arrastando = true;
-                    }
+                    if (handleSelecionado >= 0) redimensionando = true;
+                    else arrastando = true;
                 }
 
                 AtualizarPainelPropriedades();
@@ -2283,7 +2156,6 @@ namespace EtiquetaFORNew.Forms
                 return;
             }
 
-            // Não clicou em nenhum elemento = iniciar seleção por retângulo
             elementoSelecionado = null;
             elementosSelecionados.Clear();
             selecionandoComRetangulo = true;
@@ -2300,162 +2172,91 @@ namespace EtiquetaFORNew.Forms
                 configuracao.LarguraEtiqueta * MM_PARA_PIXEL * zoom,
                 configuracao.AlturaEtiqueta * MM_PARA_PIXEL * zoom);
 
-            // Selecionando com retângulo
             if (selecionandoComRetangulo)
             {
                 int x = Math.Min(pontoInicialSelecao.X, e.X);
                 int y = Math.Min(pontoInicialSelecao.Y, e.Y);
-                int width = Math.Abs(e.X - pontoInicialSelecao.X);
-                int height = Math.Abs(e.Y - pontoInicialSelecao.Y);
-
-                retanguloSelecao = new Rectangle(x, y, width, height);
+                retanguloSelecao = new Rectangle(x, y,
+                    Math.Abs(e.X - pontoInicialSelecao.X),
+                    Math.Abs(e.Y - pontoInicialSelecao.Y));
                 pbCanvas.Invalidate();
                 return;
             }
 
-            // Redimensionando elemento único
             if (redimensionando && elementoSelecionado != null)
             {
-                // Calcular delta em pixels
                 float deltaXPixels = e.X - pontoInicialMouse.X;
                 float deltaYPixels = e.Y - pontoInicialMouse.Y;
 
-                // ⭐ Se o elemento estiver rotacionado, transformar o delta para o sistema de coordenadas rotacionado
                 if (elementoSelecionado.Rotacao != 0)
                 {
                     double anguloRad = -elementoSelecionado.Rotacao * Math.PI / 180.0;
-                    float deltaXRotacionado = (float)(deltaXPixels * Math.Cos(anguloRad) - deltaYPixels * Math.Sin(anguloRad));
-                    float deltaYRotacionado = (float)(deltaXPixels * Math.Sin(anguloRad) + deltaYPixels * Math.Cos(anguloRad));
-                    deltaXPixels = deltaXRotacionado;
-                    deltaYPixels = deltaYRotacionado;
+                    float dxR = (float)(deltaXPixels * Math.Cos(anguloRad) - deltaYPixels * Math.Sin(anguloRad));
+                    float dyR = (float)(deltaXPixels * Math.Sin(anguloRad) + deltaYPixels * Math.Cos(anguloRad));
+                    deltaXPixels = dxR;
+                    deltaYPixels = dyR;
                 }
 
-                // Converter para MM
                 float deltaXMM = deltaXPixels / (MM_PARA_PIXEL * zoom);
                 float deltaYMM = deltaYPixels / (MM_PARA_PIXEL * zoom);
-
-                RectangleF newBoundsMM = boundsIniciaisEmMM; // ⭐ USAR BOUNDS EM MM
+                RectangleF newBoundsMM = boundsIniciaisEmMM;
 
                 switch (handleSelecionado)
                 {
-                    case 0:  // Canto superior esquerdo
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X + deltaXMM,
-                            boundsIniciaisEmMM.Y + deltaYMM,
-                            boundsIniciaisEmMM.Width - deltaXMM,
-                            boundsIniciaisEmMM.Height - deltaYMM);
-                        break;
-
-                    case 1:  // Canto superior direito
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X,
-                            boundsIniciaisEmMM.Y + deltaYMM,
-                            boundsIniciaisEmMM.Width + deltaXMM,
-                            boundsIniciaisEmMM.Height - deltaYMM);
-                        break;
-
-                    case 2:  // Canto inferior direito
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X,
-                            boundsIniciaisEmMM.Y,
-                            boundsIniciaisEmMM.Width + deltaXMM,
-                            boundsIniciaisEmMM.Height + deltaYMM);
-                        break;
-
-                    case 3:  // Canto inferior esquerdo
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X + deltaXMM,
-                            boundsIniciaisEmMM.Y,
-                            boundsIniciaisEmMM.Width - deltaXMM,
-                            boundsIniciaisEmMM.Height + deltaYMM);
-                        break;
-
-                    case 4:  // Lado superior (centro)
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X,
-                            boundsIniciaisEmMM.Y + deltaYMM,
-                            boundsIniciaisEmMM.Width,
-                            boundsIniciaisEmMM.Height - deltaYMM);
-                        break;
-
-                    case 5:  // Lado direito (centro)
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X,
-                            boundsIniciaisEmMM.Y,
-                            boundsIniciaisEmMM.Width + deltaXMM,
-                            boundsIniciaisEmMM.Height);
-                        break;
-
-                    case 6:  // Lado inferior (centro)
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X,
-                            boundsIniciaisEmMM.Y,
-                            boundsIniciaisEmMM.Width,
-                            boundsIniciaisEmMM.Height + deltaYMM);
-                        break;
-
-                    case 7:  // Lado esquerdo (centro)
-                        newBoundsMM = new RectangleF(
-                            boundsIniciaisEmMM.X + deltaXMM,
-                            boundsIniciaisEmMM.Y,
-                            boundsIniciaisEmMM.Width - deltaXMM,
-                            boundsIniciaisEmMM.Height);
-                        break;
-
-                    case 8:  // ⭐ Handles de rotação (8-11: cantos externos)
-                    case 9:
-                    case 10:
-                    case 11:
-                        // Não fazer nada aqui - rotação é tratada em bloco separado
-                        break;
+                    case 0: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X + deltaXMM, boundsIniciaisEmMM.Y + deltaYMM, boundsIniciaisEmMM.Width - deltaXMM, boundsIniciaisEmMM.Height - deltaYMM); break;
+                    case 1: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X, boundsIniciaisEmMM.Y + deltaYMM, boundsIniciaisEmMM.Width + deltaXMM, boundsIniciaisEmMM.Height - deltaYMM); break;
+                    case 2: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X, boundsIniciaisEmMM.Y, boundsIniciaisEmMM.Width + deltaXMM, boundsIniciaisEmMM.Height + deltaYMM); break;
+                    case 3: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X + deltaXMM, boundsIniciaisEmMM.Y, boundsIniciaisEmMM.Width - deltaXMM, boundsIniciaisEmMM.Height + deltaYMM); break;
+                    case 4: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X, boundsIniciaisEmMM.Y + deltaYMM, boundsIniciaisEmMM.Width, boundsIniciaisEmMM.Height - deltaYMM); break;
+                    case 5: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X, boundsIniciaisEmMM.Y, boundsIniciaisEmMM.Width + deltaXMM, boundsIniciaisEmMM.Height); break;
+                    case 6: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X, boundsIniciaisEmMM.Y, boundsIniciaisEmMM.Width, boundsIniciaisEmMM.Height + deltaYMM); break;
+                    case 7: newBoundsMM = new RectangleF(boundsIniciaisEmMM.X + deltaXMM, boundsIniciaisEmMM.Y, boundsIniciaisEmMM.Width - deltaXMM, boundsIniciaisEmMM.Height); break;
+                    case 8: case 9: case 10: case 11: break;
                 }
 
-                // Validar tamanho mínimo (em MM)
-                float minWidthMM = 10 / (MM_PARA_PIXEL * zoom);
-                float minHeightMM = 5 / (MM_PARA_PIXEL * zoom);
+                float minWidthMM  = 10 / (MM_PARA_PIXEL * zoom);
+                float minHeightMM = 5  / (MM_PARA_PIXEL * zoom);
 
                 if (newBoundsMM.Width >= minWidthMM && newBoundsMM.Height >= minHeightMM)
                 {
-                    // ⭐ ATUALIZAR DIRETAMENTE EM MM (sem conversão intermediária)
                     elementoSelecionado.Bounds = Rectangle.Round(newBoundsMM);
                     pbCanvas.Invalidate();
                 }
             }
-            // Arrastando elemento(s)
             else if (arrastando)
             {
                 deltaArrasto = new Point(
                     e.X - pontoInicialMouse.X,
                     e.Y - pontoInicialMouse.Y
                 );
+
+                // =========================================================
+                // ATUALIZAR LINHAS GUIA A CADA MOVIMENTO
+                // =========================================================
+                AtualizarLinhasGuia(rectEtiqueta);
+                // =========================================================
+
                 pbCanvas.Invalidate();
             }
-            // ⭐ ADICIONAR: Rotacionando elemento
-            // ⭐ ADICIONADO: Rotacionando elemento
             else if (rotacionando && elementoSelecionado != null)
             {
-                // Calcular ângulo entre centro e posição atual do mouse
                 float dx = e.X - centroRotacao.X;
                 float dy = e.Y - centroRotacao.Y;
                 float anguloAtual = (float)(Math.Atan2(dy, dx) * 180 / Math.PI);
 
-                // Calcular ângulo inicial (quando começou a rotacionar)
-                float dxInicial = pontoInicialMouse.X - centroRotacao.X;
-                float dyInicial = pontoInicialMouse.Y - centroRotacao.Y;
+                float dxInicial       = pontoInicialMouse.X - centroRotacao.X;
+                float dyInicial       = pontoInicialMouse.Y - centroRotacao.Y;
                 float anguloMouseInicial = (float)(Math.Atan2(dyInicial, dxInicial) * 180 / Math.PI);
 
-                // Calcular delta e aplicar
                 float deltaAngulo = anguloAtual - anguloMouseInicial;
                 float novaRotacao = anguloInicial + deltaAngulo;
 
-                // Normalizar para 0-360
-                while (novaRotacao < 0) novaRotacao += 360;
+                while (novaRotacao < 0)   novaRotacao += 360;
                 while (novaRotacao >= 360) novaRotacao -= 360;
 
                 elementoSelecionado.Rotacao = novaRotacao;
                 pbCanvas.Invalidate();
             }
-            // Atualizar cursor
             else
             {
                 if (elementoSelecionado != null)
@@ -2463,60 +2264,34 @@ namespace EtiquetaFORNew.Forms
                     Rectangle bounds = ConverterParaPixels(elementoSelecionado.Bounds, rectEtiqueta);
                     int handle = ObterHandleClicado(e.Location, bounds, elementoSelecionado.Rotacao);
 
-                    // ⭐ Atualizar handleSobMouse e forçar redesenho se mudou
                     if (handleSobMouse != handle)
                     {
                         handleSobMouse = handle;
-                        pbCanvas.Invalidate(); // Redesenhar para mostrar/ocultar setas
+                        pbCanvas.Invalidate();
                     }
 
-                    if (handle >= 8 && handle <= 11) // ⭐ Cursor de rotação (handles 8-11)
-                    {
+                    if (handle >= 8 && handle <= 11)
                         pbCanvas.Cursor = Cursors.Hand;
-                    }
                     else if (handle >= 0)
                     {
-                        // Cursores de redimensionamento existentes
                         switch (handle)
                         {
-                            case 0:
-                            case 2:
-                                pbCanvas.Cursor = Cursors.SizeNWSE;
-                                break;
-                            case 1:
-                            case 3:
-                                pbCanvas.Cursor = Cursors.SizeNESW;
-                                break;
-                            case 4:
-                            case 6:
-                                pbCanvas.Cursor = Cursors.SizeNS;
-                                break;
-                            case 5:
-                            case 7:
-                                pbCanvas.Cursor = Cursors.SizeWE;
-                                break;
+                            case 0: case 2: pbCanvas.Cursor = Cursors.SizeNWSE; break;
+                            case 1: case 3: pbCanvas.Cursor = Cursors.SizeNESW; break;
+                            case 4: case 6: pbCanvas.Cursor = Cursors.SizeNS;   break;
+                            case 5: case 7: pbCanvas.Cursor = Cursors.SizeWE;   break;
                         }
                     }
                     else if (PontoEmRetanguloRotacionado(e.Location, bounds, elementoSelecionado.Rotacao))
-                    {
                         pbCanvas.Cursor = Cursors.SizeAll;
-                    }
                     else
-                    {
                         pbCanvas.Cursor = Cursors.Default;
-                    }
                 }
                 else
                 {
-                    // ⭐ Resetar handleSobMouse quando não há elemento selecionado
-                    if (handleSobMouse != -1)
-                    {
-                        handleSobMouse = -1;
-                        pbCanvas.Invalidate();
-                    }
+                    if (handleSobMouse != -1) { handleSobMouse = -1; pbCanvas.Invalidate(); }
                     pbCanvas.Cursor = Cursors.Cross;
                 }
-
             }
         }
 
@@ -2526,33 +2301,89 @@ namespace EtiquetaFORNew.Forms
                 configuracao.LarguraEtiqueta * MM_PARA_PIXEL * zoom,
                 configuracao.AlturaEtiqueta * MM_PARA_PIXEL * zoom);
 
-            // Finalizar seleção por retângulo
             if (selecionandoComRetangulo)
             {
                 selecionandoComRetangulo = false;
-
-                // Selecionar todos os elementos dentro do retângulo
                 elementosSelecionados.Clear();
                 foreach (var elemento in template.Elementos)
                 {
                     Rectangle bounds = ConverterParaPixels(elemento.Bounds, rectEtiqueta);
                     if (retanguloSelecao.IntersectsWith(bounds))
-                    {
                         elementosSelecionados.Add(elemento);
-                    }
                 }
-
                 pbCanvas.Invalidate();
                 return;
             }
 
-            // Finalizar arrasto
             if (arrastando && deltaArrasto != Point.Empty)
             {
-                float deltaXMM = deltaArrasto.X / (MM_PARA_PIXEL * zoom);
-                float deltaYMM = deltaArrasto.Y / (MM_PARA_PIXEL * zoom);
+                float scale    = MM_PARA_PIXEL * zoom;
+                float thresholdMM = SNAP_THRESHOLD_PX / scale;
 
-                // Arrastar elemento único
+                float deltaXMM = deltaArrasto.X / scale;
+                float deltaYMM = deltaArrasto.Y / scale;
+
+                // =========================================================
+                // SNAP MAGNÉTICO: ajusta a posição final se houver linha guia ativa
+                // =========================================================
+                if (snapAtivo && linhasGuiaAtivas.Count > 0 && elementoSelecionado != null)
+                {
+                    float novoX = elementoSelecionado.Bounds.X + deltaXMM;
+                    float novoY = elementoSelecionado.Bounds.Y + deltaYMM;
+                    float w     = elementoSelecionado.Bounds.Width;
+                    float h     = elementoSelecionado.Bounds.Height;
+
+                    float[] bX = { novoX, novoX + w / 2f, novoX + w };
+                    float[] bY = { novoY, novoY + h / 2f, novoY + h };
+
+                    var refX = new List<float> { 0f, configuracao.LarguraEtiqueta / 2f, configuracao.LarguraEtiqueta };
+                    var refY = new List<float> { 0f, configuracao.AlturaEtiqueta  / 2f, configuracao.AlturaEtiqueta  };
+                    foreach (var outro in template.Elementos)
+                    {
+                        if (outro == elementoSelecionado) continue;
+                        refX.AddRange(new[] { (float)outro.Bounds.X, outro.Bounds.X + outro.Bounds.Width / 2f, (float)outro.Bounds.Right });
+                        refY.AddRange(new[] { (float)outro.Bounds.Y, outro.Bounds.Y + outro.Bounds.Height / 2f, (float)outro.Bounds.Bottom });
+                    }
+
+                    // Encontrar o snap mais próximo em X
+                    float melhorDX = float.MaxValue;
+                    float ajusteX  = 0;
+                    for (int i = 0; i < bX.Length; i++)
+                    {
+                        foreach (float rx in refX)
+                        {
+                            float diff = bX[i] - rx;
+                            if (Math.Abs(diff) < Math.Abs(melhorDX) && Math.Abs(diff) <= thresholdMM)
+                            {
+                                melhorDX = diff;
+                                // offset para mover novoX de modo que bX[i] == rx
+                                ajusteX = -(diff);
+                                if (i == 1) ajusteX += 0; // centro já alinha
+                            }
+                        }
+                    }
+
+                    // Encontrar o snap mais próximo em Y
+                    float melhorDY = float.MaxValue;
+                    float ajusteY  = 0;
+                    for (int i = 0; i < bY.Length; i++)
+                    {
+                        foreach (float ry in refY)
+                        {
+                            float diff = bY[i] - ry;
+                            if (Math.Abs(diff) < Math.Abs(melhorDY) && Math.Abs(diff) <= thresholdMM)
+                            {
+                                melhorDY = diff;
+                                ajusteY  = -(diff);
+                            }
+                        }
+                    }
+
+                    if (Math.Abs(melhorDX) <= thresholdMM) deltaXMM += ajusteX;
+                    if (Math.Abs(melhorDY) <= thresholdMM) deltaYMM += ajusteY;
+                }
+                // =========================================================
+
                 if (elementoSelecionado != null)
                 {
                     elementoSelecionado.Bounds = new Rectangle(
@@ -2563,7 +2394,6 @@ namespace EtiquetaFORNew.Forms
                     );
                 }
 
-                // Arrastar múltiplos elementos
                 foreach (var elemento in elementosSelecionados)
                 {
                     elemento.Bounds = new Rectangle(
@@ -2575,40 +2405,31 @@ namespace EtiquetaFORNew.Forms
                 }
 
                 deltaArrasto = Point.Empty;
-                pbCanvas.Invalidate(); // Forçar redesenho imediato
+                pbCanvas.Invalidate();
             }
 
-            arrastando = false;
+            // =========================================================
+            // LIMPAR LINHAS GUIA AO SOLTAR O MOUSE
+            // =========================================================
+            linhasGuiaAtivas.Clear();
+            // =========================================================
+
+            arrastando     = false;
             redimensionando = false;
-            rotacionando = false;
+            rotacionando   = false;
             handleSelecionado = -1;
             pbCanvas.Cursor = Cursors.Default;
-            pbCanvas.Invalidate(); // Garantir redesenho final
+            pbCanvas.Invalidate();
         }
 
         private void PbCanvas_MouseWheel(object sender, MouseEventArgs e)
         {
-            // Zoom apenas com CTRL pressionado
             if (ModifierKeys == Keys.Control)
             {
-                // Aumentar ou diminuir o zoom com base na direção do scroll
-                if (e.Delta > 0)
-                {
-                    // Scroll para cima = aumentar zoom
-                    zoom += 0.1f;
-                    if (zoom > 3.0f) zoom = 3.0f; // Limitar zoom máximo
-                }
-                else
-                {
-                    // Scroll para baixo = diminuir zoom
-                    zoom -= 0.1f;
-                    if (zoom < 0.3f) zoom = 0.3f; // Limitar zoom mínimo
-                }
-
+                zoom += e.Delta > 0 ? 0.1f : -0.1f;
+                zoom = Math.Max(0.3f, Math.Min(3.0f, zoom));
                 AtualizarTamanhoCanvas();
                 pbCanvas.Invalidate();
-
-                // Evitar que o scroll padrão também aconteça
                 ((HandledMouseEventArgs)e).Handled = true;
             }
         }
@@ -2621,19 +2442,13 @@ namespace EtiquetaFORNew.Forms
         {
             cmbImpressora.Items.Clear();
             foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
-            {
                 cmbImpressora.Items.Add(printer);
-            }
 
             if (!string.IsNullOrEmpty(configuracao.ImpressoraPadrao) &&
                 cmbImpressora.Items.Contains(configuracao.ImpressoraPadrao))
-            {
                 cmbImpressora.SelectedItem = configuracao.ImpressoraPadrao;
-            }
             else if (cmbImpressora.Items.Count > 0)
-            {
                 cmbImpressora.SelectedIndex = 0;
-            }
 
             CarregarPapeisDaImpressora();
         }
@@ -2646,14 +2461,12 @@ namespace EtiquetaFORNew.Forms
 
         private void CmbPapel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //CarregarPapeisDaImpressora();
             AtualizarConfiguracao();
         }
 
         private void CarregarPapeisDaImpressora()
         {
             cmbPapel.Items.Clear();
-
             if (cmbImpressora.SelectedItem == null) return;
 
             try
@@ -2664,19 +2477,13 @@ namespace EtiquetaFORNew.Forms
                 };
 
                 foreach (System.Drawing.Printing.PaperSize papel in printerSettings.PaperSizes)
-                {
                     cmbPapel.Items.Add(papel.PaperName);
-                }
 
                 if (!string.IsNullOrEmpty(configuracao.PapelPadrao) &&
                     cmbPapel.Items.Cast<object>().Any(x => x.ToString() == configuracao.PapelPadrao))
-                {
                     cmbPapel.SelectedItem = configuracao.PapelPadrao;
-                }
                 else if (cmbPapel.Items.Count > 0)
-                {
                     cmbPapel.SelectedIndex = 0;
-                }
             }
             catch
             {
@@ -2693,38 +2500,37 @@ namespace EtiquetaFORNew.Forms
         private void AtualizarEstadoMargens()
         {
             bool desabilitado = chkPadraoDesativar.Checked;
-
             numMargemSuperior.Enabled = !desabilitado;
             numMargemInferior.Enabled = !desabilitado;
             numMargemEsquerda.Enabled = !desabilitado;
-            numMargemDireita.Enabled = !desabilitado;
+            numMargemDireita.Enabled  = !desabilitado;
 
             if (desabilitado)
             {
                 numMargemSuperior.Value = 0;
                 numMargemInferior.Value = 0;
                 numMargemEsquerda.Value = 0;
-                numMargemDireita.Value = 0;
+                numMargemDireita.Value  = 0;
             }
         }
 
         private void AtualizarConfiguracao()
         {
-            configuracao.LarguraEtiqueta = (float)numLargura.Value;
-            configuracao.AlturaEtiqueta = (float)numAltura.Value;
-            configuracao.ImpressoraPadrao = cmbImpressora.SelectedItem?.ToString() ?? "";
-            configuracao.PapelPadrao = cmbPapel.SelectedItem?.ToString() ?? "";
-            configuracao.NumColunas = (int)numColunas.Value;
-            configuracao.NumLinhas = (int)numLinhas.Value;
-            configuracao.EspacamentoColunas = (float)numEspacamentoColunas.Value;
-            configuracao.EspacamentoLinhas = (float)numEspacamentoLinhas.Value;
-            configuracao.MargemSuperior = (float)numMargemSuperior.Value;
-            configuracao.MargemInferior = (float)numMargemInferior.Value;
-            configuracao.MargemEsquerda = (float)numMargemEsquerda.Value;
-            configuracao.MargemDireita = (float)numMargemDireita.Value;
+            configuracao.LarguraEtiqueta       = (float)numLargura.Value;
+            configuracao.AlturaEtiqueta        = (float)numAltura.Value;
+            configuracao.ImpressoraPadrao      = cmbImpressora.SelectedItem?.ToString() ?? "";
+            configuracao.PapelPadrao           = cmbPapel.SelectedItem?.ToString() ?? "";
+            configuracao.NumColunas            = (int)numColunas.Value;
+            configuracao.NumLinhas             = (int)numLinhas.Value;
+            configuracao.EspacamentoColunas    = (float)numEspacamentoColunas.Value;
+            configuracao.EspacamentoLinhas     = (float)numEspacamentoLinhas.Value;
+            configuracao.MargemSuperior        = (float)numMargemSuperior.Value;
+            configuracao.MargemInferior        = (float)numMargemInferior.Value;
+            configuracao.MargemEsquerda        = (float)numMargemEsquerda.Value;
+            configuracao.MargemDireita         = (float)numMargemDireita.Value;
 
             template.Largura = configuracao.LarguraEtiqueta;
-            template.Altura = configuracao.AlturaEtiqueta;
+            template.Altura  = configuracao.AlturaEtiqueta;
 
             AtualizarTamanhoCanvas();
             pbCanvas?.Invalidate();
@@ -2732,38 +2538,15 @@ namespace EtiquetaFORNew.Forms
 
         private void AtualizarTamanhoCanvas()
         {
-
-            // PROTEÇÃO: Verifica se pbCanvas foi inicializado
-            if (pbCanvas == null || panelCanvas == null)
-                return;
+            if (pbCanvas == null || panelCanvas == null) return;
 
             int larguraPixels = (int)(configuracao.LarguraEtiqueta * MM_PARA_PIXEL * zoom);
-            int alturaPixels = (int)(configuracao.AlturaEtiqueta * MM_PARA_PIXEL * zoom);
+            int alturaPixels  = (int)(configuracao.AlturaEtiqueta  * MM_PARA_PIXEL * zoom);
 
-            // Adicionar margem ao redor do canvas (50 pixels no total)
             pbCanvas.Size = new Size(larguraPixels + 50, alturaPixels + 50);
 
-            // Centralizar apenas se o canvas for menor que o painel
-            // Se for maior, posicionar em (0,0) para permitir scroll
-            int posX, posY;
-
-            if (pbCanvas.Width < panelCanvas.Width)
-            {
-                posX = (panelCanvas.Width - pbCanvas.Width) / 2;
-            }
-            else
-            {
-                posX = 0;
-            }
-
-            if (pbCanvas.Height < panelCanvas.Height)
-            {
-                posY = (panelCanvas.Height - pbCanvas.Height) / 2;
-            }
-            else
-            {
-                posY = 0;
-            }
+            int posX = pbCanvas.Width  < panelCanvas.Width  ? (panelCanvas.Width  - pbCanvas.Width)  / 2 : 0;
+            int posY = pbCanvas.Height < panelCanvas.Height ? (panelCanvas.Height - pbCanvas.Height) / 2 : 0;
 
             pbCanvas.Location = new Point(posX, posY);
         }
@@ -2774,72 +2557,24 @@ namespace EtiquetaFORNew.Forms
 
         private void FormDesignNovo_KeyDown(object sender, KeyEventArgs e)
         {
-            // Trabalhar com seleção múltipla ou única
             List<ElementoEtiqueta> elementosParaMover = new List<ElementoEtiqueta>();
 
-            if (elementosSelecionados.Count > 0)
-            {
-                elementosParaMover.AddRange(elementosSelecionados);
-            }
-            else if (elementoSelecionado != null)
-            {
-                elementosParaMover.Add(elementoSelecionado);
-            }
+            if (elementosSelecionados.Count > 0) elementosParaMover.AddRange(elementosSelecionados);
+            else if (elementoSelecionado != null) elementosParaMover.Add(elementoSelecionado);
 
             if (elementosParaMover.Count == 0) return;
 
             bool houveAlteracao = false;
             int passo = 1;
 
-            // Verifica qual tecla foi pressionada
             switch (e.KeyCode)
             {
-                case Keys.Left:
-                    foreach (var elem in elementosParaMover)
-                    {
-                        var novaPosicao = elem.Bounds;
-                        novaPosicao.X -= passo;
-                        elem.Bounds = novaPosicao;
-                    }
-                    houveAlteracao = true;
-                    break;
-
-                case Keys.Right:
-                    foreach (var elem in elementosParaMover)
-                    {
-                        var novaPosicao = elem.Bounds;
-                        novaPosicao.X += passo;
-                        elem.Bounds = novaPosicao;
-                    }
-                    houveAlteracao = true;
-                    break;
-
-                case Keys.Up:
-                    foreach (var elem in elementosParaMover)
-                    {
-                        var novaPosicao = elem.Bounds;
-                        novaPosicao.Y -= passo;
-                        elem.Bounds = novaPosicao;
-                    }
-                    houveAlteracao = true;
-                    break;
-
-                case Keys.Down:
-                    foreach (var elem in elementosParaMover)
-                    {
-                        var novaPosicao = elem.Bounds;
-                        novaPosicao.Y += passo;
-                        elem.Bounds = novaPosicao;
-                    }
-                    houveAlteracao = true;
-                    break;
-
+                case Keys.Left:  foreach (var el in elementosParaMover) { var p = el.Bounds; p.X -= passo; el.Bounds = p; } houveAlteracao = true; break;
+                case Keys.Right: foreach (var el in elementosParaMover) { var p = el.Bounds; p.X += passo; el.Bounds = p; } houveAlteracao = true; break;
+                case Keys.Up:    foreach (var el in elementosParaMover) { var p = el.Bounds; p.Y -= passo; el.Bounds = p; } houveAlteracao = true; break;
+                case Keys.Down:  foreach (var el in elementosParaMover) { var p = el.Bounds; p.Y += passo; el.Bounds = p; } houveAlteracao = true; break;
                 case Keys.Delete:
-                    // Remover todos os elementos selecionados
-                    foreach (var elem in elementosParaMover)
-                    {
-                        template.Elementos.Remove(elem);
-                    }
+                    foreach (var el in elementosParaMover) template.Elementos.Remove(el);
                     elementoSelecionado = null;
                     elementosSelecionados.Clear();
                     AtualizarPainelPropriedades();
@@ -2849,7 +2584,6 @@ namespace EtiquetaFORNew.Forms
                     return;
             }
 
-            // Se moveu, atualiza
             if (houveAlteracao)
             {
                 pbCanvas.Invalidate();
@@ -2873,17 +2607,13 @@ namespace EtiquetaFORNew.Forms
                         nomeTemplateAtual = formNome.NomeTemplate;
                         configuracao.NomeEtiqueta = nomeTemplateAtual;
                     }
-                    else
-                    {
-                        return;
-                    }
+                    else return;
                 }
             }
 
             if (TemplateManager.SalvarTemplate(template, nomeTemplateAtual))
             {
                 ConfiguracaoManager.SalvarConfiguracao(nomeTemplateAtual, configuracao);
-
                 MessageBox.Show(
                     $"Template '{nomeTemplateAtual}' salvo com sucesso!\n\n" +
                     $"✅ Template: {configuracao.LarguraEtiqueta:F1} x {configuracao.AlturaEtiqueta:F1} mm\n" +
@@ -2891,13 +2621,11 @@ namespace EtiquetaFORNew.Forms
                     $"✅ Layout: {configuracao.NumColunas} col x {configuracao.NumLinhas} lin\n" +
                     $"✅ Configuração vinculada",
                     "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
                 this.DialogResult = DialogResult.OK;
             }
             else
             {
-                MessageBox.Show("Erro ao salvar template!", "Erro",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Erro ao salvar template!", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -2905,23 +2633,14 @@ namespace EtiquetaFORNew.Forms
         {
             var resultado = MessageBox.Show(
                 "Deseja criar um novo template?\n\nAs alterações não salvas serão perdidas.",
-                "Novo Template",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+                "Novo Template", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (resultado == DialogResult.Yes)
             {
                 template = new TemplateEtiqueta { Largura = 100, Altura = 30 };
-                configuracao = new ConfiguracaoEtiqueta
-                {
-                    LarguraEtiqueta = 100,
-                    AlturaEtiqueta = 30,
-                    NumColunas = 1,
-                    NumLinhas = 1
-                };
+                configuracao = new ConfiguracaoEtiqueta { LarguraEtiqueta = 100, AlturaEtiqueta = 30, NumColunas = 1, NumLinhas = 1 };
                 nomeTemplateAtual = null;
                 elementoSelecionado = null;
-
                 CarregarDadosNaInterface();
                 AtualizarConfiguracao();
             }
@@ -2929,37 +2648,31 @@ namespace EtiquetaFORNew.Forms
 
         private void BtnPreview_Click(object sender, EventArgs e)
         {
-            // Obter dimensões do papel selecionado
-            float larguraPapel = 210; // A4 padrão
-            float alturaPapel = 297;
-            string nomePapel = cmbPapel.SelectedItem?.ToString() ?? "A4";
+            float larguraPapel = 210;
+            float alturaPapel  = 297;
+            string nomePapel   = cmbPapel.SelectedItem?.ToString() ?? "A4";
 
-            // Tentar obter as dimensões reais do papel da impressora
             if (cmbImpressora.SelectedItem != null)
             {
                 try
                 {
-                    PrinterSettings printerSettings = new PrinterSettings();
-                    printerSettings.PrinterName = cmbImpressora.SelectedItem.ToString();
-
+                    PrinterSettings printerSettings = new PrinterSettings
+                    {
+                        PrinterName = cmbImpressora.SelectedItem.ToString()
+                    };
                     foreach (PaperSize paperSize in printerSettings.PaperSizes)
                     {
                         if (paperSize.PaperName == nomePapel)
                         {
-                            // Converter de centésimos de polegada para MM
-                            larguraPapel = (paperSize.Width / 100f) * 25.4f;
-                            alturaPapel = (paperSize.Height / 100f) * 25.4f;
+                            larguraPapel = (paperSize.Width  / 100f) * 25.4f;
+                            alturaPapel  = (paperSize.Height / 100f) * 25.4f;
                             break;
                         }
                     }
                 }
-                catch
-                {
-                    // Se falhar, usar dimensões padrão baseadas no nome
-                }
+                catch { }
             }
 
-            // Criar e mostrar formulário de preview
             FormPreview formPreview = new FormPreview(template, configuracao, nomePapel, larguraPapel, alturaPapel);
             formPreview.ShowDialog();
         }
@@ -2973,15 +2686,8 @@ namespace EtiquetaFORNew.Forms
 
         #region Propriedades Públicas
 
-        public TemplateEtiqueta ObterTemplate()
-        {
-            return template;
-        }
-
-        public ConfiguracaoEtiqueta ObterConfiguracao()
-        {
-            return configuracao;
-        }
+        public TemplateEtiqueta ObterTemplate() => template;
+        public ConfiguracaoEtiqueta ObterConfiguracao() => configuracao;
 
         #endregion
     }
