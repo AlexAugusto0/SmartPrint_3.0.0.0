@@ -807,6 +807,23 @@ namespace EtiquetaFORNew.Forms
             panelPropriedades.Controls.Add(lblPropriedadesElemento);
             yPos += 35;
 
+            Label lblNomeElemento = new Label
+            {
+                Name = "lblNomeElementoAtual",
+                Text = "",
+                Location = new Point(10, yPos),
+                Size = new Size(170, 34),
+                Font = new Font("Segoe UI", 8),
+                ForeColor = Color.FromArgb(230, 126, 34),
+                BackColor = Color.FromArgb(255, 243, 224),
+                BorderStyle = BorderStyle.FixedSingle,
+                Padding = new Padding(3, 2, 3, 2),
+                AutoEllipsis = true,
+                Visible = false
+            };
+            panelPropriedades.Controls.Add(lblNomeElemento);
+            yPos += 42;
+
             Label lblConteudo = new Label
             {
                 Name = "lblConteudoTexto",
@@ -1284,6 +1301,34 @@ namespace EtiquetaFORNew.Forms
             }
 
             panelPropriedades.Visible = true;
+
+            var lblNomeAtual = panelPropriedades.Controls.Find("lblNomeElementoAtual", false).FirstOrDefault() as Label;
+            if (lblNomeAtual != null)
+            {
+                string tipoNome;
+                switch (elementoSelecionado.Tipo)
+                {
+                    case TipoElemento.Texto:
+                        string textoResumido = elementoSelecionado.Conteudo ?? "";
+                        if (textoResumido.Length > 18) textoResumido = textoResumido.Substring(0, 18) + "…";
+                        tipoNome = "📝 Texto: \"" + textoResumido + "\"";
+                        break;
+                    case TipoElemento.Campo:
+                        tipoNome = "🏷️ Campo: " + (elementoSelecionado.Conteudo ?? "");
+                        break;
+                    case TipoElemento.CodigoBarras:
+                        tipoNome = "▌ ▌ ▌ Cód.Barras: " + (elementoSelecionado.Conteudo ?? "");
+                        break;
+                    case TipoElemento.Imagem:
+                        tipoNome = "🖼️ Imagem";
+                        break;
+                    default:
+                        tipoNome = elementoSelecionado.Tipo.ToString();
+                        break;
+                }
+                lblNomeAtual.Text = tipoNome;
+                lblNomeAtual.Visible = true;
+            }
 
             // Atualiza valores baseado no elemento selecionado
             if (elementoSelecionado.Fonte != null)
