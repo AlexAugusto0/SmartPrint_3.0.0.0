@@ -210,7 +210,9 @@ namespace EtiquetaFORNew
                 {
                     conexao.Open();
 
-                    string query = "SELECT [Código do Vendedor], [Nome] FROM [Cadastro De Vendedores] ORDER BY [Nome]";
+                    //string query = "SELECT [Código do Vendedor], [Nome] FROM [Cadastro De Vendedores] ORDER BY [Nome]";
+                    string query = @"SELECT [Cadastro De Vendedores].[Código do Vendedor], [Cadastro De Vendedores].[Nome] FROM [Cadastro De Vendedores] WHERE [Cadastro De Vendedores].[Desativado] = 0 ORDER BY [Cadastro De Vendedores].[Nome]";
+
 
                     using (SqlCommand cmd = new SqlCommand(query, conexao))
                     using (SqlDataReader reader = cmd.ExecuteReader())
