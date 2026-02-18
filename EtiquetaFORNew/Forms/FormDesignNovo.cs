@@ -812,7 +812,7 @@ namespace EtiquetaFORNew.Forms
                 Name = "lblNomeElementoAtual",
                 Text = "",
                 Location = new Point(10, yPos),
-                Size = new Size(170, 34),
+                Size = new Size(160, 34),
                 Font = new Font("Segoe UI", 8),
                 ForeColor = Color.FromArgb(230, 126, 34),
                 BackColor = Color.FromArgb(255, 243, 224),
