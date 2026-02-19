@@ -622,9 +622,9 @@ namespace EtiquetaFORNew
                 {
                     driverInstaller.BaixarEInstalarDriver(impressoraEncontrada);
 
-                    // Aguarda 2 segundos e atualiza lista
+                    // Aguarda 10 segundos e atualiza lista
                     Timer timerAtualizarAposInstalar = new Timer();
-                    timerAtualizarAposInstalar.Interval = 2000;
+                    timerAtualizarAposInstalar.Interval = 10000;
                     timerAtualizarAposInstalar.Tick += (s, ev) =>
                     {
                         AtualizarListaDispositivos();
