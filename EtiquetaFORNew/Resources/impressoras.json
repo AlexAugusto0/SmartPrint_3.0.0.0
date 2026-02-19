@@ -1,22 +1,22 @@
 {
   "impressoras": [
     {
-      "nome": "Elgin L42 SNBC",
+      "nome": "Elgin L42",
       "imagemRecurso": "Elgin L42.jpg",
       "driverUrl": "https://d2u2qhufg0q9tn.cloudfront.net/assets/arquivos/imgCard_64d36466-f8b8-4987-a297-b018497a4d81_2018-02-01_15-17-080_06667000.zip"
     },
     {
-      "nome": "Elgin L42 Pro SNBC",
+      "nome": "Elgin L42 Pro",
       "imagemRecurso": "Elgin L42 Pro.jpg",
       "driverUrl": "https://d2u2qhufg0q9tn.cloudfront.net/assets/arquivos/imgCard_7c0b58ab-800a-42ac-a345-4e300179d18a_ELGIN_2022.1.exe"
     },
     {
-      "nome": "Elgin L42 Pro Full SNBC",
+      "nome": "Elgin L42 Pro Full",
       "imagemRecurso": "Elgin L42 Pro Full.jpg",
       "driverUrl": "https://d2u2qhufg0q9tn.cloudfront.net/assets/arquivos/manual_32c69365-1128-4451-b2d7-dd16d4a5282b_L42PROFULL_Windows_driver.zip"
     },
     {
-      "nome": "Elgin L42 DT SNBC",
+      "nome": "Elgin L42 DT",
       "imagemRecurso": "Elgin L42 DT.jpg",
       "driverUrl": "https://d2u2qhufg0q9tn.cloudfront.net/assets/arquivos/imgCard_74bc386e-2aa0-41da-bbeb-03e9183afa4c_Driver%20Windows%20L42DT_7.4.3_M-5.exe"
     },

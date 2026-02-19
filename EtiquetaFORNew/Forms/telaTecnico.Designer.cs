@@ -99,7 +99,7 @@
             // 
             // panelPrincipal
             // 
-            this.panelPrincipal.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panelPrincipal.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(235)))), ((int)(((byte)(255)))));
             this.panelPrincipal.Controls.Add(this.panelConteudo);
             this.panelPrincipal.Controls.Add(this.panelModo);
             this.panelPrincipal.Controls.Add(this.panelTitulo);
@@ -113,6 +113,7 @@
             // panelConteudo
             // 
             this.panelConteudo.BackColor = System.Drawing.Color.White;
+            this.panelConteudo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelConteudo.Controls.Add(this.groupBoxDeteccao);
             this.panelConteudo.Controls.Add(this.groupBoxManual);
             this.panelConteudo.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -133,7 +134,7 @@
             this.groupBoxDeteccao.Location = new System.Drawing.Point(20, 20);
             this.groupBoxDeteccao.Name = "groupBoxDeteccao";
             this.groupBoxDeteccao.Padding = new System.Windows.Forms.Padding(15);
-            this.groupBoxDeteccao.Size = new System.Drawing.Size(820, 380);
+            this.groupBoxDeteccao.Size = new System.Drawing.Size(818, 378);
             this.groupBoxDeteccao.TabIndex = 0;
             this.groupBoxDeteccao.TabStop = false;
             this.groupBoxDeteccao.Text = "Impressoras USB Detectadas";
@@ -151,7 +152,7 @@
             this.listViewDispositivos.HideSelection = false;
             this.listViewDispositivos.Location = new System.Drawing.Point(15, 35);
             this.listViewDispositivos.Name = "listViewDispositivos";
-            this.listViewDispositivos.Size = new System.Drawing.Size(790, 270);
+            this.listViewDispositivos.Size = new System.Drawing.Size(788, 268);
             this.listViewDispositivos.TabIndex = 0;
             this.listViewDispositivos.UseCompatibleStateImageBehavior = false;
             this.listViewDispositivos.View = System.Windows.Forms.View.Details;
@@ -165,7 +166,7 @@
             this.btnInstalarDriver.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnInstalarDriver.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnInstalarDriver.ForeColor = System.Drawing.Color.Black;
-            this.btnInstalarDriver.Location = new System.Drawing.Point(210, 313);
+            this.btnInstalarDriver.Location = new System.Drawing.Point(210, 311);
             this.btnInstalarDriver.Name = "btnInstalarDriver";
             this.btnInstalarDriver.Size = new System.Drawing.Size(180, 57);
             this.btnInstalarDriver.TabIndex = 2;
@@ -182,7 +183,7 @@
             this.btnProcurar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnProcurar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnProcurar.ForeColor = System.Drawing.Color.Black;
-            this.btnProcurar.Location = new System.Drawing.Point(15, 313);
+            this.btnProcurar.Location = new System.Drawing.Point(15, 311);
             this.btnProcurar.Name = "btnProcurar";
             this.btnProcurar.Size = new System.Drawing.Size(180, 57);
             this.btnProcurar.TabIndex = 1;
@@ -202,7 +203,7 @@
             this.groupBoxManual.Location = new System.Drawing.Point(20, 20);
             this.groupBoxManual.Name = "groupBoxManual";
             this.groupBoxManual.Padding = new System.Windows.Forms.Padding(15);
-            this.groupBoxManual.Size = new System.Drawing.Size(820, 380);
+            this.groupBoxManual.Size = new System.Drawing.Size(818, 378);
             this.groupBoxManual.TabIndex = 1;
             this.groupBoxManual.TabStop = false;
             this.groupBoxManual.Text = "Selecione o Modelo da Impressora";
@@ -258,6 +259,7 @@
             // panelModo
             // 
             this.panelModo.BackColor = System.Drawing.Color.White;
+            this.panelModo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelModo.Controls.Add(this.lblModo);
             this.panelModo.Controls.Add(this.checkBox1);
             this.panelModo.Controls.Add(this.checkBox2);
@@ -282,6 +284,7 @@
             // panelTitulo
             // 
             this.panelTitulo.BackColor = System.Drawing.Color.DarkGray;
+            this.panelTitulo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTitulo.Controls.Add(this.pictureBox2);
             this.panelTitulo.Controls.Add(this.lblTitulo);
             this.panelTitulo.Dock = System.Windows.Forms.DockStyle.Top;
