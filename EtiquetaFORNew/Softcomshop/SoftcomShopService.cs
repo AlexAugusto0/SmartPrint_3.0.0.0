@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace EtiquetaFORNew
 {
     /// <summary>
-    /// ServiÃ§o para comunicaÃ§Ã£o com a API SoftcomShop
+    /// serviço para comunicação com a API SoftcomShop
     /// </summary>
     public class SoftcomShopService
     {
@@ -28,7 +28,7 @@ namespace EtiquetaFORNew
         #region Autentição
 
         /// <summary>
-        /// ObtÃ©m token de autenticaÃ§Ã£o
+        /// obtem token de autenticação
         /// </summary>
         public async Task<string> GetTokenAsync()
         {
@@ -101,7 +101,7 @@ namespace EtiquetaFORNew
         #region Produtos
 
         /// <summary>
-        /// ObtÃ©m produtos do catÃ¡logo (paginado)
+        /// Obtem produtos do catálogo (paginado)
         /// </summary>
         public async Task<string> GetProdutosAsync(int page = 1, string versao = "v2")
         {
@@ -136,7 +136,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// ObtÃ©m produtos por nota fiscal
+        /// Obtem por nota fiscal
         /// </summary>
         public async Task<string> GetNotaFiscalAsync(string dataEntrada, int numeroNota = 0, int page = 1, string versao = "v2")
         {
@@ -181,7 +181,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// ObtÃ©m produtos por venda
+        /// Obtem produtos por venda
         /// </summary>
         public async Task<string> GetVendaAsync(int numeroVenda)
         {
@@ -207,7 +207,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// ObtÃ©m promoÃ§Ãµes ativas
+        /// Obtem Promoções ativas
         /// </summary>
         public async Task<string> GetPromocoesAsync()
         {
@@ -231,7 +231,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// ObtÃ©m informaÃ§Ãµes da empresa
+        /// Obtem informações da empresa
         /// </summary>
         public async Task<string> GetEmpresaAsync()
         {

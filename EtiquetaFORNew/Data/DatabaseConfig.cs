@@ -28,6 +28,7 @@ namespace EtiquetaFORNew.Data
             public string Timeout { get; set; }
             public string Loja { get; set; }
             public string ModuloApp { get; set; }
+            public string ModuloAppWeb { get; set; } // Valor vindo da sua ComboBox na tela Web
         }
 
         public static bool IsConfigured()
@@ -91,15 +92,16 @@ namespace EtiquetaFORNew.Data
 
         public static void SaveConnectionString(string connectionString)
         {
-            // Este mÃ©todo Ã© mantido para compatibilidade, mas não faz nada
-            // Use SaveConfiguration ao invÃ©s
+            // Este método mantido para compatibilidade, mas não faz nada
+            // Use SaveConfiguration ao invés
         }
 
         public static void SaveConfiguration(string servidor, string porta, string bancoDados,
-            string usuario, string senha, string timeout, string loja = "", string moduloApp = "")
+            string usuario, string senha, string timeout, string loja = "", string moduloApp = "", string moduloAppWeb = "")
         {
             try
             {
+                ConfigData configExistente = LoadConfiguration();
                 ConfigData config = new ConfigData
                 {
                     Servidor = servidor,
@@ -109,7 +111,8 @@ namespace EtiquetaFORNew.Data
                     Senha = senha,
                     Timeout = timeout,
                     Loja = loja,
-                    ModuloApp = moduloApp
+                    ModuloApp = moduloApp,
+                    ModuloAppWeb = string.IsNullOrEmpty(moduloAppWeb) ? configExistente.ModuloAppWeb : moduloAppWeb
                 };
 
                 string json = JsonConvert.SerializeObject(config, Newtonsoft.Json.Formatting.Indented);
@@ -200,6 +203,22 @@ namespace EtiquetaFORNew.Data
             using (var resp = (HttpWebResponse)await req.GetResponseAsync())
             using (var reader = new StreamReader(resp.GetResponseStream()))
                 return await reader.ReadToEndAsync();
+        }
+
+        public static void SaveConfiguration(ConfigData config)
+        {
+            // Ele apenas repassa os dados para o método acima
+            SaveConfiguration(
+                config.Servidor,
+                config.Porta,
+                config.Banco,
+                config.Usuario,
+                config.Senha,
+                config.Timeout,
+                config.Loja,
+                config.ModuloApp,
+                config.ModuloAppWeb // Aqui garantimos que o valor do combo Web seja passado
+            );
         }
 
     }

@@ -23,26 +23,28 @@ namespace EtiquetaFORNew
             this.panelSoftcomShop = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.txtUrlDispositivo = new System.Windows.Forms.TextBox();
             this.labelUrlDispositivo = new System.Windows.Forms.Label();
+            this.txtUrlDispositivo = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.txtBaseURL = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtClientId = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.txtClientSecret = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtEmpresaName = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtEmpresaCNPJ = new System.Windows.Forms.MaskedTextBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.txtDeviceName = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.txtEmpresaCNPJ = new System.Windows.Forms.MaskedTextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtEmpresaName = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtClientSecret = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtClientId = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtBaseURL = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.comboModuloApp = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.btnTestarConexao = new System.Windows.Forms.Button();
+            this.lblCaracteres = new System.Windows.Forms.Label();
             this.txtDeviceId = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.lblCaracteres = new System.Windows.Forms.Label();
-            this.btnTestarConexao = new System.Windows.Forms.Button();
             this.btnSalvar = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
             this.panelSoftcomShop.SuspendLayout();
@@ -58,7 +60,7 @@ namespace EtiquetaFORNew
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
             this.label1.Location = new System.Drawing.Point(12, 15);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(116, 15);
+            this.label1.Size = new System.Drawing.Size(119, 15);
             this.label1.TabIndex = 0;
             this.label1.Text = "Tipo de Conexão:";
             // 
@@ -88,7 +90,7 @@ namespace EtiquetaFORNew
             this.panelSoftcomShop.Controls.Add(this.groupBox1);
             this.panelSoftcomShop.Location = new System.Drawing.Point(12, 50);
             this.panelSoftcomShop.Name = "panelSoftcomShop";
-            this.panelSoftcomShop.Size = new System.Drawing.Size(660, 460);
+            this.panelSoftcomShop.Size = new System.Drawing.Size(660, 485);
             this.panelSoftcomShop.TabIndex = 3;
             // 
             // groupBox1
@@ -100,7 +102,7 @@ namespace EtiquetaFORNew
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(658, 458);
+            this.groupBox1.Size = new System.Drawing.Size(658, 483);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Configurações SoftcomShop";
@@ -125,7 +127,7 @@ namespace EtiquetaFORNew
             this.labelUrlDispositivo.ForeColor = System.Drawing.Color.Black;
             this.labelUrlDispositivo.Location = new System.Drawing.Point(10, 20);
             this.labelUrlDispositivo.Name = "labelUrlDispositivo";
-            this.labelUrlDispositivo.Size = new System.Drawing.Size(278, 13);
+            this.labelUrlDispositivo.Size = new System.Drawing.Size(280, 13);
             this.labelUrlDispositivo.TabIndex = 0;
             this.labelUrlDispositivo.Text = "Cole aqui a URL (preenche os campos automaticamente):";
             // 
@@ -160,74 +162,13 @@ namespace EtiquetaFORNew
             this.groupBox3.TabIndex = 1;
             this.groupBox3.TabStop = false;
             // 
-            // label2
+            // txtDeviceName
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 15);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(54, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Base URL";
-            // 
-            // txtBaseURL
-            // 
-            this.txtBaseURL.Location = new System.Drawing.Point(13, 30);
-            this.txtBaseURL.Name = "txtBaseURL";
-            this.txtBaseURL.ReadOnly = true;
-            this.txtBaseURL.Size = new System.Drawing.Size(290, 20);
-            this.txtBaseURL.TabIndex = 1;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(320, 15);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(80, 13);
-            this.label5.TabIndex = 2;
-            this.label5.Text = "Empresa Name";
-            // 
-            // txtEmpresaName
-            // 
-            this.txtEmpresaName.Location = new System.Drawing.Point(323, 30);
-            this.txtEmpresaName.Name = "txtEmpresaName";
-            this.txtEmpresaName.ReadOnly = true;
-            this.txtEmpresaName.Size = new System.Drawing.Size(290, 20);
-            this.txtEmpresaName.TabIndex = 3;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 60);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(47, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Client Id";
-            // 
-            // txtClientId
-            // 
-            this.txtClientId.Location = new System.Drawing.Point(13, 75);
-            this.txtClientId.Name = "txtClientId";
-            this.txtClientId.ReadOnly = true;
-            this.txtClientId.Size = new System.Drawing.Size(290, 20);
-            this.txtClientId.TabIndex = 5;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(320, 60);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(77, 13);
-            this.label6.TabIndex = 6;
-            this.label6.Text = "Empresa CNPJ";
-            // 
-            // txtEmpresaCNPJ
-            // 
-            this.txtEmpresaCNPJ.Location = new System.Drawing.Point(323, 75);
-            this.txtEmpresaCNPJ.Mask = "00.000.000/0000-00";
-            this.txtEmpresaCNPJ.Name = "txtEmpresaCNPJ";
-            this.txtEmpresaCNPJ.ReadOnly = true;
-            this.txtEmpresaCNPJ.Size = new System.Drawing.Size(290, 20);
-            this.txtEmpresaCNPJ.TabIndex = 7;
+            this.txtDeviceName.Location = new System.Drawing.Point(13, 120);
+            this.txtDeviceName.Name = "txtDeviceName";
+            this.txtDeviceName.ReadOnly = true;
+            this.txtDeviceName.Size = new System.Drawing.Size(600, 20);
+            this.txtDeviceName.TabIndex = 9;
             // 
             // label7
             // 
@@ -238,22 +179,40 @@ namespace EtiquetaFORNew
             this.label7.TabIndex = 8;
             this.label7.Text = "Device Name";
             // 
-            // txtDeviceName
+            // txtEmpresaCNPJ
             // 
-            this.txtDeviceName.Location = new System.Drawing.Point(13, 120);
-            this.txtDeviceName.Name = "txtDeviceName";
-            this.txtDeviceName.ReadOnly = true;
-            this.txtDeviceName.Size = new System.Drawing.Size(600, 20);
-            this.txtDeviceName.TabIndex = 9;
+            this.txtEmpresaCNPJ.Location = new System.Drawing.Point(323, 75);
+            this.txtEmpresaCNPJ.Mask = "00.000.000/0000-00";
+            this.txtEmpresaCNPJ.Name = "txtEmpresaCNPJ";
+            this.txtEmpresaCNPJ.ReadOnly = true;
+            this.txtEmpresaCNPJ.Size = new System.Drawing.Size(290, 20);
+            this.txtEmpresaCNPJ.TabIndex = 7;
             // 
-            // label4
+            // label6
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(10, 150);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(66, 13);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "Client Secret";
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(320, 60);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(78, 13);
+            this.label6.TabIndex = 6;
+            this.label6.Text = "Empresa CNPJ";
+            // 
+            // txtEmpresaName
+            // 
+            this.txtEmpresaName.Location = new System.Drawing.Point(323, 30);
+            this.txtEmpresaName.Name = "txtEmpresaName";
+            this.txtEmpresaName.ReadOnly = true;
+            this.txtEmpresaName.Size = new System.Drawing.Size(290, 20);
+            this.txtEmpresaName.TabIndex = 3;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(320, 15);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(79, 13);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "Empresa Name";
             // 
             // txtClientSecret
             // 
@@ -264,8 +223,53 @@ namespace EtiquetaFORNew
             this.txtClientSecret.TabIndex = 11;
             this.txtClientSecret.UseSystemPasswordChar = true;
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(10, 150);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(67, 13);
+            this.label4.TabIndex = 10;
+            this.label4.Text = "Client Secret";
+            // 
+            // txtClientId
+            // 
+            this.txtClientId.Location = new System.Drawing.Point(13, 75);
+            this.txtClientId.Name = "txtClientId";
+            this.txtClientId.ReadOnly = true;
+            this.txtClientId.Size = new System.Drawing.Size(290, 20);
+            this.txtClientId.TabIndex = 5;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(10, 60);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(45, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Client Id";
+            // 
+            // txtBaseURL
+            // 
+            this.txtBaseURL.Location = new System.Drawing.Point(13, 30);
+            this.txtBaseURL.Name = "txtBaseURL";
+            this.txtBaseURL.ReadOnly = true;
+            this.txtBaseURL.Size = new System.Drawing.Size(290, 20);
+            this.txtBaseURL.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(10, 15);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(56, 13);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Base URL";
+            // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.comboModuloApp);
+            this.groupBox4.Controls.Add(this.label9);
             this.groupBox4.Controls.Add(this.btnTestarConexao);
             this.groupBox4.Controls.Add(this.lblCaracteres);
             this.groupBox4.Controls.Add(this.txtDeviceId);
@@ -274,42 +278,30 @@ namespace EtiquetaFORNew
             this.groupBox4.ForeColor = System.Drawing.Color.Blue;
             this.groupBox4.Location = new System.Drawing.Point(15, 350);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(625, 95);
+            this.groupBox4.Size = new System.Drawing.Size(625, 127);
             this.groupBox4.TabIndex = 2;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "2- Informe uma chave de no mínimo 16 caracteres e clique em conectar.";
             // 
-            // label8
+            // comboModuloApp
             // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.label8.ForeColor = System.Drawing.Color.Black;
-            this.label8.Location = new System.Drawing.Point(10, 25);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(55, 13);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "Device Id";
+            this.comboModuloApp.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboModuloApp.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.comboModuloApp.FormattingEnabled = true;
+            this.comboModuloApp.Location = new System.Drawing.Point(98, 98);
+            this.comboModuloApp.Name = "comboModuloApp";
+            this.comboModuloApp.Size = new System.Drawing.Size(200, 23);
+            this.comboModuloApp.TabIndex = 5;
             // 
-            // txtDeviceId
+            // label9
             // 
-            this.txtDeviceId.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.txtDeviceId.Location = new System.Drawing.Point(13, 43);
-            this.txtDeviceId.MaxLength = 50;
-            this.txtDeviceId.Name = "txtDeviceId";
-            this.txtDeviceId.Size = new System.Drawing.Size(300, 20);
-            this.txtDeviceId.TabIndex = 1;
-            this.txtDeviceId.TextChanged += new System.EventHandler(this.txtDeviceId_TextChanged);
-            // 
-            // lblCaracteres
-            // 
-            this.lblCaracteres.AutoSize = true;
-            this.lblCaracteres.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
-            this.lblCaracteres.ForeColor = System.Drawing.Color.Gray;
-            this.lblCaracteres.Location = new System.Drawing.Point(11, 67);
-            this.lblCaracteres.Name = "lblCaracteres";
-            this.lblCaracteres.Size = new System.Drawing.Size(61, 13);
-            this.lblCaracteres.TabIndex = 2;
-            this.lblCaracteres.Text = "0 caracteres";
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
+            this.label9.Location = new System.Drawing.Point(9, 101);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(83, 15);
+            this.label9.TabIndex = 4;
+            this.label9.Text = "ModuloApp:";
             // 
             // btnTestarConexao
             // 
@@ -325,10 +317,42 @@ namespace EtiquetaFORNew
             this.btnTestarConexao.UseVisualStyleBackColor = false;
             this.btnTestarConexao.Click += new System.EventHandler(this.btnTestarConexao_Click);
             // 
+            // lblCaracteres
+            // 
+            this.lblCaracteres.AutoSize = true;
+            this.lblCaracteres.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
+            this.lblCaracteres.ForeColor = System.Drawing.Color.Gray;
+            this.lblCaracteres.Location = new System.Drawing.Point(11, 67);
+            this.lblCaracteres.Name = "lblCaracteres";
+            this.lblCaracteres.Size = new System.Drawing.Size(64, 13);
+            this.lblCaracteres.TabIndex = 2;
+            this.lblCaracteres.Text = "0 caracteres";
+            // 
+            // txtDeviceId
+            // 
+            this.txtDeviceId.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.txtDeviceId.Location = new System.Drawing.Point(13, 43);
+            this.txtDeviceId.MaxLength = 50;
+            this.txtDeviceId.Name = "txtDeviceId";
+            this.txtDeviceId.Size = new System.Drawing.Size(300, 20);
+            this.txtDeviceId.TabIndex = 1;
+            this.txtDeviceId.TextChanged += new System.EventHandler(this.txtDeviceId_TextChanged);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.label8.ForeColor = System.Drawing.Color.Black;
+            this.label8.Location = new System.Drawing.Point(10, 25);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(53, 13);
+            this.label8.TabIndex = 0;
+            this.label8.Text = "Device Id";
+            // 
             // btnSalvar
             // 
             this.btnSalvar.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
-            this.btnSalvar.Location = new System.Drawing.Point(497, 525);
+            this.btnSalvar.Location = new System.Drawing.Point(497, 556);
             this.btnSalvar.Name = "btnSalvar";
             this.btnSalvar.Size = new System.Drawing.Size(85, 30);
             this.btnSalvar.TabIndex = 4;
@@ -339,7 +363,7 @@ namespace EtiquetaFORNew
             // btnCancelar
             // 
             this.btnCancelar.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.btnCancelar.Location = new System.Drawing.Point(588, 525);
+            this.btnCancelar.Location = new System.Drawing.Point(588, 556);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(85, 30);
             this.btnCancelar.TabIndex = 5;
@@ -351,7 +375,7 @@ namespace EtiquetaFORNew
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 571);
+            this.ClientSize = new System.Drawing.Size(684, 598);
             this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.btnSalvar);
             this.Controls.Add(this.panelSoftcomShop);
@@ -375,6 +399,7 @@ namespace EtiquetaFORNew
             this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion
@@ -407,5 +432,7 @@ namespace EtiquetaFORNew
         private System.Windows.Forms.Button btnTestarConexao;
         private System.Windows.Forms.Button btnSalvar;
         private System.Windows.Forms.Button btnCancelar;
+        private System.Windows.Forms.ComboBox comboModuloApp;
+        private System.Windows.Forms.Label label9;
     }
 }

@@ -1,3 +1,4 @@
+using EtiquetaFORNew.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +23,23 @@ namespace EtiquetaFORNew
             this.FormClosing += FormConfiguracao_FormClosing;
         }
 
+        //private void FormConfiguracao_Load(object sender, EventArgs e)
+        //{
+        //    cboTipoConexao.Items.Clear();
+        //    cboTipoConexao.Items.Add("SQL Server");
+        //    cboTipoConexao.Items.Add("SoftcomShop");
+
+        //    if (_config.TipoConexaoAtiva == TipoConexao.SqlServer)
+        //        cboTipoConexao.SelectedIndex = 0;
+        //    else
+        //        cboTipoConexao.SelectedIndex = 1;
+
+        //    AtualizarPaineis();
+
+        //}
         private void FormConfiguracao_Load(object sender, EventArgs e)
         {
+            // 1. Configuração do ComboBox de Conexão (SQL vs SoftcomShop)
             cboTipoConexao.Items.Clear();
             cboTipoConexao.Items.Add("SQL Server");
             cboTipoConexao.Items.Add("SoftcomShop");
@@ -33,6 +49,26 @@ namespace EtiquetaFORNew
             else
                 cboTipoConexao.SelectedIndex = 1;
 
+            // 2. Configuração do ComboBox de Módulo (Novo código que você adicionou)
+            if (comboModuloApp.Items.Count == 0)
+            {
+                comboModuloApp.Items.Add("Padrao");
+                comboModuloApp.Items.Add("Confeccao");
+            }
+
+            // Carrega a configuração do DatabaseConfig para o módulo
+            var configDb = DatabaseConfig.LoadConfiguration();
+            if (!string.IsNullOrEmpty(configDb.ModuloAppWeb))
+            {
+                int index = comboModuloApp.FindStringExact(configDb.ModuloAppWeb);
+                comboModuloApp.SelectedIndex = index >= 0 ? index : 0;
+            }
+            else
+            {
+                comboModuloApp.SelectedIndex = 0; // Default
+            }
+
+            // 3. Atualiza a visibilidade dos painéis baseada na conexão
             AtualizarPaineis();
         }
 
@@ -101,7 +137,12 @@ namespace EtiquetaFORNew
                 }
 
                     _config.Salvar();
-                    this.Close();
+
+                var configDb = DatabaseConfig.LoadConfiguration();
+                configDb.ModuloAppWeb = comboModuloApp.SelectedItem?.ToString() ?? "Padrao";
+                DatabaseConfig.SaveConfiguration(configDb);
+
+                this.Close();
                 MessageBox.Show("Configurações salvas com sucesso!",
                     "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -436,7 +477,7 @@ namespace EtiquetaFORNew
                     }
                 }
             }
-        }
+        }        
 
         #endregion
 
