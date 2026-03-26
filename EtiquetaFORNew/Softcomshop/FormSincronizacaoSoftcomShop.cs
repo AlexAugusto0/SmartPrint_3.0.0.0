@@ -57,7 +57,7 @@ namespace EtiquetaFORNew
             }
         }
 
-        #region Eventos dos BotÃµes
+        #region Eventos dos Botões
 
         private async void btnSincronizarProdutos_Click(object sender, EventArgs e)
         {
@@ -265,11 +265,11 @@ namespace EtiquetaFORNew
                 {
                     MessageBox.Show(
                         syncResult.MensagemErro,
-                        "AtenÃ§Ã£o",
+                        "Atenção",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
 
-                    lblStatus.Text = "Venda nÃ£o encontrada";
+                    lblStatus.Text = "Venda não encontrada";
                 }
             }
             catch (Exception ex)
@@ -299,7 +299,7 @@ namespace EtiquetaFORNew
 
         #endregion
 
-        #region MÃ©todos Auxiliares
+        #region Métodos Auxiliares
 
         private void HabilitarBotoes(bool habilitar)
         {
@@ -310,7 +310,7 @@ namespace EtiquetaFORNew
         }
 
         /// <summary>
-        /// â­ NOVO: Registra o uso do sistema no servidor (contabilizaÃ§Ã£o de clientes)
+        /// ­ NOVO: Registra o uso do sistema no servidor (contabilizão de clientes)
         /// </summary>
         private async Task RegistrarUsoSistemaAsync()
         {

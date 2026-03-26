@@ -339,45 +339,88 @@ namespace EtiquetaFORNew
         /// <summary>
         /// Processa atributos de grade (TAM/COR)
         /// </summary>
+        //private void ProcessarAtributos(SQLiteConnection conn, JToken produto)
+        //{
+        //    long produtoId = produto["produto_id"].ToObject<long>();
+        //    string codBarrasGrade = produto["codigo_barras_grade"]?.ToString() ?? "";
+        //    var atributos = produto["sku_atributo"] as JArray;
+
+        //    if (atributos == null) return;
+
+        //    string tam = "";
+        //    string cor = "";
+
+        //    foreach (var atributo in atributos)
+        //    {
+        //        string nome = atributo["nome"]?.ToString() ?? "";
+        //        string itemNome = atributo["item_nome"]?.ToString() ?? "";
+
+        //        if (nome.StartsWith("TAM"))
+        //            tam = itemNome;
+        //        else if (nome.StartsWith("COR"))
+        //            cor = itemNome;
+        //    }
+
+        //    if (!string.IsNullOrEmpty(tam) || !string.IsNullOrEmpty(cor))
+        //    {
+        //        var cmd = new SQLiteCommand(@"
+        //            UPDATE Mercadorias 
+        //            SET Tam = @tam, Cores = @cor
+        //            WHERE ID_SoftcomShop = @id 
+        //            " + (string.IsNullOrEmpty(codBarrasGrade) ? "" : "OR CodBarras_Grade = @codBarrasGrade"), conn);
+
+        //        cmd.Parameters.AddWithValue("@tam", tam);
+        //        cmd.Parameters.AddWithValue("@cor", cor);
+        //        cmd.Parameters.AddWithValue("@id", produtoId);
+        //        if (!string.IsNullOrEmpty(codBarrasGrade))
+        //            cmd.Parameters.AddWithValue("@codBarrasGrade", codBarrasGrade);
+
+        //        cmd.ExecuteNonQuery();
+        //    }
+        //}
+
         private void ProcessarAtributos(SQLiteConnection conn, JToken produto)
         {
-            long produtoId = produto["produto_id"].ToObject<long>();
+            // IMPORTANTE: Para grade, o 'id' do JSON (produto_empresa_grade_id) 
+            // ou o 'codigo_barras_grade' são as únicas chaves seguras.
             string codBarrasGrade = produto["codigo_barras_grade"]?.ToString() ?? "";
             var atributos = produto["sku_atributo"] as JArray;
 
-            if (atributos == null) return;
+            if (atributos == null || string.IsNullOrEmpty(codBarrasGrade)) return;
 
-            string tam = "";
-            string cor = "";
+            string valorTam = "";
+            string valorCor = "";
 
             foreach (var atributo in atributos)
             {
-                string nome = atributo["nome"]?.ToString() ?? "";
+                string nomeAttr = atributo["nome"]?.ToString().ToUpper() ?? "";
                 string itemNome = atributo["item_nome"]?.ToString() ?? "";
 
-                if (nome.StartsWith("TAM"))
-                    tam = itemNome;
-                else if (nome.StartsWith("COR"))
-                    cor = itemNome;
+                // Mesma lógica de limpeza que funcionou anteriormente
+                if (nomeAttr.StartsWith("TAM"))
+                    valorTam = itemNome.Contains(":") ? itemNome.Split(':')[1].Trim() : itemNome;
+                else if (nomeAttr.StartsWith("COR"))
+                    valorCor = itemNome.Contains(":") ? itemNome.Split(':')[1].Trim() : itemNome;
             }
 
-            if (!string.IsNullOrEmpty(tam) || !string.IsNullOrEmpty(cor))
+            if (!string.IsNullOrEmpty(valorTam) || !string.IsNullOrEmpty(valorCor))
             {
+                // MUDANÇA CRUCIAL: O WHERE agora é estritamente pelo CodBarras_Grade.
+                // Isso impede que o Tamanho 'P' sobrescreva o 'M' no banco local.
                 var cmd = new SQLiteCommand(@"
-                    UPDATE Mercadorias 
-                    SET Tam = @tam, Cores = @cor
-                    WHERE ID_SoftcomShop = @id 
-                    " + (string.IsNullOrEmpty(codBarrasGrade) ? "" : "OR CodBarras_Grade = @codBarrasGrade"), conn);
+            UPDATE Mercadorias 
+            SET Tam = @tam, 
+                Cores = @cor 
+            WHERE CodBarras_Grade = @codBarrasGrade", conn);
 
-                cmd.Parameters.AddWithValue("@tam", tam);
-                cmd.Parameters.AddWithValue("@cor", cor);
-                cmd.Parameters.AddWithValue("@id", produtoId);
-                if (!string.IsNullOrEmpty(codBarrasGrade))
-                    cmd.Parameters.AddWithValue("@codBarrasGrade", codBarrasGrade);
+                cmd.Parameters.AddWithValue("@tam", valorTam);
+                cmd.Parameters.AddWithValue("@cor", valorCor);
+                cmd.Parameters.AddWithValue("@codBarrasGrade", codBarrasGrade);
 
                 cmd.ExecuteNonQuery();
             }
         }
+
 
         #endregion
 
